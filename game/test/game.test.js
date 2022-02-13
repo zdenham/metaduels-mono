@@ -19,8 +19,6 @@ const M = {
 const signMove = async (gameId, moveType, nonce, previousSig, signer) => {
   const encoder = new ethers.utils.AbiCoder();
 
-  console.log('PREVIOUS SIG?', previousSig);
-
   const bytes = encoder.encode(
     ['uint256', 'uint8', 'string', 'bytes'],
     [gameId, moveType, nonce, previousSig]
@@ -29,8 +27,6 @@ const signMove = async (gameId, moveType, nonce, previousSig, signer) => {
   const hash = ethers.utils.solidityKeccak256(['bytes'], [bytes]);
 
   const binaryHash = ethers.utils.arrayify(hash);
-
-  console.log('THE HASH: ', hash);
 
   const signature = await signer.signMessage(binaryHash);
 
@@ -109,11 +105,8 @@ describe('TestMetaDuelGame', function () {
 
     // console.log('SIGNED MOVES!', signedMoves, finalSignature);
 
-    await game.endGame(
-      1,
-      signedMoves,
-      finalSignature,
-      '0x2853df45eafef983c16a9e49b848054a6c61a4824f7dbd46fbaa3a99418e9577'
-    );
+    const result = await game.endGame(1, signedMoves, finalSignature);
+
+    console.log('RESULT: ', result);
   });
 });

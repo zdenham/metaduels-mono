@@ -19,7 +19,7 @@ contract MetaDuelGame {
     }
 
     struct PlayerState {
-        uint8 amo;
+        uint8 ammo;
         uint8 health;
         uint8 shield;
     }
@@ -51,24 +51,15 @@ contract MetaDuelGame {
         bytes32 messageHash = ECDSA.toEthSignedMessageHash(data);
         address signer = ECDSA.recover(messageHash, signature);
 
-        console.log("THE SIGNER %s, %s", signer, maybeSigner);
         return maybeSigner == signer;
     }
 
     function _calculatePlayerStates(
-        Move memory duelerMove,
-        Move memory dueleeMove
-    ) internal view returns (uint256, uint256) {
-        if (duelerMove.moveType == Attack && dueleeMove.moveType == Reload) {
-            return (0, 1);
-        }
-
-        if (dueleeMove.moveType == Attack && duelerMove.moveType == Reload) {
-            return (1, 0);
-        }
-
-        return (0, 0);
-    }
+        uint8 duelerMove,
+        uint8 dueleeMove,
+        PlayerState memory currDuelerState,
+        PlayerState memory currDueleeState
+    ) internal view returns (PlayerState memory, PlayerState memory) {}
 
     function _createSignatureInputHash(
         uint256 gameId,
@@ -77,19 +68,28 @@ contract MetaDuelGame {
         bytes memory prevSig
     ) public view returns (bytes32) {
         bytes32 input = keccak256(abi.encode(gameId, moveType, nonce, prevSig));
-        console.log("THE INPUT", uint256(input));
         return keccak256(abi.encode(gameId, moveType, nonce, prevSig));
     }
 
     function _verifyAndExtractWinner(
         uint256 gameId,
-        Move[6] memory moves,
+        Move[] memory moves,
         bytes memory finalSignature
     ) public view returns (address) {
         address duelerAddress = _participants[gameId][0];
         address dueleeAddress = _participants[gameId][1];
-        uint256 totalDuelerDamage = 0;
-        uint256 totalDueleeDamage = 0;
+
+        PlayerState memory duelerPlayerState = PlayerState({
+            ammo: 1,
+            health: 2,
+            shield: 1
+        });
+
+        PlayerState memory dueleePlayerState = PlayerState({
+            ammo: 1,
+            health: 2,
+            shield: 1
+        });
 
         bytes memory previousSignature = bytes("");
 
@@ -112,12 +112,14 @@ contract MetaDuelGame {
             // round end
             if (i % 2 == 1) {
                 (
-                    uint256 duelerDamage,
-                    uint256 dueleeDamage
-                ) = _calculatePlayerStates(moves[i - 1], moves[i]);
-
-                totalDuelerDamage += duelerDamage;
-                totalDueleeDamage += dueleeDamage;
+                    PlayerState memory nextDuelerState,
+                    PlayerState memory nextDueleeState
+                ) = _calculatePlayerStates(
+                        moves[i - 1].moveType,
+                        moves[i].moveType,
+                        duelerPlayerState,
+                        dueleePlayerState
+                    );
             }
 
             previousSignature = moves[i].signature;
@@ -135,24 +137,24 @@ contract MetaDuelGame {
             "Metaduels: final signature is not valid"
         );
 
-        require(
-            totalDuelerDamage != totalDueleeDamage,
-            "Metaduels: dueler and duelee have the same damage"
-        );
+        return duelerAddress;
 
-        return
-            totalDuelerDamage < totalDueleeDamage
-                ? duelerAddress
-                : dueleeAddress;
+        // require(
+        //     totalDuelerDamage != totalDueleeDamage,
+        //     "Metaduels: dueler and duelee have the same damage"
+        // );
+
+        // return
+        //     totalDuelerDamage < totalDueleeDamage
+        //         ? duelerAddress
+        //         : dueleeAddress;
     }
 
     function endGame(
         uint256 gameId,
-        Move[6] memory moves,
-        bytes memory finalSignature,
-        bytes32 input
+        Move[] memory moves,
+        bytes memory finalSignature
     ) public {
-        console.log("THE OG INPUT", uint256(input));
         address winner = _verifyAndExtractWinner(gameId, moves, finalSignature);
     }
 }

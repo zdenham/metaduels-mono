@@ -4,6 +4,7 @@
 require('dotenv').config();
 require('@nomiclabs/hardhat-ethers');
 require('@typechain/hardhat');
+require('hardhat-gas-reporter');
 
 const { TEST_OWNER_PRIVATE_KEY, GOERLI_API, MUMBAI_API } = process.env;
 module.exports = {
