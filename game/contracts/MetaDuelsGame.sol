@@ -31,11 +31,10 @@ contract MetaDuelGame {
 
     constructor() {}
 
-    function letItBegin(
-        address dueler,
-        address duelee,
-        bytes32 other
-    ) public returns (uint256) {
+    function letItBegin(address dueler, address duelee)
+        public
+        returns (uint256)
+    {
         _gameIds.increment();
         uint256 newGameId = _gameIds.current();
 
