@@ -44,13 +44,14 @@ contract MetaDuelGame {
     function _isCritical() public pure {}
 
     function _validateSignature(
-        bytes memory data,
+        bytes32 data,
         bytes memory signature,
         address maybeSigner
-    ) public pure returns (bool) {
+    ) public view returns (bool) {
         bytes32 messageHash = ECDSA.toEthSignedMessageHash(data);
         address signer = ECDSA.recover(messageHash, signature);
 
+        console.log("THE SIGNER %s, %s", signer, maybeSigner);
         return maybeSigner == signer;
     }
 
@@ -74,9 +75,10 @@ contract MetaDuelGame {
         uint8 moveType,
         string memory nonce,
         bytes memory prevSig
-    ) public pure returns (bytes memory) {
-        return
-            abi.encode(keccak256(abi.encode(gameId, moveType, nonce, prevSig)));
+    ) public view returns (bytes32) {
+        bytes32 input = keccak256(abi.encode(gameId, moveType, nonce, prevSig));
+
+        return keccak256(abi.encode(gameId, moveType, nonce, prevSig));
     }
 
     function _verifyAndExtractWinner(
@@ -95,7 +97,7 @@ contract MetaDuelGame {
             address currSigner = i % 2 == 0 ? duelerAddress : dueleeAddress;
             Move memory currMove = moves[i];
 
-            bytes memory dataHash = _createSignatureInputHash(
+            bytes32 dataHash = _createSignatureInputHash(
                 gameId,
                 currMove.moveType,
                 currMove.nonce,
@@ -121,7 +123,7 @@ contract MetaDuelGame {
             previousSignature = moves[i].signature;
         }
 
-        bytes memory finalHash = _createSignatureInputHash(
+        bytes32 finalHash = _createSignatureInputHash(
             gameId,
             moves[5].moveType,
             moves[5].nonce,
@@ -147,7 +149,8 @@ contract MetaDuelGame {
     function endGame(
         uint256 gameId,
         Move[6] memory moves,
-        bytes memory finalSignature
+        bytes memory finalSignature,
+        bytes32 input
     ) public {
         address winner = _verifyAndExtractWinner(gameId, moves, finalSignature);
     }

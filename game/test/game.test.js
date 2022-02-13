@@ -26,9 +26,9 @@ const signMove = async (gameId, moveType, nonce, previousSig, signer) => {
 
   const hash = ethers.utils.solidityKeccak256(['bytes'], [bytes]);
 
-  const dataToSign = encoder.encode(['bytes'], [hash]);
+  const binaryHash = ethers.utils.arrayify(hash);
 
-  const signature = await signer.signMessage(dataToSign);
+  const signature = await signer.signMessage(binaryHash);
 
   return signature;
 };
@@ -102,8 +102,13 @@ describe('TestMetaDuelGame', function () {
       duelee
     );
 
-    console.log('SIGNED MOVES!', signedMoves, finalSignature);
+    // console.log('SIGNED MOVES!', signedMoves, finalSignature);
 
-    await game.endGame(1, signedMoves, finalSignature);
+    await game.endGame(
+      1,
+      signedMoves,
+      finalSignature,
+      '0x85cf954a58b0dd13f421438f22e0a8ec826d595f7cfe9f393caf1ccd6571d31b'
+    );
   });
 });
