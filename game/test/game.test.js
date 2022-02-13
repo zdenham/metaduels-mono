@@ -19,6 +19,8 @@ const M = {
 const signMove = async (gameId, moveType, nonce, previousSig, signer) => {
   const encoder = new ethers.utils.AbiCoder();
 
+  console.log('PREVIOUS SIG?', previousSig);
+
   const bytes = encoder.encode(
     ['uint256', 'uint8', 'string', 'bytes'],
     [gameId, moveType, nonce, previousSig]
@@ -27,6 +29,8 @@ const signMove = async (gameId, moveType, nonce, previousSig, signer) => {
   const hash = ethers.utils.solidityKeccak256(['bytes'], [bytes]);
 
   const binaryHash = ethers.utils.arrayify(hash);
+
+  console.log('THE HASH: ', hash);
 
   const signature = await signer.signMessage(binaryHash);
 
@@ -38,28 +42,29 @@ const getSignedMoves = async (moves, dueler, duelee) => {
 
   let previousSig = '0x';
 
-  const signedMoves = await Promise.all(
-    moves.map(async (moveType, i) => {
-      const signer = i % 2 === 0 ? dueler : duelee;
-      const nonce = `nonce${i}`;
+  const signedMoves = [];
 
-      const signature = await signMove(
-        gameId,
-        moveType,
-        nonce,
-        previousSig,
-        signer
-      );
+  for (let i = 0; i < moves.length; i++) {
+    const moveType = moves[i];
+    const signer = i % 2 === 0 ? dueler : duelee;
+    const nonce = `nonce${i}`;
 
-      previousSig = signature;
+    const signature = await signMove(
+      gameId,
+      moveType,
+      nonce,
+      previousSig,
+      signer
+    );
 
-      return {
-        moveType,
-        nonce,
-        signature,
-      };
-    })
-  );
+    previousSig = signature;
+
+    signedMoves.push({
+      moveType,
+      nonce,
+      signature,
+    });
+  }
 
   const finalSignature = await signMove(
     gameId,
@@ -108,7 +113,7 @@ describe('TestMetaDuelGame', function () {
       1,
       signedMoves,
       finalSignature,
-      '0x85cf954a58b0dd13f421438f22e0a8ec826d595f7cfe9f393caf1ccd6571d31b'
+      '0x2853df45eafef983c16a9e49b848054a6c61a4824f7dbd46fbaa3a99418e9577'
     );
   });
 });

@@ -77,7 +77,7 @@ contract MetaDuelGame {
         bytes memory prevSig
     ) public view returns (bytes32) {
         bytes32 input = keccak256(abi.encode(gameId, moveType, nonce, prevSig));
-
+        console.log("THE INPUT", uint256(input));
         return keccak256(abi.encode(gameId, moveType, nonce, prevSig));
     }
 
@@ -152,6 +152,7 @@ contract MetaDuelGame {
         bytes memory finalSignature,
         bytes32 input
     ) public {
+        console.log("THE OG INPUT", uint256(input));
         address winner = _verifyAndExtractWinner(gameId, moves, finalSignature);
     }
 }
