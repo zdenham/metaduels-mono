@@ -102,6 +102,8 @@ describe('TestMetaDuelGame', function () {
       duelee
     );
 
+    console.log('SIGNED MOVES!', signedMoves, finalSignature);
+
     await game.endGame(1, signedMoves, finalSignature);
   });
 });

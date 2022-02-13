@@ -8,14 +8,12 @@ import "hardhat/console.sol";
 contract MetaDuelGame {
     using Counters for Counters.Counter;
 
-    enum MoveType {
-        Attack,
-        Block,
-        Reload
-    }
+    uint8 Attack = 1;
+    uint8 Block = 2;
+    uint8 Reload = 3;
 
     struct Move {
-        MoveType moveType;
+        uint8 moveType;
         bytes signature;
         string nonce;
     }
@@ -59,18 +57,12 @@ contract MetaDuelGame {
     function _calculatePlayerStates(
         Move memory duelerMove,
         Move memory dueleeMove
-    ) internal pure returns (uint256, uint256) {
-        if (
-            duelerMove.moveType == MoveType.Attack &&
-            dueleeMove.moveType == MoveType.Reload
-        ) {
+    ) internal view returns (uint256, uint256) {
+        if (duelerMove.moveType == Attack && dueleeMove.moveType == Reload) {
             return (0, 1);
         }
 
-        if (
-            dueleeMove.moveType == MoveType.Attack &&
-            duelerMove.moveType == MoveType.Reload
-        ) {
+        if (dueleeMove.moveType == Attack && duelerMove.moveType == Reload) {
             return (1, 0);
         }
 
@@ -79,14 +71,12 @@ contract MetaDuelGame {
 
     function _createSignatureInputHash(
         uint256 gameId,
-        MoveType moveType,
+        uint8 moveType,
         string memory nonce,
         bytes memory prevSig
     ) public pure returns (bytes memory) {
         return
-            abi.encode(
-                keccak256(abi.encode(gameId, uint8(moveType), nonce, prevSig))
-            );
+            abi.encode(keccak256(abi.encode(gameId, moveType, nonce, prevSig)));
     }
 
     function _verifyAndExtractWinner(
