@@ -1,8 +1,8 @@
 node_modules/*
 
-nft/artifacts/*
+game/artifacts/*
 
-nft/cache/*
+game/cache/*
 
 .env
 
@@ -139,5 +139,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-nft/typechain-types/*
-nft/typechain-types/factories/*
+game/typechain-types/*
+game/typechain-types/factories/*
