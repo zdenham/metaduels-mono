@@ -105,8 +105,12 @@ describe('TestMetaDuelGame', function () {
 
     // console.log('SIGNED MOVES!', signedMoves, finalSignature);
 
-    const result = await game.endGame(1, signedMoves, finalSignature);
+    const winner = await game.callStatic.endGame(
+      1,
+      signedMoves,
+      finalSignature
+    );
 
-    console.log('RESULT: ', result);
+    expect(winner).to.equal(dueler.address);
   });
 });
