@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>metaduels</title>
+
+  <link href="assets/css/styles.css" rel="stylesheet">
+</head>
+
+<body>
+ <div class="app"></div>
+ </body>
+
+
+
+<script>
+  const myFont = new FontFace('mk', 'url(assets/fonts/mkx.ttf)');
+
+  // We need to preload the font, otherwise pixi does not find it
+  myFont.load().then(() => {
+    const script = document.createElement('script');
+    script.src = 'bundle.js';
+    document.body.appendChild(script);
+  });
+</script>

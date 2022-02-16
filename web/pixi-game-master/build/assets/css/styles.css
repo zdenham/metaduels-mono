@@ -1,0 +1,47 @@
+ * {
+  margin: 0;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  background: white;
+  justify-content: center;
+}
+
+@font-face {
+  font-family: mk;
+  src: url('../fonts/mkx.ttf');
+}
+  .tv {
+    padding: 10px;
+    position: relative;
+    height: 0px;
+    width: 0px;
+  }
+
+  .container {
+    height: 100%;
+    position: relative;
+    width: 100%;
+  }
+
+  .wrapper {
+    padding: 20px;
+  }
+
+
+  .app {
+    display: flex;
+    align-items: center;
+    background: white;
+    justify-content: center;
+
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .header {
+    display: flex;
+    vertical-align: top;
+  }
