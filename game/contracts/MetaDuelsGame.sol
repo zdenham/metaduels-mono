@@ -43,10 +43,16 @@ contract MetaDuelGame {
 
     function _criticalHitCount(string memory nonce1, string memory nonce2)
         private
-        pure
+        view
         returns (int8)
     {
-        return 1;
+        bytes memory concatenated = abi.encode(nonce1, nonce2);
+        bytes32 dataHash = keccak256(concatenated);
+        bytes32 lastByteMask = 0x00000000000000000000000000000000000000000000000000000000000000ff;
+        uint256 lastByte = uint256(dataHash & lastByteMask);
+
+        // ~ 10% chance of critical hit (less than 25 of 256)
+        return lastByte < 25 ? int8(2) : int8(1);
     }
 
     function _min(int8 a, int8 b) private pure returns (int8) {
@@ -175,7 +181,7 @@ contract MetaDuelGame {
 
             shouldReplenishDuelerShield =
                 moves[twoRoundsAgo * 2].moveType == Block;
-            shouldReplenishDuelerShield =
+            shouldReplenishDueleeShield =
                 moves[twoRoundsAgo * 2 + 1].moveType == Block;
         }
 
@@ -219,6 +225,14 @@ contract MetaDuelGame {
         return keccak256(abi.encode(gameId, moveType, nonce, prevSig));
     }
 
+    function _moveAsString(uint8 moveType)
+        private
+        view
+        returns (string memory)
+    {
+        return moveType == Block ? "B" : moveType == Attack ? "A" : "R";
+    }
+
     function _verifyAndExtractWinner(
         uint256 gameId,
         Move[] memory moves,
@@ -244,7 +258,7 @@ contract MetaDuelGame {
 
         uint256 round = 0;
 
-        for (uint256 i = 0; i < 6; i++) {
+        for (uint256 i = 0; i < moves.length; i++) {
             address currSigner = i % 2 == 0 ? duelerAddress : dueleeAddress;
             Move memory currMove = moves[i];
 
@@ -263,6 +277,30 @@ contract MetaDuelGame {
             // round end
             if (i % 2 == 1) {
                 _updatePlayerStates(moves, round, duelerState, dueleeState);
+                string memory m0 = _moveAsString(moves[i - 1].moveType);
+                string memory m1 = _moveAsString(moves[i].moveType);
+
+                console.log(
+                    "ROUND %s, THE MOVES: Dueler %s, Duellee %s",
+                    round,
+                    m0,
+                    m1
+                );
+
+                console.log(
+                    "DUELER H%s, A%s, S%s",
+                    uint8(duelerState.health),
+                    uint8(duelerState.ammo),
+                    uint8(duelerState.shield)
+                );
+
+                console.log(
+                    "DUELEE H%s, A%s, S%s \n",
+                    uint8(dueleeState.health),
+                    uint8(dueleeState.ammo),
+                    uint8(dueleeState.shield)
+                );
+
                 round++;
             }
 
@@ -271,8 +309,8 @@ contract MetaDuelGame {
 
         bytes32 finalHash = _createSignatureInputHash(
             gameId,
-            moves[5].moveType,
-            moves[5].nonce,
+            moves[moves.length - 1].moveType,
+            moves[moves.length - 1].nonce,
             previousSignature
         );
 
