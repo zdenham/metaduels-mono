@@ -8,8 +8,6 @@ import "hardhat/console.sol";
 contract MetaDuelGame {
     using Counters for Counters.Counter;
 
-    // move types
-    uint8 None = 0;
     uint8 Attack = 1;
     uint8 Block = 2;
     uint8 Reload = 3;
@@ -20,15 +18,6 @@ contract MetaDuelGame {
         string nonce;
     }
 
-    struct Game {
-        address duelerAddress;
-        address dueleeAddress;
-        PlayerState duelerPlayerState;
-        PlayerState dueleePlayerState;
-        Move currDuelerMove;
-        Move currDueleeMove;
-    }
-
     struct PlayerState {
         int8 ammo;
         int8 health;
@@ -36,7 +25,7 @@ contract MetaDuelGame {
     }
 
     Counters.Counter private _gameIds;
-    mapping(uint256 => Game) _gameStates;
+    mapping(uint256 => address[2]) _participants;
 
     constructor() {}
 
@@ -47,91 +36,9 @@ contract MetaDuelGame {
         _gameIds.increment();
         uint256 newGameId = _gameIds.current();
 
-        _gameStates[gameId] = Game{
-            duelerState: PlayerState{ammo: 1, health: 2, shield: 1},
-            dueleeState: PlayerState{ammo: 1, health: 2, shield: 1},
-            duelerAddress: dueler,
-            dueleeAddress: duelee
-        };
+        _participants[newGameId] = [dueler, duelee];
 
         return newGameId;
-    }
-
-    function submitMoveSignature(uint256 gameId, bytes memory signature)
-        public
-    {
-        Game game = _gameStates[gameId];
-
-        require(
-            game != 0x0,
-            "MetaDuels: attempting to submit a signature for a game that does not exist"
-        );
-
-        address sender = msg.sender;
-        require(
-            sender == game.duelerAddress || sender == game.dueleeAddress,
-            "MetaDuels: attempting to submit a move signature from an invalid address"
-        );
-
-        Move moveToUpdate = sender == game.duelerAddress
-            ? game.currDuelerMove
-            : game.currDueleeMove;
-
-        require(
-            moveToUpdate == 0x0,
-            "Metaduels: player move signature has already been submitted for this round"
-        );
-
-        moveToUpdate = Move{signature: signature, moveType: None};
-    }
-
-    function revealMove(uint256 gameId, Move memory revealedMove) public {
-        Game game = _gameStates[gameId];
-
-        require(
-            game != 0x0,
-            "MetaDuels: attempting to submit a signature for a game that does not exist"
-        );
-
-        address sender = msg.sender;
-        require(
-            sender == game.duelerAddress || sender == game.dueleeAddress,
-            "MetaDuels: attempting to submit a move signature from an invalid address"
-        );
-
-        Move moveToUpdate = sender == game.duelerAddress
-            ? game.currDuelerMove
-            : game.currDueleeMove;
-
-        require(
-            moveToUpdate != 0x0,
-            "MetaDuels: a signature must be provided before revealing a move"
-        );
-
-        bytes32 inputHash = _createSignatureInputHashWithoutPreviousSig(
-            gameId,
-            revealedMove.moveType,
-            revealedMove.nonce
-        );
-
-        require(
-            _validateSignature(inputHash, moveToUpdate.signature, sender),
-            "MetaDuels: signature is invalid to reveal move"
-        );
-
-        moveToUpdate = revealedMove;
-
-        if (
-            game.currDuelerMove.moveType != None &&
-            game.currDueleeMove.moveType != None
-        ) {
-            _updatePlayerStates(
-                [currDuelerMove, currDueleeMove],
-                currRound,
-                duelerState,
-                dueleeState
-            );
-        }
     }
 
     function _criticalHitCount(string memory nonce1, string memory nonce2)
@@ -254,7 +161,7 @@ contract MetaDuelGame {
         uint256 currRound,
         PlayerState memory duelerState,
         PlayerState memory dueleeState
-    ) internal {
+    ) internal view {
         Move memory duelerMove = moves[currRound * 2];
         Move memory dueleeMove = moves[currRound * 2 + 1];
 
@@ -316,14 +223,6 @@ contract MetaDuelGame {
     ) public view returns (bytes32) {
         bytes32 input = keccak256(abi.encode(gameId, moveType, nonce, prevSig));
         return keccak256(abi.encode(gameId, moveType, nonce, prevSig));
-    }
-
-    function _createSignatureInputHashWithoutPreviousSig(
-        uint256 gameId,
-        uint8 moveType,
-        string memory nonce
-    ) public view returns (bytes32) {
-        return keccak256(abi.encode(gameId, moveType, nonce));
     }
 
     function _moveAsString(uint8 moveType)
