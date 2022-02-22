@@ -21,6 +21,7 @@ contract MetaDuelGame {
     }
 
     struct Game {
+        address winner;
         address duelerAddress;
         address dueleeAddress;
         PlayerState duelerPlayerState;
@@ -48,8 +49,8 @@ contract MetaDuelGame {
         uint256 newGameId = _gameIds.current();
 
         _gameStates[gameId] = Game{
-            duelerState: PlayerState{ammo: 1, health: 2, shield: 1},
-            dueleeState: PlayerState{ammo: 1, health: 2, shield: 1},
+            duelerState: PlayerState{ammo: 1, health: 2, shield: 2},
+            dueleeState: PlayerState{ammo: 1, health: 2, shield: 2},
             duelerAddress: dueler,
             dueleeAddress: duelee
         };
@@ -132,6 +133,23 @@ contract MetaDuelGame {
                 dueleeState
             );
         }
+
+        if (game.duelerState.health == 0) {
+            game.winner = game.duelerAddress;
+        }
+
+        if (game.dueleeState.health == 0) {
+            game.winner = game.dueleeAddress;
+        }
+    }
+
+    function getGameWinner(uint256 gameId) view returns (address) {
+        require(
+            _gameStates[gameId] != 0x0,
+            "MetaDuels: no game exists for the provided gameId"
+        );
+
+        return _gameStates[gameId].winner;
     }
 
     function _criticalHitCount(string memory nonce1, string memory nonce2)
@@ -178,11 +196,11 @@ contract MetaDuelGame {
             "MetaDuelsGame: duelee cannot attack without ammo"
         );
         require(
-            duelerMoveType != Block || duelerState.shield > 0,
+            duelerMoveType != Block || duelerState.shield == 2,
             "MetaDuelsGame: dueler cannot block without shield"
         );
         require(
-            dueleeMoveType != Block || dueleeState.shield > 0,
+            dueleeMoveType != Block || dueleeState.shield == 2,
             "MetaDuelsGame: duelee cannot block without shield"
         );
         require(
@@ -250,13 +268,12 @@ contract MetaDuelGame {
     }
 
     function _updatePlayerStates(
-        Move[] memory moves,
-        uint256 currRound,
-        PlayerState memory duelerState,
-        PlayerState memory dueleeState
+        Move[2] memory moves,
+        PlayerState storage duelerState,
+        PlayerState storage dueleeState
     ) internal {
-        Move memory duelerMove = moves[currRound * 2];
-        Move memory dueleeMove = moves[currRound * 2 + 1];
+        Move memory duelerMove = moves[0];
+        Move memory dueleeMove = moves[1];
 
         _validateMoves(
             duelerMove.moveType,
@@ -264,19 +281,6 @@ contract MetaDuelGame {
             duelerState,
             dueleeState
         );
-
-        bool shouldReplenishDuelerShield = false;
-        bool shouldReplenishDueleeShield = false;
-
-        // If they blocked two rounds ago, they should get their shield back
-        if (currRound > 1) {
-            uint256 twoRoundsAgo = currRound - 2;
-
-            shouldReplenishDuelerShield =
-                moves[twoRoundsAgo * 2].moveType == Block;
-            shouldReplenishDueleeShield =
-                moves[twoRoundsAgo * 2 + 1].moveType == Block;
-        }
 
         (
             int8 duelerHealthChange,
@@ -300,12 +304,13 @@ contract MetaDuelGame {
         duelerState.ammo = _min(duelerState.ammo + duelerAmmoChange, int8(3));
         dueleeState.ammo = _min(dueleeState.ammo + dueleeAmmoChange, int8(3));
 
-        duelerState.shield = shouldReplenishDuelerShield
-            ? int8(1)
-            : duelerState.shield + duelerShieldChange;
-        dueleeState.shield = shouldReplenishDueleeShield
-            ? int8(1)
-            : dueleeState.shield + dueleeShieldChange;
+        duelerState.shield = duelerState.shield < 2
+            ? duelerState.shield + 1
+            : duelerState.shield;
+
+        dueleeState.shield = dueleeState.shield < 2
+            ? dueleeState.shiled + 1
+            : dueleeState.shield;
     }
 
     function _createSignatureInputHash(
@@ -332,109 +337,5 @@ contract MetaDuelGame {
         returns (string memory)
     {
         return moveType == Block ? "B" : moveType == Attack ? "A" : "R";
-    }
-
-    function _verifyAndExtractWinner(
-        uint256 gameId,
-        Move[] memory moves,
-        bytes memory finalSignature
-    ) public view returns (address) {
-        address duelerAddress = _participants[gameId][0];
-        address dueleeAddress = _participants[gameId][1];
-
-        // initial state
-        PlayerState memory duelerState = PlayerState({
-            ammo: 1,
-            health: 2,
-            shield: 1
-        });
-
-        PlayerState memory dueleeState = PlayerState({
-            ammo: 1,
-            health: 2,
-            shield: 1
-        });
-
-        bytes memory previousSignature = bytes("");
-
-        uint256 round = 0;
-
-        for (uint256 i = 0; i < moves.length; i++) {
-            address currSigner = i % 2 == 0 ? duelerAddress : dueleeAddress;
-            Move memory currMove = moves[i];
-
-            bytes32 dataHash = _createSignatureInputHash(
-                gameId,
-                currMove.moveType,
-                currMove.nonce,
-                previousSignature
-            );
-
-            require(
-                _validateSignature(dataHash, currMove.signature, currSigner),
-                "MetaDuels: signature does not match for a move"
-            );
-
-            // round end
-            if (i % 2 == 1) {
-                _updatePlayerStates(moves, round, duelerState, dueleeState);
-                string memory m0 = _moveAsString(moves[i - 1].moveType);
-                string memory m1 = _moveAsString(moves[i].moveType);
-
-                console.log(
-                    "ROUND %s, THE MOVES: Dueler %s, Duellee %s",
-                    round,
-                    m0,
-                    m1
-                );
-
-                console.log(
-                    "DUELER H%s, A%s, S%s",
-                    uint8(duelerState.health),
-                    uint8(duelerState.ammo),
-                    uint8(duelerState.shield)
-                );
-
-                console.log(
-                    "DUELEE H%s, A%s, S%s \n",
-                    uint8(dueleeState.health),
-                    uint8(dueleeState.ammo),
-                    uint8(dueleeState.shield)
-                );
-
-                round++;
-            }
-
-            previousSignature = moves[i].signature;
-        }
-
-        bytes32 finalHash = _createSignatureInputHash(
-            gameId,
-            moves[moves.length - 1].moveType,
-            moves[moves.length - 1].nonce,
-            previousSignature
-        );
-
-        require(
-            _validateSignature(finalHash, finalSignature, duelerAddress),
-            "Metaduels: final signature is not valid"
-        );
-
-        return
-            duelerState.health > dueleeState.health
-                ? duelerAddress
-                : dueleeAddress;
-    }
-
-    function endGame(
-        uint256 gameId,
-        Move[] memory moves,
-        bytes memory finalSignature
-    ) public returns (address) {
-        address winner = _verifyAndExtractWinner(gameId, moves, finalSignature);
-
-        // TODO - call exchange of contracts
-
-        return winner;
     }
 }
