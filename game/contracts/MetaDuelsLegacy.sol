@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "hardhat/console.sol";
 
-contract MetaDuelGame {
+contract MetaDuelLegacy {
     using Counters for Counters.Counter;
 
     uint8 Attack = 1;
