@@ -145,6 +145,8 @@ contract MetaDuelGame {
                 game.dueleeState
             );
 
+            _printGameState(gameId);
+
             // reset the current moves
             game.currDuelerMove = Move({
                 moveType: None,
@@ -159,22 +161,17 @@ contract MetaDuelGame {
             });
         }
 
-        if (game.duelerState.health == 0) {
+        if (game.dueleeState.health == 0) {
             game.winner = game.duelerAddress;
         }
 
-        if (game.dueleeState.health == 0) {
+        if (game.duelerState.health == 0) {
             game.winner = game.dueleeAddress;
         }
     }
 
-    function getGameWinner(uint256 gameId) public view returns (address) {
-        require(
-            _gameStates[gameId].winner != address(0x0),
-            "MetaDuels: no game exists for the provided gameId"
-        );
-
-        return _gameStates[gameId].winner;
+    function gameStateForId(uint256 gameId) public view returns (Game memory) {
+        return _gameStates[gameId];
     }
 
     function _criticalHitCount(string memory nonce1, string memory nonce2)
@@ -346,6 +343,30 @@ contract MetaDuelGame {
         string memory nonce
     ) public view returns (bytes32) {
         return keccak256(abi.encode(gameId, moveType, nonce));
+    }
+
+    function _printGameState(uint256 gameId) internal view {
+        Game memory game = _gameStates[gameId];
+
+        console.log(
+            "\nDUELER MOVE: %s, DUELEE MOVE: %s",
+            _moveAsString(game.currDuelerMove.moveType),
+            _moveAsString(game.currDueleeMove.moveType)
+        );
+
+        console.log(
+            "DUELER STATS A: %s, H: %s, S: %s",
+            uint8(game.duelerState.ammo),
+            uint8(game.duelerState.health),
+            uint8(game.duelerState.shield)
+        );
+
+        console.log(
+            "DUELEE STATS A: %s, H: %s, S: %s",
+            uint8(game.dueleeState.ammo),
+            uint8(game.dueleeState.health),
+            uint8(game.dueleeState.shield)
+        );
     }
 
     function _moveAsString(uint8 moveType)
