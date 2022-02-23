@@ -7,60 +7,6 @@ import Keyboard from "./keyboard.js";
 import characterData from "./characters.json";
 
 class Game {
-
-  onButtonDown()
-  {
-  console.log(this.parent);
-      this.isdown = true;
-      this.texture = PIXI.Texture.fromImage('assets/images/buttons/button-chosen.png');
-      this.alpha = 1;
-      console.log("button is down");
-  }
-
-  onButtonUp()
-  {
-  
-      this.isdown = false;
-
-      if (this.isOver)
-      {
-          this.texture = PIXI.Texture.fromImage('assets/images/buttons/button-highlight.png');
-      }
-      else
-      {
-          this.texture = PIXI.Texture.fromImage('assets/images/buttons/button.png');
-      }
-      
-  }
-
-  onButtonOver()
-  {
-  
-      this.isOver = true;
-
-      if (this.isdown)
-      {
-          return;
-      }
-
-      this.texture = PIXI.Texture.fromImage('assets/images/buttons/button-highlight.png');
-      
-  }
-
-  onButtonOut()
-  {
-  
-      this.isOver = false;
-
-      if (this.isdown)
-      {
-          return;
-      }
-
-      this.texture = PIXI.Texture.fromImage('assets/images/buttons/button.png');
-      
-  }
-
   constructor() {
 
   ////////////////////////////////////////////////////////////////////setup\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -80,32 +26,40 @@ class Game {
     this.action = [];
     this.power = [];
     this.finishHim = false;
-    this.switchLeft = true;
-    this.switchRight = false;
 
     //Metaduels//
-    this.characterNames = [];
-    this.playerAddresses = [];
-    this.playerWagerImages = [];
-    this.playerCharacter = [];
+    this.playerNFTCharacter = "scorpion";
+    this.opponentNFTCharacter = "scorpion";
+    this.playerAddress = "0x12...k6nL";
+    this.opponentAddress = "0x71...976F";
+    this.playerWagerImage = PIXI.Texture.fromImage('assets/images/placeholder/wager15.png');
+    this.opponentWagerImage = PIXI.Texture.fromImage('assets/images/placeholder/wager25.png');
+
+    this.healthIcon = PIXI.Texture.fromImage('assets/images/buttons/heart-full.png');
+    this.healthIconEmpty = PIXI.Texture.fromImage('assets/images/buttons/heart-empty.png');
+    this.attackIcon = PIXI.Texture.fromImage('assets/images/buttons/attack.png');
+    this.shieldIcon = PIXI.Texture.fromImage('assets/images/buttons/shield-full.png');
+    this.shieldIconHalf = PIXI.Texture.fromImage('assets/images/buttons/shield-half.jpg');
+    this.shieldIconEmpty = PIXI.Texture.fromImage('assets/images/buttons/shield-empty.png');
+    this.rechargeIcon = PIXI.Texture.fromImage('assets/images/buttons/recharge.png');
+    this.rechargeHover = PIXI.Texture.fromImage('assets/images/buttons/recharge-hover.png');
+    this.rechargeSelect = PIXI.Texture.fromImage('assets/images/buttons/recharge-select.png');
+    this.shieldHover = PIXI.Texture.fromImage('assets/images/buttons/shield-hover.png');
+    this.shieldSelect = PIXI.Texture.fromImage('assets/images/buttons/shield-select.png');
+    this.attackHover = PIXI.Texture.fromImage('assets/images/buttons/attack-hover.png');
+    this.attackSelect = PIXI.Texture.fromImage('assets/images/buttons/attack-select.png');
+    this.confirmButton = PIXI.Texture.fromImage('assets/images/buttons/confirm.png');
+    this.buttonsPushed = false;
+
+    this.logo = PIXI.Texture.fromImage('assets/images/placeholder/metaduels-logo.png');
+    this.round = 1;
+
     this.didAttack = false;
     this.didRecharge = false;
     this.didShield = false;
     this.ammo = 1;
     this.health = 2;
     this.shields = 1;
-    this.healthIcon = PIXI.Texture.fromImage('assets/images/buttons/heart-full.png');
-    this.healthIconEmpty = PIXI.Texture.fromImage('assets/images/buttons/heart-empty.png');
-    this.attackIcon = PIXI.Texture.fromImage('assets/images/buttons/attack.png');
-    this.shieldIcon = PIXI.Texture.fromImage('assets/images/buttons/shield-full.png');
-    this.shieldIconHalf = PIXI.Texture.fromImage('assets/images/buttons/shield-half.png');
-    this.shieldIconEmpty = PIXI.Texture.fromImage('assets/images/buttons/shield-empty.png');
-    this.rechargeIcon = PIXI.Texture.fromImage('assets/images/buttons/recharge.png');
-    this.wagerOne = PIXI.Texture.fromImage('assets/images/placeholder/wager15.png');
-    this.wagerTwo = PIXI.Texture.fromImage('assets/images/placeholder/wager25.png');
-
-    this.logo = PIXI.Texture.fromImage('assets/images/placeholder/metaduels-logo.png');
-    this.round = "ROUND 1";
     //Metaduels//
 
     this.initScenes();
@@ -134,7 +88,9 @@ class Game {
         220, 340,
         1100, 340,
         1040, 340,
-        980, 340
+        980, 340,
+        400, 340,
+        800, 340
     ];
 
     var noop = function () {
@@ -311,448 +267,19 @@ class Game {
   // Set intro Container, first scene
   initGame() {
     this.loadBackgrounds();
-    this.introScreen();
+    this.chooseMoveScene();
     this.gameLoop();
   }
 
-  gameLoop() {
+  gameLoop() {   // This is all you Zaccy. Unless you need help then hmu
     this.app.ticker.add(() => {
       if (!this.scenes.game.visible) return;
 
       this.characters.forEach((character, index) => {
-        character.animations.forEach(animation => {
-          if (animation.name !== "hit" && animation.name !== "highhit") {
-            animation.visible = false;
-          }
-        });
-
         let collision;
         const opponent = index === 0 ? this.characters[1] : this.characters[0];
 
-        if (
-          opponent.actions.hit &&
-          opponent.actions.hit.visible &&
-          opponent.actions.hit.currentFrame + 1 ===
-            opponent.actions.hit.totalFrames
-        ) {
-          opponent.actions.stance.visible = true;
-          opponent.actions.hit.visible = false;
-        }
-
-        if (
-          opponent.actions.highhit &&
-          opponent.actions.highhit.visible &&
-          opponent.actions.highhit.currentFrame + 1 ===
-            opponent.actions.highhit.totalFrames
-        ) {
-          opponent.actions.stance.visible = true;
-          opponent.actions.highhit.visible = false;
-        }
-
-        if (
-          this.action[index] === "jump" &&
-          this.keys.up[index].isDown &&
-          this.keys.right[index].isDown
-        ) {
-          this.action[index] = "jump-right";
-
-          this.characters.forEach(character => {
-            if (character.actions.jump) {
-              character.actions.jump.gotoAndPlay(0);
-              this.playSound("jump");
-            }
-          });
-        }
-
-        if (
-          this.action[index] === "jump" &&
-          this.keys.up[index].isDown &&
-          this.keys.left[index].isDown
-        ) {
-          this.characters.forEach(character => {
-            if (character.actions.jump) {
-              this.action[index] = "jump-left";
-              character.actions.jump.gotoAndPlay(0);
-              this.playSound("jump");
-            }
-          });
-        }
-
-        this.utils.update();
-
-        switch (this.power[index]) {
-          case "yelo":
-            this.powers[index].yelo.visible = true;
-
-            collision = cheapColi(this.powers[index].yelo, opponent);
-
-            if (collision) {
-              if (opponent.actions.highhit) {
-                opponent.actions.highhit.gotoAndPlay(0);
-                opponent.actions.stance.visible = false;
-                opponent.actions.highhit.visible = true;
-              }
-
-              this.powers[index].yelo.visible = false;
-              this.powers[index].yelo.x = -10000;
-              this.power[index] = "";
-
-              this.playSound("punch");
-              this.playSound("hit");
-
-              this.utils.shake(this.scenes.game, 0.01, true);
-
-              this.registerHit(index);
-            } else {
-              // TODO: calc direction based on opponent position
-              this.powers[index].yelo.x += this.powers[index].yelo.vx;
-            }
-            break;
-          case "fire":
-            this.powers[index].fire.visible = true;
-
-            collision = cheapColi(this.powers[index].fire, opponent);
-
-            if (collision) {
-              if (opponent.actions.highhit) {
-                opponent.actions.highhit.gotoAndPlay(0);
-                opponent.actions.stance.visible = false;
-                opponent.actions.highhit.visible = true;
-              }
-
-              this.powers[index].fire.visible = false;
-              this.powers[index].fire.x = -10000;
-              this.power[index] = "";
-
-              this.playSound("punch");
-              this.playSound("hit");
-
-              this.utils.shake(this.scenes.game, 0.03, true);
-
-              this.registerHit(index);
-
-              let victim = opponent === 0 ? 0 : 1;
-              let winner = opponent === 0 ? 1 : 0;
-              if (this.finishHim) {
-                this.playSound("scream");
-                this.action[victim] = "death";
-                setTimeout(() => {
-                  this.youWin(winner);
-                }, 1000);
-              }
-            } else {
-              // TODO: calc direction based on opponent position
-              this.powers[index].fire.x += this.powers[index].fire.vx;
-            }
-            break;
-        }
         switch (this.action[index]) {
-          case "ducking":
-            if (character.actions.duck) {
-              character.actions.duck.visible = true;
-            }
-            break;
-          case "death":
-            if (character.actions.death) {
-              character.actions.death.visible = true;
-              character.actions.stance.visible = false;
-              character.actions.highhit.visible = false;
-              character.actions.hit.visible = false;
-
-              character.position.y += 3;
-
-              if (character.position.y >= this.groundY + 110) {
-                character.position.y = this.groundY + 110;
-              }
-            }
-            break;
-          case "walk-right":
-            if (character.actions.walk) {
-              character.actions.walk.visible = true;
-
-              collision = cheapColi(character, opponent);
-
-              if (!collision || collision === "left") {
-                character.position.x += character.vx;
-              }
-
-              if (character.position.x >= 900) {
-                character.position.x = 900;
-              }
-            }
-            break;
-          case "walk-left":
-            if (character.actions.walk) {
-              character.actions.walk.visible = true;
-
-              collision = cheapColi(character, opponent);
-
-              if (!collision || collision === "right") {
-                character.position.x -= character.vx;
-              }
-
-              if (character.position.x <= 0) {
-                character.position.x = 0;
-              }
-            }
-            break;
-          case "kick":
-            if (character.actions.kick) {
-              character.actions.kick.visible = true;
-
-              if (
-                character.actions.kick.currentFrame + 1 ===
-                character.actions.kick.totalFrames
-              ) {
-                this.action[index] = "stance";
-                this.blockHit = false;
-              }
-
-              const collision = cheapColi(character, opponent);
-
-              if (collision) {
-                if (opponent.actions.hit) {
-                  opponent.actions.stance.visible = false;
-                  opponent.actions.hit.gotoAndPlay(0);
-                  opponent.actions.hit.visible = true;
-                }
-
-                this.playSound("kick");
-                this.playSound("hit");
-
-                this.utils.shake(this.scenes.game, 5);
-
-                if (!this.blockHit) {
-                  this.registerHit(index);
-                  this.blockHit = true;
-                }
-              }
-            }
-            break;
-          case "punch":
-            if (character.actions.punch) {
-              character.actions.punch.visible = true;
-
-              if (
-                character.actions.punch.currentFrame + 1 ===
-                character.actions.punch.totalFrames
-              ) {
-                this.action[index] = "stance";
-                this.blockHit = false;
-              }
-
-              collision = cheapColi(character, opponent);
-
-              if (collision) {
-                if (opponent.actions.highhit) {
-                  opponent.actions.highhit.gotoAndPlay(0);
-                  opponent.actions.stance.visible = false;
-                  opponent.actions.highhit.visible = true;
-                }
-
-                this.playSound("punch");
-                this.playSound("hit");
-
-                this.utils.shake(this.scenes.game, 0.01, true);
-
-                if (!this.blockHit) {
-                  this.registerHit(index);
-                  this.blockHit = true;
-                }
-              }
-            }
-            break;
-          case "stance":
-            if (
-              character.actions.stance &&
-              (!character.actions.hit ||
-                (!character.actions.hit.visible &&
-                  !character.actions.highhit.visible))
-            ) {
-              character.actions.stance.visible = true;
-            }
-            break;
-          case "raise":
-            if (character.actions.raise) {
-              character.actions.raise.visible = true;
-
-              if (
-                character.actions.raise.currentFrame + 1 ===
-                character.actions.raise.totalFrames
-              ) {
-                this.action[index] = "stance";
-              }
-            }
-            break;
-          case "airkick-right":
-            if (character.actions.airkick) {
-              character.actions.airkick.visible = true;
-
-              character.vy += this.gravity;
-
-              collision = cheapColi(character, opponent);
-
-              if (collision) {
-                if (opponent.actions.hit) {
-                  opponent.actions.hit.gotoAndPlay(0);
-                  opponent.actions.stance.visible = false;
-                  opponent.actions.hit.visible = true;
-                }
-
-                if (opponent.actions.stance.visible) {
-                  this.playSound("kick");
-                  this.playSound("hit");
-
-                  this.utils.shake(this.scenes.game.children[0], 10);
-
-                  this.registerHit(index);
-                }
-              }
-
-              if (character.y + character.vy <= this.groundY) {
-                character.x += character.vx * 2.5;
-                character.y += character.vy;
-              } else {
-                character.y = this.groundY;
-                if (this.keys.right.isDown) {
-                  this.action[index] = "walk-right";
-                } else {
-                  this.action[index] = "stance";
-                }
-              }
-            }
-            break;
-          case "jump-right":
-            if (character.actions.jump) {
-              character.actions.jump.visible = true;
-
-              character.vy += this.gravity;
-
-              if (character.y + character.vy <= this.groundY) {
-                character.x += character.vx * 2.5;
-                character.y += character.vy;
-              } else {
-                character.y = this.groundY;
-                if (this.keys.right.isDown) {
-                  this.action[index] = "walk-right";
-                } else {
-                  this.action[index] = "stance";
-                }
-              }
-
-              if (character.position.x >= 900) {
-                character.position.x = 900;
-              }
-            }
-            break;
-
-          case "airkick-left":
-            if (character.actions.airkick) {
-              character.actions.airkick.visible = true;
-
-              character.vy += this.gravity;
-
-              collision = cheapColi(character, opponent);
-
-              if (collision) {
-                if (opponent.actions.hit) {
-                  opponent.actions.hit.gotoAndPlay(0);
-                  opponent.actions.stance.visible = false;
-                  opponent.actions.hit.visible = true;
-                }
-
-                if (opponent.actions.stance.visible) {
-                  this.playSound("kick");
-                  this.playSound("hit");
-                  this.registerHit(index);
-                }
-              }
-
-              if (character.y + character.vy <= this.groundY) {
-                character.x -= character.vx * 2.5;
-                character.y += character.vy;
-              } else {
-                character.y = this.groundY;
-                if (this.keys.left.isDown) {
-                  this.action[index] = "walk-left";
-                } else {
-                  this.action[index] = "stance";
-                }
-              }
-            }
-            break;
-
-          case "jump-left":
-            if (character.actions.jump) {
-              character.actions.jump.visible = true;
-              character.vy += this.gravity;
-
-              if (character.y + character.vy <= this.groundY) {
-                character.x -= character.vx * 2.5;
-                character.y += character.vy;
-              } else {
-                character.y = this.groundY;
-                if (this.keys.left.isDown) {
-                  this.action[index] = "walk-left";
-                } else {
-                  this.action[index] = "stance";
-                }
-              }
-
-              if (character.position.x <= 0) {
-                character.position.x = 0;
-              }
-            }
-            break;
-
-          case "airkick":
-            if (character.actions.airkick) {
-              character.actions.airkick.visible = true;
-
-              character.vy += this.gravity;
-
-              collision = cheapColi(character, opponent);
-
-              if (collision) {
-                if (opponent.actions.hit) {
-                  opponent.actions.hit.gotoAndPlay(0);
-                  opponent.actions.stance.visible = false;
-                  opponent.actions.hit.visible = true;
-                }
-
-                if (opponent.actions.stance.visible) {
-                  this.playSound("kick");
-                  this.playSound("hit");
-                  this.registerHit(index);
-                }
-              }
-
-              if (character.y <= this.groundY) {
-                character.y += character.vy;
-              } else {
-                character.y = this.groundY;
-
-                this.action[index] = "stance";
-              }
-            }
-            break;
-
-          case "jump":
-            if (character.actions.jump) {
-              character.actions.staticjump.visible = true;
-              character.vy += this.gravity;
-              console.log("jump did");
-
-              if (character.y <= this.groundY) {
-                character.y += character.vy;
-              } else {
-                character.y = this.groundY;
-                this.action[index] = "stance";
-              }
-            }
-            break;
-
-          //Metaduels
           case "attack":
             if (character.actions.punch) {
               character.actions.punch.visible = true;
@@ -763,7 +290,11 @@ class Game {
               this.didRecharge = false;
               this.didShield = false;
 
+              //play sounds and animations
+              this.playSound("hit");
+
               //enable confirm button
+
             }
             break;
 
@@ -778,6 +309,9 @@ class Game {
               this.didShield = false;
 
               //enable confirm button
+
+              //play sounds and animations
+              this.playSound("kick");
             }
             break;
 
@@ -792,6 +326,9 @@ class Game {
               this.didShield = false;
 
               //enable confirm button
+
+              //play sounds and animations
+              this.playSound("kick");
             }
             break;
 
@@ -799,35 +336,20 @@ class Game {
             if (character.actions.stance) {
               character.actions.staticjump.visible = true;
               console.log("confirm");
+              this.youWin();
               //turn off other buttons
               //check if opponent has confirmed
               //if yes, calculate results
               //if no, wait
             }
             break;
-            //Metaduels//
-        }
+
+            default:
+              character.actions.stance.visible = true;
+      }
       });
-    });
-  }
-
-  registerHit(index) {
-    const side = index === 1 ? "left" : "right";
-    // why these numbers? how knows
-    const increment = index === 1 ? 23 : 29;
-
-    this.energyBars[side].bars.interior.width =
-      this.energyBars[side].bars.interior.width - 20;
-    this.energyBars[side].bars.interior.position.x =
-      this.energyBars[side].bars.interior.position.x + increment;
-    if (this.energyBars[side].bars.interior.width <= 0) {
-      this.energyBars[side].bars.interior.width = this.energyBars[
-        side
-      ].bars.level;
-      this.energyBars[side].bars.interior.position.x = 55;
-      this.finish(side);
+     });
     }
-  }
 
   finish(side) {
     var winner = side === "left" ? 1 : 0;
@@ -869,72 +391,120 @@ class Game {
     animate();
   }
 
-  chooseScreen() {
+  chooseMoveScene() {
+    console.log("choose move scene started");
     this.characters = [];
 
     this.setActiveScene("select");
     this.stopSound();
-    this.playSound("vsmusic", { loop: true });
+    this.playSound("fight", { loop: true, bg: true });
+    let introPrompt = this.textObj.customText(
+    "choose your move", 532,200);
+    this.scenes.select.addChild(introPrompt);
 
-    let title = this.textObj.customText("SELECT PLAYER 1", "center", 520);
-    let counter = 1;
-    let counter2 = 0;
-    let initialPosition = 380;
+    /*
+    * intialize player in both scenes
+    */
 
-    characterData.characters.forEach(data => {
-      if (data.active) {
-        this.backgrounds["player" + counter] = PIXI.Sprite.from(
-          PIXI.loader.resources[data.profile].texture
-        );
-        this.backgrounds["player" + counter].playerName = data.name;
-        counter++;
+    //setup characters
+    this.setupCharacters(this.opponentNFTCharacter);
+    this.setupCharacters(this.playerNFTCharacter, true);
+
+    /*
+    * set buttons to each do their own ability, then confirm based on both player inputs
+    */
+
+    //setup buttons
+    for (var i = 0; i < 8; i++)
+      {
+      if(i == 0 || i == 3) {
+        var button = new PIXI.Sprite(this.attackIcon);
+        //set attack actions
+        //button.on('mousedown', )
       }
-    });
-
-    for (let bg in this.backgrounds) {
-      if (bg.indexOf("player") !== -1) {
-        if (counter2 > 0) {
-          initialPosition += 105;
-        }
-
-        this.backgrounds[bg].position.x = initialPosition;
-        this.backgrounds[bg].position.y = 100;
-        this.backgrounds[bg].width = 100;
-        this.backgrounds[bg].height = 100;
-        this.backgrounds[bg].interactive = true;
-        this.backgrounds[bg].buttonMode = true;
-        this.backgrounds[bg].on("pointerdown", () => {
-          if (this.characters.length === 1) {
-            this.setupCharacters(this.backgrounds[bg].playerName, true);
-            this.setupPowers(true);
-            this.setupFatality(true);
-
-            this.battleScene();
-          } else {
-            this.setupCharacters(this.backgrounds[bg].playerName);
-            this.setupPowers();
-            this.setupFatality();
-
-            this.scenes.select.removeChild(title);
-            title = this.textObj.customText("SELECT PLAYER 2", "center", 40);
-            this.scenes.select.addChild(title);
-          }
-        });
-
-        /*let playerName = this.textObj.customText(
-          this.backgrounds[bg].playerName,
-          initialPosition,
-          20
-        );
-        let textPosition = (this.backgrounds[bg].width - playerName.width) / 2;
-        playerName.position.x = initialPosition + textPosition;
-        this.scenes.select.addChild(playerName);*/
-        this.scenes.select.addChild(this.backgrounds[bg]);
-        counter2++;
+      else if(i == 1 || i == 4) {
+        var button = new PIXI.Sprite(this.shieldIcon);
+        //set shield actions
       }
-    }
+      else if(i == 2 || i == 5) {
+        var button = new PIXI.Sprite(this.rechargeIcon);
+        //set recharge actions
+      }
+      else {
+      var button = new PIXI.Sprite(this.confirmButton);
+      //set confirm action
+      }
+      //GET BUTTON FUNCTIONS TO STOP CALLING THEMSELVES
+      button.buttonMode = true;
+      button.anchor.set(0.5);
+      button.position.x = this.buttonPositions[i*2];
+      button.position.y = this.buttonPositions[i*2 + 1];
+      button.interactive = true;
+      button
+      .on('mousedown', this.onButtonDown(this))
+      .on('mouseup', this.onButtonUp)
+      .on('touchend', this.onButtonOut)
+      .on('mouseupoutside', this.onButtonOut)
+      .on('touchendoutside', this.onButtonOut)
+      .on('mouseover', this.onButtonOver)
+	    button.tap = this.noop;
+	    button.click = this.noop;
 
-    this.scenes.select.addChild(title);
+      this.scenes.select.addChild(button);
+
+      this.buttons.push(button);
+      }
+
+
+    /*
+    * define player and opponent values based on start and gameplay
+    */
+
+    //define player One UI
+    let name1 = this.textObj.customText(
+    this.playerAddress, 60,20);
+    var wagerImage = new PIXI.Sprite(this.playerWagerImage);
+    wagerImage.position.x = 60;
+    wagerImage.position.y = 50;
+    var health1 = new PIXI.Sprite(this.healthIcon);
+    health1.position.x = 190;
+    health1.position.y = 50;
+    var health2 = new PIXI.Sprite(this.healthIcon);
+    health2.position.x = 240;
+    health2.position.y = 50;
+    var shield = new PIXI.Sprite(this.shieldIcon);
+    shield.position.x = 300;
+    shield.position.y = 50;
+    this.scenes.select.addChild(name1);
+    this.scenes.select.addChild(health1);
+    this.scenes.select.addChild(health2);
+    this.scenes.select.addChild(shield);
+    this.scenes.select.addChild(wagerImage);
+
+    //define player 2 UI 
+    let name2 = this.textObj.customText(
+    this.opponentAddress, 1060,20);
+    var wagerImage2 = new PIXI.Sprite(this.opponentWagerImage);
+    wagerImage2.position.x = 1020;
+    wagerImage2.position.y = 50;
+    var health3 = new PIXI.Sprite(this.healthIcon);
+    health3.position.x = 960;
+    health3.position.y = 50;
+    var health4 = new PIXI.Sprite(this.healthIcon);
+    health4.position.x = 900;
+    health4.position.y = 50;
+    var shield2 = new PIXI.Sprite(this.shieldIcon);
+    shield2.position.x = 840;
+    shield2.position.y = 50;
+    this.scenes.select.addChild(name2);
+    this.scenes.select.addChild(health3);
+    this.scenes.select.addChild(health4);
+    this.scenes.select.addChild(shield2);
+    this.scenes.select.addChild(wagerImage2);
+
+    this.round++;
+    this.buttonsPushed = true;
+    //this.battleScene();
 
     let animate = () => {
       requestAnimationFrame(animate);
@@ -944,6 +514,13 @@ class Game {
   }
 
   battleScene() {
+    console.log("battle scene started");
+
+    /*
+    * on battle start import player's moves from choose scene
+    * loop back to choose scene or win scene once a winner is determined
+    */
+
     this.stopSound();
     this.playSound("vs");
 
@@ -951,85 +528,14 @@ class Game {
     this.stopSound();
     this.playSound("fight", { loop: true, bg: true });
 
-
-    for (var i = 0; i < 6; i++)
-      {
-      if(i == 0 || i == 3) {
-        var button = new PIXI.Sprite(this.attackIcon);
-        //set attack actions
-      }
-      else if(i == 1 || i == 4) {
-        var button = new PIXI.Sprite(this.shieldIcon);
-        //set shield actions
-      }
-      else {
-        var button = new PIXI.Sprite(this.rechargeIcon);
-        //set recharge actions
-      }
-
-          button.buttonMode = true;
-
-          button.anchor.set(0.5);
-
-          button.position.x = this.buttonPositions[i*2];
-          button.position.y = this.buttonPositions[i*2 + 1];
-
-          // make the button interactive...
-          button.interactive = true;
-
-          button
-              // set the mousedown and touchstart callback...
-              .on('mousedown', this.onButtonDown)
-              .on('touchstart', this.onButtonDown)
-
-              //set the mouseup and touchend callback...
-              .on('mouseup', this.onButtonUp)
-              .on('touchend', this.onButtonUp)
-              .on('mouseupoutside', this.onButtonUp)
-              .on('touchendoutside', this.onButtonUp)
-              
-
-              // set the mouseover callback...
-              .on('mouseover', this.onButtonOver)
-
-              // you can also listen to click and tap events :
-              //.on('click', noop)
-	        button.tap = this.noop;
-	        button.click = this.noop;
-
-          if(i == 0) {
-            var attackIcon = new PIXI.Sprite(this.attackIcon);
-            attackIcon.position = button.position;
-          }
-          // add it to the stage
-          this.scenes.game.addChild(button);
-
-          // add button to array
-          this.buttons.push(button);
-      }
-
-    /*
-    const fightAnim = this.createAnimation("fight", 44);
-    fightAnim.loop = false;
-    fightAnim.visible = false;
-    fightAnim.animationSpeed = 0.42;
-    fightAnim.scale.x = 2;
-    fightAnim.scale.y = 2;
-    fightAnim.x = (1200 - fightAnim.width) / 2 + 16;
-    fightAnim.y = (400 - fightAnim.height) / 3;
-
-    setTimeout(() => {
-      fightAnim.visible = true;
-      fightAnim.play();
-      this.playSound("fightScream");
-    }, 1000);
-    this.scenes.game.addChild(fightAnim);
-    */
+    let roundText = this.textObj.customText(
+    ("ROUND " + this.round), 560,20);
+    this.scenes.game.addChild(roundText);
 
     //define player One UI
     let name1 = this.textObj.customText(
-    "OxT17i802Vn6j46", 60,20);
-    var wagerImage = new PIXI.Sprite(this.wagerOne);
+    this.playerAddress, 60,20);
+    var wagerImage = new PIXI.Sprite(this.playerWagerImage);
     wagerImage.position.x = 60;
     wagerImage.position.y = 50;
     var health1 = new PIXI.Sprite(this.healthIcon);
@@ -1047,10 +553,10 @@ class Game {
     this.scenes.game.addChild(shield);
     this.scenes.game.addChild(wagerImage);
 
-    //define player 2 UI this.characterNames[1]._text
+    //define player 2 UI 
     let name2 = this.textObj.customText(
-    "TnU8yn85dY26", 1020,20);
-    var wagerImage2 = new PIXI.Sprite(this.wagerTwo);
+    this.opponentAddress, 1060,20);
+    var wagerImage2 = new PIXI.Sprite(this.opponentWagerImage);
     wagerImage2.position.x = 1020;
     wagerImage2.position.y = 50;
     var health3 = new PIXI.Sprite(this.healthIcon);
@@ -1068,6 +574,24 @@ class Game {
     this.scenes.game.addChild(shield2);
     this.scenes.game.addChild(wagerImage2);
 
+    //do intro animation
+    const fightAnim = this.createAnimation("fight", 44);
+    fightAnim.loop = false;
+    fightAnim.visible = false;
+    fightAnim.animationSpeed = 0.42;
+    fightAnim.scale.x = 2;
+    fightAnim.scale.y = 2;
+    fightAnim.x = (1200 - fightAnim.width) / 2 + 16;
+    fightAnim.y = (400 - fightAnim.height) / 3;
+
+    setTimeout(() => {
+      fightAnim.visible = true;
+      fightAnim.play();
+      this.playSound("fightScream");
+    }, 1000);
+    this.scenes.game.addChild(fightAnim);
+    
+
     let animate = () => {
       requestAnimationFrame(animate);
       this.scenes.game.alpha += 0.05;
@@ -1077,11 +601,8 @@ class Game {
 
   youWin(winner) {
     this.setActiveScene("youWin");
-    let title = this.textObj.customText(
-      this.characterNames[winner]._text + " Wins!",
-      "center",
-      50
-    );
+
+    let title = this.textObj.customText("Someone Won!", "center", 200);
     let titleContinue = this.textObj.customText(
       "Press Enter to Restart",
       "center",
@@ -1120,6 +641,57 @@ class Game {
   }
 
   ///////////////////////////////////////////////////////////////more setup\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+  onButtonDown(parent)
+  {
+  console.log(parent.buttonsPushed);
+  if(parent.buttonsPushed == true) {
+    this.isdown = true;
+    this.texture = PIXI.Texture.fromImage('assets/images/buttons/attack-select.png');
+    this.alpha = 1;
+    console.log("button is down");
+
+    //console.log(this.parent);
+    //this.setActiveScene("gameOver");
+    parent.battleScene();
+
+    //if(this.button.)
+    }
+  }
+
+  
+  onButtonUp()
+  {
+    this.isdown = false;
+    if (this.isOver)
+    {
+        this.texture = PIXI.Texture.fromImage('assets/images/buttons/attack-hover.png');
+    }
+    else
+    {
+        this.texture = PIXI.Texture.fromImage('assets/images/buttons/attack.png');
+    }  
+  }
+
+  onButtonOver()
+  {
+    this.isOver = true;
+    if (this.isdown)
+    {
+        return;
+    }
+    this.texture = PIXI.Texture.fromImage('assets/images/buttons/attack.png');
+  }
+
+  onButtonOut()
+  {
+    this.isOver = false;
+    if (this.isdown)
+    {
+        return;
+    }
+    this.texture = PIXI.Texture.fromImage('assets/images/buttons/attack.png'); 
+  }
 
   groupSprites(container, options) {
     for (let i = 0; i < options.length; i++) {
@@ -1186,56 +758,26 @@ class Game {
   }
 
   setupKeys(character, opponent) {
-    this.keys.left = this.keys.left || [];
-    this.keys.up = this.keys.up || [];
-    this.keys.right = this.keys.right || [];
-    this.keys.down = this.keys.down || [];
-    this.keys.kick = this.keys.kick || [];
-    this.keys.punch = this.keys.punch || [];
-    this.keys.pawa = this.keys.pawa || [];
-    this.keys.fatal = this.keys.fatal || [];
     //Metaduels//
     this.keys.attack = this.keys.attack || [];
     this.keys.recharge = this.keys.recharge || [];
     this.keys.shield = this.keys.shield || [];
     this.keys.confirm = this.keys.confirm || [];
-    //Metaduels//
 
     let player = opponent ? 1 : 0;
 
     if (opponent) {
-      this.keys.left[player] = Keyboard(37); // left
-      this.keys.up[player] = Keyboard(38); // up
-      this.keys.right[player] = Keyboard(39); // right
-      this.keys.down[player] = Keyboard(40); // down
-      this.keys.kick[player] = Keyboard(80); // p
-      this.keys.punch[player] = Keyboard(79); // o
-      this.keys.pawa[player] = Keyboard(73); // i
-      this.keys.fatal[player] = Keyboard(85); // u
-      //Metaduels//
       this.keys.attack[player] = Keyboard(56); // 8
       this.keys.recharge[player] = Keyboard(57); // 9
       this.keys.shield[player] = Keyboard(48); // 0
       this.keys.confirm[player] = Keyboard(13); // Enter
-      //Metaduels//
     } else {
-      this.keys.left[player] = Keyboard(65); // a
-      this.keys.up[player] = Keyboard(87); // w
-      this.keys.right[player] = Keyboard(68); // d
-      this.keys.down[player] = Keyboard(83); // s
-      this.keys.kick[player] = Keyboard(70); // f
-      this.keys.punch[player] = Keyboard(71); // g
-      this.keys.pawa[player] = Keyboard(72); // h
-      this.keys.fatal[player] = Keyboard(74); // j
-      //Metaduels//
       this.keys.attack[player] = Keyboard(49); // 1
       this.keys.recharge[player] = Keyboard(50); // 2
       this.keys.shield[player] = Keyboard(51); // 3
       this.keys.confirm[player] = Keyboard(9); // TAB
-      //Metaduels//
     }
 
-    //Metaduels//
     this.keys.attack[player].press = () => {
       if (!this.characters[player].isDeath) {
         if (character.actions.punch) {
@@ -1268,198 +810,6 @@ class Game {
       }
     };
     //Metaduels//
-
-    this.keys.left[player].press = () => {
-      if (!this.characters[player].isDeath) {
-        if (character.actions.walk) {
-          if (character.y === this.groundY) {
-            this.action[player] = "walk-left";
-            character.vx = 3;
-            this.checkSide();
-          }
-        }
-      }
-    };
-
-    this.keys.left[player].release = () => {
-      if (!this.characters[player].isDeath) {
-        if (character.actions.walk) {
-          if (character.y === this.groundY) {
-            this.action[player] = "stance";
-            character.vx = 0;
-          }
-        }
-      }
-    };
-
-    this.keys.right[player].press = () => {
-      if (!this.characters[player].isDeath) {
-        if (character.actions.walk) {
-          if (character.y === this.groundY) {
-            this.action[player] = "walk-right";
-            character.vx = 3;
-            this.checkSide();
-          }
-        }
-      }
-    };
-
-    this.keys.right[player].release = () => {
-      if (!this.characters[player].isDeath) {
-        if (character.actions.walk) {
-          if (character.y === this.groundY) {
-            this.action[player] = "stance";
-            character.vx = 0;
-          }
-        }
-      }
-    };
-
-    this.keys.down[player].press = () => {
-      if (!this.characters[player].isDeath) {
-        if (character.actions.duck) {
-          if (character.y === this.groundY) {
-            this.action[player] = "ducking";
-            character.actions.duck.gotoAndPlay(0);
-          }
-        }
-      }
-    };
-
-    this.keys.down[player].release = () => {
-      if (!this.characters[player].isDeath) {
-        if (character.actions.raise) {
-          if (character.y === this.groundY) {
-            this.action[player] = "raise";
-            character.actions.raise.gotoAndPlay(0);
-          }
-        }
-      }
-    };
-
-    this.keys.pawa[player].press = () => {
-      if (!this.characters[player].isDeath) {
-        if (character.y === this.groundY) {
-          if (character.actions.punch) {
-            this.action[player] = "punch";
-            this.power[player] = "yelo";
-            this.powers[player].yelo.gotoAndPlay(0);
-            this.powers[player].yelo.visible = true;
-            this.powers[player].yelo.y = this.groundY;
-            this.powers[player].yelo.x = character.position.x;
-
-            character.actions.punch.gotoAndPlay(0);
-
-            if (this.scenes.game.visible) {
-              this.playSound("nopunch");
-              this.playSound("hitscream");
-            }
-          }
-        }
-      }
-    };
-
-    this.keys.fatal[player].press = () => {
-      if (!this.characters[player].isDeath) {
-        if (character.actions.punch) {
-          this.action[player] = "punch";
-          this.power[player] = "fire";
-          this.powers[player].fire.gotoAndPlay(7);
-          this.powers[player].fire.visible = true;
-          this.powers[player].fire.y = this.groundY;
-          this.powers[player].fire.x = character.position.x;
-
-          character.actions.punch.gotoAndPlay(0);
-
-          if (this.scenes.game.visible) {
-            this.playSound("nopunch");
-            this.playSound("hitscream");
-          }
-        }
-      }
-    };
-
-    this.keys.kick[player].press = () => {
-      if (!this.characters[player].isDeath) {
-        if (character.actions.kick) {
-          if (character.y === this.groundY) {
-            this.action[player] = "kick";
-            character.actions.kick.gotoAndPlay(0);
-
-            if (this.scenes.game.visible) {
-              this.playSound("nopunch");
-              this.playSound("hitscream");
-            }
-          } else {
-            if (!character.actions.airkick) {
-              return;
-            }
-
-            if (this.action[player] === "jump-right") {
-              this.action[player] = "airkick-right";
-            } else if (this.action[player] === "jump-left") {
-              this.action[player] = "airkick-left";
-            } else if (this.action[player] === "jump") {
-              this.action[player] = "airkick";
-            }
-
-            character.actions.airkick.gotoAndPlay(0);
-
-            if (this.scenes.game.visible) {
-              this.playSound("nopunch");
-              this.playSound("hitscream");
-            }
-          }
-        }
-      }
-    };
-
-    this.keys.punch[player].press = () => {
-      if (!this.characters[player].isDeath) {
-        if (character.actions.punch) {
-          if (character.y === this.groundY) {
-            this.action[player] = "punch";
-            character.actions.punch.gotoAndPlay(0);
-            if (this.scenes.game.visible) {
-              this.playSound("nopunch");
-              this.playSound("hitscream");
-            }
-          }
-        }
-      }
-    };
-
-    this.keys.up[player].press = () => {
-      if (!this.characters[player].isDeath) {
-        if (character.actions.jump) {
-          if (character.y === this.groundY) {
-            this.action[player] = "jump";
-            character.vy = -24;
-            this.playSound("jump");
-          }
-        }
-      }
-    };
-  }
-
-  checkSide() {
-    if (!this.switchRight) {
-      if (this.characters[1].x < this.characters[0].x) {
-        this.characters[1].width = this.characters[1].width * -1;
-        this.characters[0].width = this.characters[0].width * -1;
-        this.switchRight = true;
-        this.switchLeft = false;
-      }
-    }
-
-    if (!this.switchLeft) {
-      if (this.characters[1].x > this.characters[0].x) {
-        this.characters[1].width = this.characters[1].width * -1;
-        this.characters[0].width = this.characters[0].width * -1;
-        this.switchLeft = true;
-        this.switchRight = false;
-      }
-    }
   }
 
   setupPowers(opponent) {
@@ -1495,16 +845,18 @@ class Game {
   }
 
   setupCharacters(selectedPlayer, opponent) {
+  console.log("setting up a player started " + selectedPlayer);
     const player = opponent ? 1 : 0;
 
     characterData.characters.forEach(data => {
       if (data.name === selectedPlayer) {
         if (data.active) {
+        console.log("data name: " + data.name);
           const character = new PIXI.Container();
           const animations = [];
           const actions = {};
 
-          character.x = opponent ? 970 : 280;
+          character.x = opponent ? 800 : 400;
           character.y = this.groundY;
           character.scale.x = opponent ? -data.scale : data.scale;
           character.scale.y = data.scale;
@@ -1546,20 +898,6 @@ class Game {
 
           this.characters.push(character);
 
-          if (this.characters.length === 1) {
-            this.characterNames[0] = this.textObj.customText(
-              selectedPlayer,
-              53,
-              48
-            );
-          } else {
-            this.characterNames[1] = this.textObj.customText(
-              selectedPlayer,
-              817,
-              48
-            );
-          }
-
           this.setupKeys(character, opponent);
         }
       }
@@ -1568,6 +906,8 @@ class Game {
     this.characters.forEach(character => {
       if (character.active) {
         this.scenes.game.addChild(character);
+        //this.scenes.select.addChild(character);
+        console.log(character);
       }
     });
 
