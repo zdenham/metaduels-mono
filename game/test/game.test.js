@@ -123,4 +123,14 @@ describe('TestMetaDuelGame', function () {
     const state = await runMoves(moves, dueler, duelee, game);
     expect(state.winner).to.equal(duelee.address);
   });
+
+  it('should cause two damage with a critical attack', async function () {
+    const moves = [
+      { moveType: M.A, nonce: giveCriticalHitNonce },
+      { moveType: M.R, nonce: getCriticalHitNonce },
+    ];
+
+    const state = await runMoves(moves, dueler, duelee, game);
+    expect(state.winner).to.equal(dueler.address);
+  });
 });
