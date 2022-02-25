@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>dummy duels</title>
+  </head>
+
+  <body>
+    <button id="connectWallet">Connect Wallet</button>
+    <div>Connected Wallet:</div>
+    <span id="connectedWallet">none</span>
+    <br />
+    <br />
+    <div>
+      <input id="opponentAddress" placeholder="Opponent Address (0x...)" />
+      <button id="startGame">Start Game</button>
+    </div>
+    <span>or</span>
+    <br />
+    <br />
+    <div>
+      <input id="gameId" placeholder="enter gameId to join" />
+      <button id="joinGame">submit</button>
+    </div>
+
+    <div style="display: flex; flex-direction: row">
+      <div
+        style="
+          width: 50vw;
+          height: 60vh;
+          border-right: 1px solid black;
+          padding: 20px;
+        "
+      >
+        <h1>DUELER</h1>
+        <h2 id="address"></h2>
+        <div>
+          <button id="attack">ATTACK</button><button id="block">BLOCK</button
+          ><button id="reload">RELOAD</button>
+        </div>
+      </div>
+      <div style="width: 50vw; height: 60vh; padding: 20px">
+        <h1>DUELEE</h1>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    const script = document.createElement("script");
+    script.src = "dummy-bundle.js";
+    document.body.appendChild(script);
+  </script>
+</html>
