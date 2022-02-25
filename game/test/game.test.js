@@ -33,16 +33,6 @@ const getCriticalHitNonce = 'critical2';
 // where both players have critical hits
 const mutualCriticalHitNonce = 'bothPlayersCritical';
 
-const criticalHit = (nonce1, nonce2) => {
-  const encoder = new ethers.utils.AbiCoder();
-  const bytes = encoder.encode(['string', 'string'], [nonce1, nonce2]);
-  const hash = ethers.utils.solidityKeccak256(['bytes'], [bytes]);
-  const binaryHash = ethers.utils.arrayify(hash);
-  const isCritical = binaryHash[31] < 25;
-
-  return isCritical;
-};
-
 const getSignedMove = async (move, signer) => {
   const gameId = 1;
 
@@ -104,7 +94,7 @@ describe('TestMetaDuelGame', function () {
     // reset the network to prevent tests from affecting each other
     await hre.network.provider.send('hardhat_reset');
 
-    const MetaDuelGame = await ethers.getContractFactory('MetaDuelGame');
+    const MetaDuelGame = await ethers.getContractFactory('MetaDuelsGame');
 
     game = await MetaDuelGame.deploy();
 
@@ -132,5 +122,8 @@ describe('TestMetaDuelGame', function () {
 
     const state = await runMoves(moves, dueler, duelee, game);
     expect(state.winner).to.equal(dueler.address);
+
+    const newState = await game.gameStateForId(0);
+    console.log('THE NEW STATE: ', newState);
   });
 });

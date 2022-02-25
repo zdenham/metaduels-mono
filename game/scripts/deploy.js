@@ -10,6 +10,12 @@ const contractArgs = {
   goerli: {
     RootTunnel: ['0x2890bA17EfE978480615e330ecB65333b880928e'],
   },
+  hardhat: {
+    MetaDuelsGame: [],
+  },
+  local: {
+    MetaDuelsGame: [],
+  },
 };
 
 function confirmDeploy(contractName, network, args) {
