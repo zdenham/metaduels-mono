@@ -24,6 +24,7 @@ class Game {
 
     this.powers = [];
     this.action = [];
+    this.gameEffects = [];
     this.power = [];
     this.finishHim = false;
 
@@ -130,7 +131,24 @@ class Game {
         "assets/sounds/fightScream.mp3",
         "assets/sounds/hitscream.mp3",
         "assets/sounds/finish.mp3",
-        "assets/sounds/scream.mp3"
+        "assets/sounds/scream.mp3",
+        "assets/audio/Carson/carson-failedattack.mp3",
+        "assets/audio/Carson/carson-lostlife.mp3",
+        "assets/audio/Carson/carson-reload.mp3",
+        "assets/audio/Carson/carson-successattack.mp3",
+        "assets/audio/Carson/carson-successattackwoosh.mp3",
+        "assets/audio/Man Ape/manape-failedattack.mp3",
+        "assets/audio/Man Ape/manape-lostlife.mp3",
+        "assets/audio/Man Ape/manape-recharge.mp3",
+        "assets/audio/Man Ape/manape-successattack.mp3",
+        "assets/audio/Man Ape/manape-successattackwoosh.mp3",
+        "assets/audio/Misc/attackfusion.mp3",
+        "assets/audio/Misc/bodyhitground.mp3",
+        "assets/audio/Misc/buttonclick.mp3",
+        "assets/audio/Misc/buttonhover.mp3",
+        "assets/audio/Misc/deathbirdschirp.mp3",
+        "assets/audio/Misc/duelsbg.mp3",
+        "assets/audio/Misc/lostlife.mp3"    
       ])
       .load(() => {
         this.initGame();
@@ -205,6 +223,12 @@ class Game {
         break;
       case "finish":
         soundPath = "assets/sounds/finish.mp3";
+        break;
+      case "button-click":
+        soundPath = "assets/audio/Misc/buttonclick.mp3";
+        break;
+      case "button-hover":
+        soundPath = "assets/audio/Misc/buttonclick.mp3";
         break;
       default:
         break;
@@ -292,6 +316,7 @@ class Game {
 
               //play sounds and animations
               this.playSound("hit");
+              this.loseHealthAnimation(this.healthIcon);
 
               //enable confirm button
 
@@ -442,11 +467,11 @@ class Game {
       button.interactive = true;
       button
       .on('mousedown', this.onButtonDown(this))
-      .on('mouseup', this.onButtonUp)
-      .on('touchend', this.onButtonOut)
-      .on('mouseupoutside', this.onButtonOut)
-      .on('touchendoutside', this.onButtonOut)
-      .on('mouseover', this.onButtonOver)
+      .on('mouseup', this.onButtonUp(this))
+      .on('touchend', this.onButtonOut(this))
+      .on('mouseupoutside', this.onButtonOut(this))
+      .on('touchendoutside', this.onButtonOut(this))
+      .on('mouseover', this.onButtonOver(this))
 	    button.tap = this.noop;
 	    button.click = this.noop;
 
@@ -651,6 +676,8 @@ class Game {
     this.alpha = 1;
     console.log("button is down");
 
+    parent.playSound("button-click");
+
     //console.log(this.parent);
     //this.setActiveScene("gameOver");
     parent.battleScene();
@@ -660,7 +687,7 @@ class Game {
   }
 
   
-  onButtonUp()
+  onButtonUp(parent)
   {
     this.isdown = false;
     if (this.isOver)
@@ -673,17 +700,19 @@ class Game {
     }  
   }
 
-  onButtonOver()
+  onButtonOver(parent)
   {
     this.isOver = true;
     if (this.isdown)
     {
         return;
     }
-    this.texture = PIXI.Texture.fromImage('assets/images/buttons/attack.png');
+    this.texture = PIXI.Texture.fromImage('assets/images/buttons/attack-hover.png');
+    parent.playSound("button-hover");
+
   }
 
-  onButtonOut()
+  onButtonOut(parent)
   {
     this.isOver = false;
     if (this.isdown)
@@ -844,6 +873,17 @@ class Game {
     this.scenes.game.addChild(this.powers[player].fire);
   }
 
+  setupScreenLines() {
+    this.gameEffects[0] = this.createAnimation("Action Lines 100.png", 12);
+    this.gameEffects[0].loop = true;
+    this.gameEffects[0].animationSpeed = 0.25;
+    this.gameEffects[0].visible = false;
+    this.gameEffects[0].x = 0;
+    this.gameEffects[0].vx = 15;
+
+    this.scenes.game.addChild(this.gameEffects[0]);
+  }
+
   setupCharacters(selectedPlayer, opponent) {
   console.log("setting up a player started " + selectedPlayer);
     const player = opponent ? 1 : 0;
@@ -912,6 +952,15 @@ class Game {
     });
 
     this.action[player] = "stance";
+  }
+
+  loseHealthAnimation(heart) {
+  heart.visible = false;
+  //time = deltaTime;
+  }
+
+  shakeScreen() {
+    this.utils.shake(this.scenes.game, 0.01, true);
   }
 
 
