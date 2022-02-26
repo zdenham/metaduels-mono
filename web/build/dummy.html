@@ -19,27 +19,45 @@
     <br />
     <div>
       <input id="gameId" placeholder="enter gameId to join" />
-      <button id="joinGame">submit</button>
+      <button id="joinGame">Join Game</button>
     </div>
-
-    <div style="display: flex; flex-direction: row">
+    <h1 style="width: 100vw; text-align: center" id="winner"></h1>
+    <div
+      style="display: flex; flex-direction: row; display: none"
+      id="gameContainer"
+    >
       <div
         style="
-          width: 50vw;
+          width: 45vw;
           height: 60vh;
           border-right: 1px solid black;
           padding: 20px;
         "
       >
-        <h1>DUELER</h1>
-        <h2 id="address"></h2>
+        <h1 id="duelerHeader">DUELER</h1>
+        <div id="duelerMoves" style="display: none">
+          <button id="duelerAttack">ATTACK</button
+          ><button id="duelerBlock">BLOCK</button
+          ><button id="duelerReload">RELOAD</button>
+        </div>
         <div>
-          <button id="attack">ATTACK</button><button id="block">BLOCK</button
-          ><button id="reload">RELOAD</button>
+          <div id="duelerHealth"></div>
+          <div id="duelerAmmo"></div>
+          <div id="duelerShield"></div>
         </div>
       </div>
-      <div style="width: 50vw; height: 60vh; padding: 20px">
-        <h1>DUELEE</h1>
+      <div style="width: 45vw; height: 60vh; padding: 20px">
+        <h1 id="dueleeHeader">DUELEE</h1>
+        <div id="dueleeMoves" style="display: none">
+          <button id="dueleeAttack">ATTACK</button
+          ><button id="dueleeBlock">BLOCK</button
+          ><button id="dueleeReload">RELOAD</button>
+        </div>
+        <div>
+          <div id="dueleeHealth"></div>
+          <div id="dueleeAmmo"></div>
+          <div id="dueleeShield"></div>
+        </div>
       </div>
     </div>
   </body>
