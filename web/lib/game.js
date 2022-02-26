@@ -1,289 +1,9 @@
 import { ethers } from "ethers";
 import { v4 } from "uuid";
 import hash from "object-hash";
+import gameContract from "./contract";
 
-const criticalHit = (nonce1, nonce2) => {
-  const encoder = new ethers.utils.AbiCoder();
-  const bytes = encoder.encode(["string", "string"], [nonce1, nonce2]);
-  const hash = ethers.utils.solidityKeccak256(["bytes"], [bytes]);
-  const binaryHash = ethers.utils.arrayify(hash);
-  const isCritical = binaryHash[31] < 25;
-
-  return isCritical;
-};
-
-const GAME_CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 const GAME_NETWORK_ID = "0x7A69";
-
-const gameContract = {
-  address: GAME_CONTRACT_ADDRESS,
-  abi: [
-    {
-      inputs: [],
-      stateMutability: "nonpayable",
-      type: "constructor",
-    },
-    {
-      inputs: [
-        {
-          internalType: "uint256",
-          name: "gameId",
-          type: "uint256",
-        },
-        {
-          internalType: "uint8",
-          name: "moveType",
-          type: "uint8",
-        },
-        {
-          internalType: "string",
-          name: "nonce",
-          type: "string",
-        },
-      ],
-      name: "_createSignatureInputHash",
-      outputs: [
-        {
-          internalType: "bytes32",
-          name: "",
-          type: "bytes32",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "bytes32",
-          name: "data",
-          type: "bytes32",
-        },
-        {
-          internalType: "bytes",
-          name: "signature",
-          type: "bytes",
-        },
-        {
-          internalType: "address",
-          name: "maybeSigner",
-          type: "address",
-        },
-      ],
-      name: "_validateSignature",
-      outputs: [
-        {
-          internalType: "bool",
-          name: "",
-          type: "bool",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "uint256",
-          name: "gameId",
-          type: "uint256",
-        },
-      ],
-      name: "gameStateForId",
-      outputs: [
-        {
-          components: [
-            {
-              internalType: "address",
-              name: "winner",
-              type: "address",
-            },
-            {
-              internalType: "address",
-              name: "duelerAddress",
-              type: "address",
-            },
-            {
-              internalType: "address",
-              name: "dueleeAddress",
-              type: "address",
-            },
-            {
-              components: [
-                {
-                  internalType: "int8",
-                  name: "ammo",
-                  type: "int8",
-                },
-                {
-                  internalType: "int8",
-                  name: "health",
-                  type: "int8",
-                },
-                {
-                  internalType: "int8",
-                  name: "shield",
-                  type: "int8",
-                },
-              ],
-              internalType: "struct MetaDuelsGame.PlayerState",
-              name: "duelerState",
-              type: "tuple",
-            },
-            {
-              components: [
-                {
-                  internalType: "int8",
-                  name: "ammo",
-                  type: "int8",
-                },
-                {
-                  internalType: "int8",
-                  name: "health",
-                  type: "int8",
-                },
-                {
-                  internalType: "int8",
-                  name: "shield",
-                  type: "int8",
-                },
-              ],
-              internalType: "struct MetaDuelsGame.PlayerState",
-              name: "dueleeState",
-              type: "tuple",
-            },
-            {
-              components: [
-                {
-                  internalType: "uint8",
-                  name: "moveType",
-                  type: "uint8",
-                },
-                {
-                  internalType: "bytes",
-                  name: "signature",
-                  type: "bytes",
-                },
-                {
-                  internalType: "string",
-                  name: "nonce",
-                  type: "string",
-                },
-              ],
-              internalType: "struct MetaDuelsGame.Move",
-              name: "currDuelerMove",
-              type: "tuple",
-            },
-            {
-              components: [
-                {
-                  internalType: "uint8",
-                  name: "moveType",
-                  type: "uint8",
-                },
-                {
-                  internalType: "bytes",
-                  name: "signature",
-                  type: "bytes",
-                },
-                {
-                  internalType: "string",
-                  name: "nonce",
-                  type: "string",
-                },
-              ],
-              internalType: "struct MetaDuelsGame.Move",
-              name: "currDueleeMove",
-              type: "tuple",
-            },
-          ],
-          internalType: "struct MetaDuelsGame.Game",
-          name: "",
-          type: "tuple",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "address",
-          name: "dueler",
-          type: "address",
-        },
-        {
-          internalType: "address",
-          name: "duelee",
-          type: "address",
-        },
-      ],
-      name: "letItBegin",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "nonpayable",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "uint256",
-          name: "gameId",
-          type: "uint256",
-        },
-        {
-          components: [
-            {
-              internalType: "uint8",
-              name: "moveType",
-              type: "uint8",
-            },
-            {
-              internalType: "bytes",
-              name: "signature",
-              type: "bytes",
-            },
-            {
-              internalType: "string",
-              name: "nonce",
-              type: "string",
-            },
-          ],
-          internalType: "struct MetaDuelsGame.Move",
-          name: "revealedMove",
-          type: "tuple",
-        },
-      ],
-      name: "revealMove",
-      outputs: [],
-      stateMutability: "nonpayable",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "uint256",
-          name: "gameId",
-          type: "uint256",
-        },
-        {
-          internalType: "bytes",
-          name: "signature",
-          type: "bytes",
-        },
-      ],
-      name: "submitMoveSignature",
-      outputs: [],
-      stateMutability: "nonpayable",
-      type: "function",
-    },
-  ],
-};
 
 export const MOVES = {
   None: 0,
@@ -343,14 +63,16 @@ class GameClient {
 
   async signAndSendMove(moveType) {
     const nonce = v4();
+
     const signature = await this._getMoveSignature(moveType, nonce);
+
     await this.game.submitMoveSignature(this.gameId, signature);
     this._saveCurrentMoveToLocalStorage(nonce, moveType, signature);
   }
 
   async revealMove() {
     const move = this._loadLatestMoveFromLocalStorage();
-    await game.revealMove(this.gameId, move);
+    await this.game.revealMove(this.gameId, move);
   }
 
   async _getMoveSignature(moveType, nonce) {
@@ -358,7 +80,7 @@ class GameClient {
 
     const bytes = encoder.encode(
       ["uint256", "uint8", "string"],
-      [gameId, moveType, nonce]
+      [this.gameId, moveType, nonce]
     );
 
     const hash = ethers.utils.solidityKeccak256(["bytes"], [bytes]);
@@ -377,7 +99,8 @@ class GameClient {
       ) || {};
 
     const gameStateTransitions = gameStatesMap[this.gameId] || [];
-    const lastGameState = gameStateTransitions[gameStateTransitions.length - 1];
+    const lastGameState =
+      gameStateTransitions[gameStateTransitions.length - 1] || {};
 
     // only add state if it differs from the previous state
     if (hash(lastGameState) !== hash(currGameState)) {
@@ -385,7 +108,7 @@ class GameClient {
         "metaDuelsGameStateTransitions",
         JSON.stringify({
           ...gameStatesMap,
-          [this.gameId]: gameStateTransitions.concat(currGameState),
+          [this.gameId]: gameStateTransitions.concat({ ...currGameState }),
         })
       );
     }
@@ -396,6 +119,7 @@ class GameClient {
       JSON.parse(window.localStorage.getItem("metaDuelsCurrentMoves")) || {};
 
     window.localStorage.setItem(
+      "metaDuelsCurrentMoves",
       JSON.stringify({
         ...moves,
         [this.gameId]: { nonce, moveType, signature },
@@ -419,18 +143,18 @@ class GameClient {
     let moveType = MOVES.None;
     let isCritical = false;
     if (playerOldState.ammo > playerNewState.ammo) {
-      moveType = Moves.Attack;
+      moveType = MOVES.Attack;
     } else if (playerOldState.shield === playerNewState.sheild + 2) {
-      moveType = Moves.Block;
+      moveType = MOVES.Block;
     } else {
-      moveType = Moves.Reload;
+      moveType = MOVES.Reload;
     }
 
     if (moveType === MOVES.Attack) {
       isCritical = opponentNewState.health === opponentOldState.health - 2;
     }
 
-    if (moveType === Moves.Reload) {
+    if (moveType === MOVES.Reload) {
       isCritical = playerNewState.ammo === playerOldState.ammo + 2;
     }
 

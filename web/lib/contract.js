@@ -1,0 +1,271 @@
+const gameContract = {
+  address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  abi: [
+    {
+      inputs: [],
+      stateMutability: "nonpayable",
+      type: "constructor",
+    },
+    {
+      inputs: [
+        {
+          internalType: "uint256",
+          name: "gameId",
+          type: "uint256",
+        },
+        {
+          internalType: "uint8",
+          name: "moveType",
+          type: "uint8",
+        },
+        {
+          internalType: "string",
+          name: "nonce",
+          type: "string",
+        },
+      ],
+      name: "_createSignatureInputHash",
+      outputs: [
+        {
+          internalType: "bytes32",
+          name: "",
+          type: "bytes32",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "bytes32",
+          name: "data",
+          type: "bytes32",
+        },
+        {
+          internalType: "bytes",
+          name: "signature",
+          type: "bytes",
+        },
+        {
+          internalType: "address",
+          name: "maybeSigner",
+          type: "address",
+        },
+      ],
+      name: "_validateSignature",
+      outputs: [
+        {
+          internalType: "bool",
+          name: "",
+          type: "bool",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "uint256",
+          name: "gameId",
+          type: "uint256",
+        },
+      ],
+      name: "gameStateForId",
+      outputs: [
+        {
+          components: [
+            {
+              internalType: "address",
+              name: "winner",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "duelerAddress",
+              type: "address",
+            },
+            {
+              internalType: "address",
+              name: "dueleeAddress",
+              type: "address",
+            },
+            {
+              components: [
+                {
+                  internalType: "int8",
+                  name: "ammo",
+                  type: "int8",
+                },
+                {
+                  internalType: "int8",
+                  name: "health",
+                  type: "int8",
+                },
+                {
+                  internalType: "int8",
+                  name: "shield",
+                  type: "int8",
+                },
+              ],
+              internalType: "struct MetaDuelsGame.PlayerState",
+              name: "duelerState",
+              type: "tuple",
+            },
+            {
+              components: [
+                {
+                  internalType: "int8",
+                  name: "ammo",
+                  type: "int8",
+                },
+                {
+                  internalType: "int8",
+                  name: "health",
+                  type: "int8",
+                },
+                {
+                  internalType: "int8",
+                  name: "shield",
+                  type: "int8",
+                },
+              ],
+              internalType: "struct MetaDuelsGame.PlayerState",
+              name: "dueleeState",
+              type: "tuple",
+            },
+            {
+              components: [
+                {
+                  internalType: "uint8",
+                  name: "moveType",
+                  type: "uint8",
+                },
+                {
+                  internalType: "bytes",
+                  name: "signature",
+                  type: "bytes",
+                },
+                {
+                  internalType: "string",
+                  name: "nonce",
+                  type: "string",
+                },
+              ],
+              internalType: "struct MetaDuelsGame.Move",
+              name: "currDuelerMove",
+              type: "tuple",
+            },
+            {
+              components: [
+                {
+                  internalType: "uint8",
+                  name: "moveType",
+                  type: "uint8",
+                },
+                {
+                  internalType: "bytes",
+                  name: "signature",
+                  type: "bytes",
+                },
+                {
+                  internalType: "string",
+                  name: "nonce",
+                  type: "string",
+                },
+              ],
+              internalType: "struct MetaDuelsGame.Move",
+              name: "currDueleeMove",
+              type: "tuple",
+            },
+          ],
+          internalType: "struct MetaDuelsGame.Game",
+          name: "",
+          type: "tuple",
+        },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "address",
+          name: "dueler",
+          type: "address",
+        },
+        {
+          internalType: "address",
+          name: "duelee",
+          type: "address",
+        },
+      ],
+      name: "letItBegin",
+      outputs: [
+        {
+          internalType: "uint256",
+          name: "",
+          type: "uint256",
+        },
+      ],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "uint256",
+          name: "gameId",
+          type: "uint256",
+        },
+        {
+          components: [
+            {
+              internalType: "uint8",
+              name: "moveType",
+              type: "uint8",
+            },
+            {
+              internalType: "bytes",
+              name: "signature",
+              type: "bytes",
+            },
+            {
+              internalType: "string",
+              name: "nonce",
+              type: "string",
+            },
+          ],
+          internalType: "struct MetaDuelsGame.Move",
+          name: "revealedMove",
+          type: "tuple",
+        },
+      ],
+      name: "revealMove",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+    {
+      inputs: [
+        {
+          internalType: "uint256",
+          name: "gameId",
+          type: "uint256",
+        },
+        {
+          internalType: "bytes",
+          name: "signature",
+          type: "bytes",
+        },
+      ],
+      name: "submitMoveSignature",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+  ],
+};
+
+export default gameContract;

@@ -30,13 +30,29 @@ document.getElementById("joinGame").addEventListener("click", async () => {
 });
 
 function setUpMoveEventListeners(role) {
-  document.getElementById(`${role}Attack`).addEventListener("click", () => {
-    gameClient.signAndSubmitMove();
-  });
+  document
+    .getElementById(`${role}Attack`)
+    .addEventListener("click", async () => {
+      await gameClient.signAndSendMove(MOVES.Attack);
+    });
 
-  document.getElementById(`${role}Block`).addEventListener("click", () => {});
+  document
+    .getElementById(`${role}Block`)
+    .addEventListener("click", async () => {
+      await gameClient.signAndSendMove(MOVES.Block);
+    });
 
-  document.getElementById(`${role}Reload`).addEventListener("click", () => {});
+  document
+    .getElementById(`${role}Reload`)
+    .addEventListener("click", async () => {
+      await gameClient.signAndSendMove(MOVES.Reload);
+    });
+
+  document
+    .getElementById(`${role}Confirm`)
+    .addEventListener("click", async () => {
+      await gameClient.revealMove();
+    });
 }
 
 async function renderGameState() {
@@ -67,7 +83,7 @@ async function renderGameState() {
   document.getElementById("duelerAmmo").innerText =
     "Ammo: " + new Array(state.duelerState.ammo).fill("🗡").join(" ");
   document.getElementById("dueleeAmmo").innerText =
-    "Ammo: " + new Array(state.duelerState.ammo).fill("🗡").join(" ");
+    "Ammo: " + new Array(state.dueleeState.ammo).fill("🗡").join(" ");
 
   // render the shield
   document.getElementById("duelerShield").innerText =
@@ -75,7 +91,7 @@ async function renderGameState() {
     new Array(Math.floor(state.duelerState.shield / 2)).fill("🛡").join(" ");
   document.getElementById("dueleeShield").innerText =
     "Shield: " +
-    new Array(Math.floor(state.duelerState.shield / 2)).fill("🛡").join(" ");
+    new Array(Math.floor(state.dueleeState.shield / 2)).fill("🛡").join(" ");
 
   // render winner / loser
   document.getElementById("winner").innerText =
