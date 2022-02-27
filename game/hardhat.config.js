@@ -5,6 +5,7 @@ require('dotenv').config();
 require('@nomiclabs/hardhat-ethers');
 require('@typechain/hardhat');
 require('hardhat-gas-reporter');
+require('@nomiclabs/hardhat-waffle');
 
 const {
   TEST_OWNER_PRIVATE_KEY,
