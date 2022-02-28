@@ -21,3 +21,6 @@ node_modules
 
 build/bundle.js
 build/bundle.js.map
+
+build/dummy-bundle.js
+build/dummy-bundle.js.map

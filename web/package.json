@@ -6,7 +6,8 @@
   "scripts": {
     "build": "webpack --mode production",
     "start": "webpack-dev-server --hot --inline --port 3001 --content-base ./build",
-    "dev-dummy-ui": "webpack-dev-server --hot --inline --port 3001 --content-base ./build --config webpack.dummy.config.js"
+    "dev-dummy-ui": "webpack-dev-server --hot --inline --port 3001 --content-base ./build --config webpack.dummy.config.js",
+    "build-dummy-ui": "webpack --mode production --config webpack.dummy.config.js"
   },
   "repository": {
     "type": "git",
