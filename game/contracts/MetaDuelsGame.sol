@@ -18,7 +18,9 @@ contract MetaDuelsGame {
     event RoundCompleted(
         uint256 indexed gameId,
         uint8 duelerMove,
-        uint8 dueleeMove
+        uint8 dueleeMove,
+        bool isDuelerMoveCritical,
+        bool isDueleeMoveCritical
     );
     event WinnerDeclared(uint256 indexed gameId, address winner);
 
@@ -148,12 +150,23 @@ contract MetaDuelsGame {
                 game.dueleeState
             );
 
-            _printGameState(gameId);
+            // _printGameState(gameId);
+
+            bool isDuelerMoveCritical = _criticalHitCount(
+                game.currDuelerMove.nonce,
+                game.currDueleeMove.nonce
+            ) > 1;
+            bool isDueleeMoveCritical = _criticalHitCount(
+                game.currDueleeMove.nonce,
+                game.currDuelerMove.nonce
+            ) > 1;
 
             emit RoundCompleted(
                 gameId,
                 game.currDuelerMove.moveType,
-                game.currDueleeMove.moveType
+                game.currDueleeMove.moveType,
+                isDuelerMoveCritical,
+                isDueleeMoveCritical
             );
 
             // reset the current moves

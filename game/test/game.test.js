@@ -144,6 +144,29 @@ describe('TestMetaDuelGame', function () {
       .withArgs(1, dueler.address);
   });
 
+  it('should emit an event with appropriate critical hits on round end', async function () {
+    const duelerMove = await getSignedMove(
+      { moveType: M.A, nonce: giveCriticalHitNonce },
+      dueler
+    );
+    const dueleeMove = await getSignedMove(
+      { moveType: M.R, nonce: getCriticalHitNonce },
+      duelee
+    );
+
+    const duelerGame = await game.connect(dueler);
+    const dueleeGame = await game.connect(duelee);
+
+    await duelerGame.submitMoveSignature(1, duelerMove.signature);
+    await dueleeGame.submitMoveSignature(1, dueleeMove.signature);
+
+    await duelerGame.revealMove(1, duelerMove);
+
+    await expect(dueleeGame.revealMove(1, dueleeMove))
+      .to.emit(dueleeGame, 'RoundCompleted')
+      .withArgs(1, M.A, M.R, true, false);
+  });
+
   it('should replenish a shield after two rounds', async function () {
     const moves = [M.A, M.B, M.R, M.R, M.R, M.R, M.A, M.B, M.R, M.A, M.R, M.A];
 
