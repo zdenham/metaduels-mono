@@ -105,12 +105,18 @@ class GameClient {
   }
 
   async queryEvents(eventType) {
+    const MAX_BLOCKS = 900;
+
+    const currentBlock = await this.signer.provider.getBlockNumber();
+
+    const fromBlock = Math.max(currentBlock - 900, 0);
+
     const filter = {
       address: gameContract.address,
       topics: this._topicsForEventType(eventType),
     };
 
-    const events = await this.game.queryFilter(filter);
+    const events = await this.game.queryFilter(filter, fromBlock);
 
     const decodedEvents = events.map((event) => {
       const decodedArr = event.decode(event.data, event.topics);
