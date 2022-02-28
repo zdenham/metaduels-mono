@@ -1,9 +1,8 @@
 import { ethers } from "ethers";
 import { v4 } from "uuid";
-import hash from "object-hash";
 import gameContract from "./contract";
 
-const GAME_NETWORK_ID = "0x7A69";
+const GAME_NETWORK_ID = "0x13881";
 
 export const MOVES = {
   None: 0,

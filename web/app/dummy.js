@@ -153,16 +153,19 @@ async function renderGameState() {
 
   // render moves - TODO
   for (let i = 0; i < moves.length; i++) {
-    const { duelerMove, dueleeMove } = moves[i];
+    const {
+      duelerMove,
+      dueleeMove,
+      isDuelerMoveCritical,
+      isDueleeMoveCritical,
+    } = moves[i];
     const moveDiv = document.createElement("div");
 
     moveDiv.innerText = `ROUND ${i + 1}: DUELER MOVE: ${moveToString(
       duelerMove
-    )} ${
-      duelerMove.isCritical ? "CRITICAL!" : ""
-    } | DUELEE MOVE: ${moveToString(dueleeMove)} ${
-      dueleeMove.isCritical ? "CRITICAL!" : ""
-    }`;
+    )} ${isDuelerMoveCritical ? "CRITICAL!" : ""} | DUELEE MOVE: ${moveToString(
+      dueleeMove
+    )} ${isDueleeMoveCritical ? "CRITICAL!" : ""}`;
 
     moveContainer.insertBefore(moveDiv, moveContainer.firstChild);
   }

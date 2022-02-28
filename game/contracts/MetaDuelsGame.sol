@@ -3,7 +3,8 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "hardhat/console.sol";
+
+// import "hardhat/console.sol";
 
 contract MetaDuelsGame {
     using Counters for Counters.Counter;
@@ -200,7 +201,7 @@ contract MetaDuelsGame {
 
     function _criticalHitCount(string memory nonce1, string memory nonce2)
         private
-        view
+        pure
         returns (int8)
     {
         bytes memory concatenated = abi.encode(nonce1, nonce2);
@@ -221,7 +222,7 @@ contract MetaDuelsGame {
         bytes32 data,
         bytes memory signature,
         address maybeSigner
-    ) public view returns (bool) {
+    ) public pure returns (bool) {
         bytes32 messageHash = ECDSA.toEthSignedMessageHash(data);
         address signer = ECDSA.recover(messageHash, signature);
 
@@ -365,33 +366,33 @@ contract MetaDuelsGame {
         uint256 gameId,
         uint8 moveType,
         string memory nonce
-    ) public view returns (bytes32) {
+    ) public pure returns (bytes32) {
         return keccak256(abi.encode(gameId, moveType, nonce));
     }
 
-    function _printGameState(uint256 gameId) internal view {
-        Game memory game = _gameStates[gameId];
+    // function _printGameState(uint256 gameId) internal view {
+    //     Game memory game = _gameStates[gameId];
 
-        console.log(
-            "\nDUELER MOVE: %s, DUELEE MOVE: %s",
-            _moveAsString(game.currDuelerMove.moveType),
-            _moveAsString(game.currDueleeMove.moveType)
-        );
+    //     console.log(
+    //         "\nDUELER MOVE: %s, DUELEE MOVE: %s",
+    //         _moveAsString(game.currDuelerMove.moveType),
+    //         _moveAsString(game.currDueleeMove.moveType)
+    //     );
 
-        console.log(
-            "DUELER STATS A: %s, H: %s, S: %s",
-            uint8(game.duelerState.ammo),
-            uint8(game.duelerState.health),
-            uint8(game.duelerState.shield)
-        );
+    //     console.log(
+    //         "DUELER STATS A: %s, H: %s, S: %s",
+    //         uint8(game.duelerState.ammo),
+    //         uint8(game.duelerState.health),
+    //         uint8(game.duelerState.shield)
+    //     );
 
-        console.log(
-            "DUELEE STATS A: %s, H: %s, S: %s",
-            uint8(game.dueleeState.ammo),
-            uint8(game.dueleeState.health),
-            uint8(game.dueleeState.shield)
-        );
-    }
+    //     console.log(
+    //         "DUELEE STATS A: %s, H: %s, S: %s",
+    //         uint8(game.dueleeState.ammo),
+    //         uint8(game.dueleeState.health),
+    //         uint8(game.dueleeState.shield)
+    //     );
+    // }
 
     function _moveAsString(uint8 moveType)
         private

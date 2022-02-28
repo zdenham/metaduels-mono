@@ -1,5 +1,5 @@
 const gameContract = {
-  address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  address: "0xfb8Eb20Fd0256654A5339AE6075516F148309755",
   abi: [
     {
       inputs: [],
@@ -90,6 +90,18 @@ const gameContract = {
           name: "dueleeMove",
           type: "uint8",
         },
+        {
+          indexed: false,
+          internalType: "bool",
+          name: "isDuelerMoveCritical",
+          type: "bool",
+        },
+        {
+          indexed: false,
+          internalType: "bool",
+          name: "isDueleeMoveCritical",
+          type: "bool",
+        },
       ],
       name: "RoundCompleted",
       type: "event",
@@ -139,7 +151,7 @@ const gameContract = {
           type: "bytes32",
         },
       ],
-      stateMutability: "view",
+      stateMutability: "pure",
       type: "function",
     },
     {
@@ -168,7 +180,7 @@ const gameContract = {
           type: "bool",
         },
       ],
-      stateMutability: "view",
+      stateMutability: "pure",
       type: "function",
     },
     {
