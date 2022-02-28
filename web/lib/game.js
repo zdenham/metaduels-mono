@@ -12,6 +12,19 @@ export const MOVES = {
   Reload: 3,
 };
 
+export function moveToString(move) {
+  switch (move) {
+    case MOVES.Attack:
+      return "Attack";
+    case MOVES.Block:
+      return "Block";
+    case MOVES.Reload:
+      return "Reload";
+    default:
+      return "None";
+  }
+}
+
 export async function connectWallet() {
   if (!window.ethereum) {
     throw new Error("No Metamask has been installed");
@@ -37,6 +50,8 @@ class GameClient {
       signer
     );
     this.gameId = null;
+    this.duelerAddress = null;
+    this.dueleeAddress = null;
   }
 
   async newGame(dueleeAddress) {
@@ -44,9 +59,10 @@ class GameClient {
       throw new Error("No Game Contract found");
     }
 
-    const duelerAddress = await this.signer.getAddress();
+    this.duelerAddress = await this.signer.getAddress();
+    this.dueleeAddress = dueleeAddress;
 
-    await this.game.letItBegin(duelerAddress, dueleeAddress);
+    await this.game.letItBegin(this.duelerAddress, this.dueleeAddress);
   }
 
   async connectToGame(gameId) {
@@ -55,10 +71,8 @@ class GameClient {
 
   async getGameState() {
     const state = await this.game.gameStateForId(this.gameId);
-    this._saveGameStateTransitionToLocalStorage(state);
-    const moves = this._deriveMovesFromGameStateTransitions();
 
-    return { state, moves };
+    return state;
   }
 
   async signAndSendMove(moveType) {
@@ -73,6 +87,39 @@ class GameClient {
   async revealMove() {
     const move = this._loadLatestMoveFromLocalStorage();
     await this.game.revealMove(this.gameId, move);
+  }
+
+  // eventType: GameCreated | MoveSubmitted | MoveRevealed | RoundCompleted | WinnerDeclared
+  async addEventListener(eventType, handler) {
+    const startBlockNum = await this.signer.provider.getBlockNumber();
+
+    const filter = {
+      address: gameContract.address,
+      topics: this._topicsForEventType(eventType),
+    };
+
+    this.signer.provider.on(filter, (event) => {
+      if (startBlockNum < event.blockNumber) {
+        handler(this._parseDataFromEvent(eventType, event));
+      }
+    });
+  }
+
+  async queryEvents(eventType) {
+    const filter = {
+      address: gameContract.address,
+      topics: this._topicsForEventType(eventType),
+    };
+
+    const events = await this.game.queryFilter(filter);
+
+    const decodedEvents = events.map((event) => {
+      const decodedArr = event.decode(event.data, event.topics);
+
+      return { ...decodedArr };
+    });
+
+    return decodedEvents;
   }
 
   async _getMoveSignature(moveType, nonce) {
@@ -92,28 +139,6 @@ class GameClient {
     return signature;
   }
 
-  _saveGameStateTransitionToLocalStorage(currGameState) {
-    const gameStatesMap =
-      JSON.parse(
-        window.localStorage.getItem("metaDuelsGameStateTransitions")
-      ) || {};
-
-    const gameStateTransitions = gameStatesMap[this.gameId] || [];
-    const lastGameState =
-      gameStateTransitions[gameStateTransitions.length - 1] || {};
-
-    // only add state if it differs from the previous state
-    if (hash(lastGameState) !== hash(currGameState)) {
-      window.localStorage.setItem(
-        "metaDuelsGameStateTransitions",
-        JSON.stringify({
-          ...gameStatesMap,
-          [this.gameId]: gameStateTransitions.concat({ ...currGameState }),
-        })
-      );
-    }
-  }
-
   _saveCurrentMoveToLocalStorage(nonce, moveType, signature) {
     const moves =
       JSON.parse(window.localStorage.getItem("metaDuelsCurrentMoves")) || {};
@@ -127,74 +152,68 @@ class GameClient {
     );
   }
 
+  _topicsForEventType(eventType) {
+    switch (eventType) {
+      case "GameCreated":
+        return [
+          ethers.utils.id("GameStarted(address,address,uint256)"),
+          [
+            ethers.utils.hexZeroPad(this.duelerAddress, 32),
+            ethers.utils.hexZeroPad(this.dueleeAddress, 32),
+          ],
+          [
+            ethers.utils.hexZeroPad(this.duelerAddress, 32),
+            ethers.utils.hexZeroPad(this.dueleeAddress, 32),
+          ],
+        ];
+      case "MoveSubmitted":
+        return [
+          ethers.utils.id("MoveSubmitted(uint256,address)"),
+          ethers.utils.hexZeroPad(this.gameId, 32),
+        ];
+      case "MoveRevealed":
+        return [
+          ethers.utils.id("MoveRevealed(uint256,address)"),
+          ethers.utils.hexZeroPad(this.gameId, 32),
+        ];
+      case "RoundCompleted":
+        return [
+          ethers.utils.id("RoundCompleted(uint256,uint8,uint8)"),
+          ethers.utils.hexZeroPad(this.gameId, 32),
+        ];
+      case "WinnerDeclared":
+        return [
+          ethers.utils.id("WinnerDeclared(uint256,address)"),
+          ethers.utils.hexZeroPad(this.gameId, 32),
+        ];
+      default:
+        return [];
+    }
+  }
+
+  _parseDataFromEvent(eventType, event) {
+    switch (eventType) {
+      case "GameCreated":
+        const gameId = parseInt(event.data, 16);
+        return { gameId };
+      case "MoveSubmitted":
+        return {};
+      case "MoveRevealed":
+        return {};
+      case "RoundCompleted":
+        return {};
+      case "WinnerDeclared":
+        return {};
+      default:
+        return {};
+    }
+  }
+
   _loadLatestMoveFromLocalStorage() {
     const moves =
       JSON.parse(window.localStorage.getItem("metaDuelsCurrentMoves")) || {};
 
     return moves[this.gameId];
-  }
-
-  _moveFromStateTransition(
-    playerOldState,
-    playerNewState,
-    opponentOldState,
-    opponentNewState
-  ) {
-    let moveType = MOVES.None;
-    let isCritical = false;
-    if (playerOldState.ammo > playerNewState.ammo) {
-      moveType = MOVES.Attack;
-    } else if (playerOldState.shield === playerNewState.sheild + 2) {
-      moveType = MOVES.Block;
-    } else {
-      moveType = MOVES.Reload;
-    }
-
-    if (moveType === MOVES.Attack) {
-      isCritical = opponentNewState.health === opponentOldState.health - 2;
-    }
-
-    if (moveType === MOVES.Reload) {
-      isCritical = playerNewState.ammo === playerOldState.ammo + 2;
-    }
-
-    return { moveType, isCritical };
-  }
-
-  _deriveMovesFromGameStateTransitions() {
-    const stateTransitionsMap =
-      JSON.parse(
-        window.localStorage.getItem("metaDuelsGameStateTransitions")
-      ) || {};
-
-    const stateTransitions = stateTransitionsMap[this.gameId];
-
-    const moves = [];
-    for (let i = 1; i < stateTransitions.length; i++) {
-      const oldS = stateTransitions[i - 1];
-      const newS = stateTransitions[i];
-
-      const duelerMove = this._moveFromStateTransition(
-        oldS.duelerState,
-        newS.duelerState,
-        oldS.dueleeState,
-        newS.dueleeState
-      );
-
-      const dueleeMove = this._moveFromStateTransition(
-        oldS.dueleeState,
-        newS.dueleeState,
-        oldS.duelerState,
-        newS.duelerState
-      );
-
-      moves.push({
-        duelerMove,
-        dueleeMove,
-      });
-    }
-
-    return moves;
   }
 }
 

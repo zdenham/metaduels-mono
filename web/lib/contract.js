@@ -7,6 +7,113 @@ const gameContract = {
       type: "constructor",
     },
     {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "address",
+          name: "dueler",
+          type: "address",
+        },
+        {
+          indexed: true,
+          internalType: "address",
+          name: "duelee",
+          type: "address",
+        },
+        {
+          indexed: false,
+          internalType: "uint256",
+          name: "gameId",
+          type: "uint256",
+        },
+      ],
+      name: "GameStarted",
+      type: "event",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "uint256",
+          name: "gameId",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "address",
+          name: "revealer",
+          type: "address",
+        },
+      ],
+      name: "MoveRevealed",
+      type: "event",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "uint256",
+          name: "gameId",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "address",
+          name: "signer",
+          type: "address",
+        },
+      ],
+      name: "MoveSubmitted",
+      type: "event",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "uint256",
+          name: "gameId",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "uint8",
+          name: "duelerMove",
+          type: "uint8",
+        },
+        {
+          indexed: false,
+          internalType: "uint8",
+          name: "dueleeMove",
+          type: "uint8",
+        },
+      ],
+      name: "RoundCompleted",
+      type: "event",
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: "uint256",
+          name: "gameId",
+          type: "uint256",
+        },
+        {
+          indexed: false,
+          internalType: "address",
+          name: "winner",
+          type: "address",
+        },
+      ],
+      name: "WinnerDeclared",
+      type: "event",
+    },
+    {
       inputs: [
         {
           internalType: "uint256",
@@ -202,13 +309,7 @@ const gameContract = {
         },
       ],
       name: "letItBegin",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
+      outputs: [],
       stateMutability: "nonpayable",
       type: "function",
     },

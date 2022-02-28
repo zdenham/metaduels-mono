@@ -1,4 +1,4 @@
-import GameClient, { connectWallet, MOVES } from "../lib/game";
+import GameClient, { connectWallet, MOVES, moveToString } from "../lib/game";
 
 var signer = null;
 var gameClient = null;
@@ -15,21 +15,27 @@ document.getElementById("startGame").addEventListener("click", async () => {
 
   gameClient = new GameClient(signer);
 
+  gameClient.addEventListener("GameCreated", async ({ gameId }) => {
+    document.getElementById(
+      "gameIdDisplay"
+    ).innerText = `Game Created with ID: ${gameId}`;
+
+    joinGame(gameId);
+  });
+
   await gameClient.newGame(dueleeAddress);
+
+  document.getElementById("gameIdDisplay").innerText = `Creating Game...`;
 });
 
 document.getElementById("joinGame").addEventListener("click", async () => {
   const gameId = parseInt(document.getElementById("gameId").value);
 
   gameClient = new GameClient(signer);
-  gameClient.connectToGame(gameId);
-
-  const role = await renderGameState();
-
-  setUpMoveEventListeners(role);
+  await joinGame(gameId);
 });
 
-function setUpMoveEventListeners(role) {
+function setUpGameEventListeners(role) {
   document
     .getElementById(`${role}Attack`)
     .addEventListener("click", async () => {
@@ -53,11 +59,44 @@ function setUpMoveEventListeners(role) {
     .addEventListener("click", async () => {
       await gameClient.revealMove();
     });
+
+  // re-render game state whenever something important happens
+  gameClient.addEventListener("MoveSubmitted", async () => {
+    await renderGameState();
+  });
+
+  gameClient.addEventListener("MoveRevealed", async () => {
+    await renderGameState();
+  });
+
+  gameClient.addEventListener("RoundCompleted", async () => {
+    await renderGameState();
+  });
+
+  gameClient.addEventListener("WinnerDeclared", async () => {
+    await renderGameState();
+  });
+}
+
+function removeAllChildNodes(parent) {
+  while (parent.firstChild) {
+    parent.removeChild(parent.firstChild);
+  }
+}
+
+function getMoveStateText(move) {
+  if (move.signature === "0x") {
+    return `SUBMITTED MOVE: ❌ , REVEALED MOVE: ❌`;
+  } else if (move.moveType === MOVES.None) {
+    return `SUBMITTED MOVE: ✅ , REVEALED MOVE: ❌`;
+  }
+
+  return `SUBMITTED MOVE: ✅ , REVEALED MOVE: ✅`;
 }
 
 async function renderGameState() {
   const myAddress = await signer.getAddress();
-  const { state, moves } = await gameClient.getGameState(gameId);
+  const state = await gameClient.getGameState(gameId);
 
   const role = myAddress === state.duelerAddress ? `dueler` : `duelee`;
 
@@ -71,6 +110,12 @@ async function renderGameState() {
 
   // render the moves buttons
   document.getElementById(`${role}Moves`).style.display = "block";
+
+  // render the moves state
+  const duelerMoveStateText = getMoveStateText(state.currDuelerMove);
+  const dueleeMoveStateText = getMoveStateText(state.currDueleeMove);
+  document.getElementById("duelerMoveState").innerText = duelerMoveStateText;
+  document.getElementById("dueleeMoveState").innerText = dueleeMoveStateText;
 
   // render the health
   document.getElementById("duelerHealth").innerText =
@@ -97,11 +142,38 @@ async function renderGameState() {
   document.getElementById("winner").innerText =
     state.winner !== "0x0000000000000000000000000000000000000000"
       ? state.winner === state.duelerAddress
-        ? "WINNER - DUELER!"
-        : "WINNER - DUELEE!"
+        ? "🎉 WINNER - DUELER! 🎉"
+        : "🎉 WINNER - DUELEE! 🎉"
       : "";
 
+  const moves = await gameClient.queryEvents("RoundCompleted");
+
+  const moveContainer = document.getElementById("moveContainer");
+  removeAllChildNodes(moveContainer);
+
   // render moves - TODO
+  for (let i = 0; i < moves.length; i++) {
+    const { duelerMove, dueleeMove } = moves[i];
+    const moveDiv = document.createElement("div");
+
+    moveDiv.innerText = `ROUND ${i + 1}: DUELER MOVE: ${moveToString(
+      duelerMove
+    )} ${
+      duelerMove.isCritical ? "CRITICAL!" : ""
+    } | DUELEE MOVE: ${moveToString(dueleeMove)} ${
+      dueleeMove.isCritical ? "CRITICAL!" : ""
+    }`;
+
+    moveContainer.insertBefore(moveDiv, moveContainer.firstChild);
+  }
 
   return role;
+}
+
+async function joinGame(gameId) {
+  gameClient.connectToGame(gameId);
+
+  const role = await renderGameState();
+
+  setUpGameEventListeners(role);
 }
