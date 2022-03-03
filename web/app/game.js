@@ -27,6 +27,8 @@ class Game {
     this.gameEffects = [];
     this.power = [];
     this.finishHim = false;
+    this.countFrames = [];
+    this.moveFinished = false;
 
     //Metaduels//
     this.playerNFTCharacter = "scorpion";
@@ -103,6 +105,11 @@ class Game {
         "assets/images/powers/yelo.json",
         "assets/images/powers/fire.json",
         "assets/images/powers/death.json",
+        "assets/vfx/carsonattacksuccess.json",
+        "assets/vfx/actionlines.json",
+        "assets/vfx/failedattack.json",
+        "assets/vfx/fusion.json",
+        "assets/vfx/recharge.json",
         "assets/images/characters/scorpion.json",
         "assets/images/characters/claudia.json",
         "assets/images/characters/pao.json",
@@ -112,8 +119,6 @@ class Game {
         "assets/images/backgrounds/win.jpg",
         "assets/images/characters/aram.jpg",
         "assets/images/characters/scorpion.jpg",
-        "assets/images/characters/claudia.png",
-        "assets/images/characters/pao.png",
         "assets/images/characters/claudia-portrait.png",
         "assets/images/characters/pao-portrait.png",
         "assets/images/backgrounds/combat.jpg",
@@ -224,11 +229,38 @@ class Game {
       case "finish":
         soundPath = "assets/sounds/finish.mp3";
         break;
-      case "button-click":
+      case "buttonclick":
         soundPath = "assets/audio/Misc/buttonclick.mp3";
         break;
-      case "button-hover":
+      case "buttonhover":
         soundPath = "assets/audio/Misc/buttonclick.mp3";
+        break;
+        case "attackfusion":
+        soundPath = "assets/audio/Misc/attackfusion.mp3";
+        break;
+        case "bodyhitground":
+        soundPath = "assets/audio/Misc/bodyhitground.mp3";
+        break;
+        case "deathbirdschirp":
+        soundPath = "assets/audio/Misc/deathbirdschirp.mp3";
+        break;
+        case "bg":
+        soundPath = "assets/audio/Misc/duelsbg.mp3";
+        break;
+        case "lostlife":
+        soundPath = "assets/audio/Misc/lostlife.mp3";
+        break;
+        case "failedattack":
+        soundPath = "assets/audio/Carson/carson-failedattack.mp3";
+        break;
+        case "recharge":
+        soundPath = "assets/audio/Carson/carson-reload.mp3";
+        break;
+        case "successattack":
+        soundPath = "assets/audio/Carson/carson-successattack.mp3";
+        break;
+        case "successattackwhoosh":
+        soundPath = "assets/audio/Carson/carson-successattackwhoosh.mp3";
         break;
       default:
         break;
@@ -303,74 +335,453 @@ class Game {
         let collision;
         const opponent = index === 0 ? this.characters[1] : this.characters[0];
 
+        this.utils.update();
+
         switch (this.action[index]) {
+        case "stance":
+          character.actions.stance.visible = true;
+        break;
+
           case "attack":
             if (character.actions.punch) {
-              character.actions.punch.visible = true;
-              console.log("attack did");
+              if(!character.moveFinished) {
+                character.countFrame = 0;
+                character.moveFinished = true;
+              }
+              
+              character.countFrame += 1;
+              console.log(character.countFrame + character + character.moveFinished);
 
-              //choose attack button
-              this.didAttack = true;
-              this.didRecharge = false;
-              this.didShield = false;
+              if(character.countFrame === 1) {
+                this.playSound("successattack");
+                this.playSound("successattackwoosh");
+                character.actions.stance.visible = false;
+                character.actions.punch.visible = true;
+                this.powers[index].attackSuccess.gotoAndPlay(0);
+                this.powers[index].attackSuccess.visible = true;
+                this.powers[index].attackSuccess.y = this.groundY - 30;
+                this.powers[index].attackSuccess.x = character.position.x;
 
-              //play sounds and animations
-              this.playSound("hit");
-              this.loseHealthAnimation(this.healthIcon);
+                this.gameEffects[0].screenLines.gotoAndPlay(0);
+                this.gameEffects[0].screenLines.visible = true;
+                this.gameEffects[0].screenLines.y = 0;
+                this.gameEffects[0].screenLines.x = 0;
+                if(index === 0) {
+                  character.position.x = 550;
+                  this.powers[index].attackSuccess.position.x = character.position.x;
+                }
+                else {
+                  character.position.x = 650;
+                  this.powers[index].attackSuccess.position.x = character.position.x;
+                  this.powers[index].attackSuccess.scale.x = 1;
+                  this.powers[index].attackSuccess.scale.x *= -1;
+                }
+                console.log("attack did");
+              }
+              
+              if(character.countFrame <= 30 && character.countFrame >= 15) {
+              this.utils.shake(this.scenes.game, 20, false);
+              console.log(this.countFrames[index]);
+              }
 
-              //enable confirm button
+              if(character.countFrame > this.gameEffects[0].screenLines.totalFrames * 2) {
+                this.gameEffects[0].screenLines.visible = false;
+              }
+
+              if(character.countFrame === this.powers[index].attackSuccess.totalFrames) {
+                this.action[index] = "stance";
+                character.actions.punch.visible = false;
+                this.powers[index].attackSuccess.visible = false;
+                character.countFrame = 0;
+                character.moveFinished = true;
+                if(index === 0)
+                character.position.x = 400;
+                else {
+                character.position.x = 800;
+                }
+              }
 
             }
             break;
 
           case "recharge":
             if (character.actions.stance) {
-              character.actions.stance.visible = true;
-              console.log("recharge");
+              if(!character.moveFinished) {
+                character.countFrame = 0;
+                character.moveFinished = true;
+              }
+              
+              character.countFrame += 1;
+              console.log(character.countFrame + character + character.moveFinished);
 
-              //choose attack button
-              this.didAttack = true;
-              this.didRecharge = false;
-              this.didShield = false;
+              if(character.countFrame === 1) {
+                this.playSound("recharge");
+                this.powers[index].recharge.gotoAndPlay(0);
+                this.powers[index].recharge.visible = true;
+                this.powers[index].recharge.y = this.groundY - 30;
+                this.powers[index].recharge.x = character.position.x;
 
-              //enable confirm button
+                if(index === 0) {
+                  character.position.x = 550;
+                  this.powers[index].recharge.position.x = character.position.x - 100;
+                }
+                else {
+                  character.position.x = 650;
+                  this.powers[index].recharge.position.x = character.position.x - 100;
+                }
+              }
 
-              //play sounds and animations
-              this.playSound("kick");
+              if(character.countFrame === this.powers[index].recharge.totalFrames * 5) {
+                this.action[index] = "stance";
+                this.powers[index].recharge.visible = false;
+                character.countFrame = 0;
+                character.moveFinished = true;
+                if(index === 0)
+                character.position.x = 400;
+                else {
+                character.position.x = 800;
+                }
+              }
             }
             break;
 
           case "shield":
             if (character.actions.duck) {
               character.actions.duck.visible = true;
+              character.actions.stance.visible = false;
               console.log("shield did");
 
-              //choose attack button
-              this.didAttack = true;
-              this.didRecharge = false;
-              this.didShield = false;
+              if(!character.moveFinished) {
+                character.countFrame = 0;
+                character.moveFinished = true;
+              }
+              
+              character.countFrame += 1;
+              console.log(character.countFrame + character + character.moveFinished);
 
-              //enable confirm button
+              if(character.countFrame === 1) {
+                if(index === 0) {
+                  character.position.x = 550;
+                }
+                else {
+                  character.position.x = 650;
+                }
+              }
 
-              //play sounds and animations
-              this.playSound("kick");
+              if(character.countFrame === 60) {
+                this.action[index] = "stance";
+                character.actions.duck.visible = false;
+                character.countFrame = 0;
+                character.moveFinished = true;
+                if(index === 0)
+                character.position.x = 400;
+                else {
+                character.position.x = 800;
+                }
+              }
             }
             break;
+            
+          case "attackCrit":
+            if (character.actions.punch) {
+              if(!character.moveFinished) {
+                character.countFrame = 0;
+                character.moveFinished = true;
+              }
+              
+              character.countFrame += 1;
+              console.log(character.countFrame + character + character.moveFinished);
 
-          case "confirm":
+              if(character.countFrame === 1) {
+                this.playSound("hit");
+                character.actions.stance.visible = false;
+                character.actions.punch.visible = true;
+                this.powers[index].attackSuccess.gotoAndPlay(0);
+                this.powers[index].attackSuccess.visible = true;
+                this.powers[index].attackSuccess.y = this.groundY - 30;
+                this.powers[index].attackSuccess.x = character.position.x;
+
+                this.gameEffects[0].screenLines.gotoAndPlay(0);
+                this.gameEffects[0].screenLines.visible = true;
+                this.gameEffects[0].screenLines.y = 0;
+                this.gameEffects[0].screenLines.x = 0;
+                if(index === 0) {
+                  character.position.x = 550;
+                  this.powers[index].attackSuccess.position.x = character.position.x;
+                }
+                else {
+                  character.position.x = 650;
+                  this.powers[index].attackSuccess.position.x = character.position.x;
+                  this.powers[index].attackSuccess.scale.x = 1;
+                  this.powers[index].attackSuccess.scale.x *= -1;
+                }
+                console.log("attack did");
+              }
+              
+              if(character.countFrame <= 30 && character.countFrame >= 15) {
+              this.utils.shake(this.scenes.game, 20, false);
+              console.log(this.countFrames[index]);
+              }
+
+              if(character.countFrame > this.gameEffects[0].screenLines.totalFrames * 2) {
+                this.gameEffects[0].screenLines.visible = false;
+              }
+
+              if(character.countFrame === this.powers[index].attackSuccess.totalFrames) {
+                this.action[index] = "stance";
+                character.actions.punch.visible = false;
+                this.powers[index].attackSuccess.visible = false;
+                character.countFrame = 0;
+                character.moveFinished = true;
+                if(index === 0)
+                character.position.x = 400;
+                else {
+                character.position.x = 800;
+                }
+              }
+            }
+            break;
+            
+          case "attackFail":
+            if (character.actions.punch) {
+              if(!character.moveFinished) {
+                character.countFrame = 0;
+                character.moveFinished = true;
+              }
+              
+              character.countFrame += 1;
+              console.log(character.countFrame + character + character.moveFinished);
+
+              if(character.countFrame === 1) {
+                this.playSound("failedattack");
+                character.actions.stance.visible = false;
+                character.actions.punch.visible = true;
+                this.powers[index].attackFail.gotoAndPlay(0);
+                this.powers[index].attackFail.visible = true;
+                this.powers[index].attackFail.y = this.groundY + 30;
+                this.powers[index].attackFail.x = character.position.x;
+
+                this.gameEffects[0].screenLines.gotoAndPlay(0);
+                this.gameEffects[0].screenLines.visible = true;
+                this.gameEffects[0].screenLines.y = 0;
+                this.gameEffects[0].screenLines.x = 0;
+                if(index === 0) {
+                  character.position.x = 550;
+                  this.powers[index].attackFail.position.x = character.position.x + 90;
+                }
+                else {
+                  character.position.x = 650;
+                  this.powers[index].attackFail.position.x = character.position.x - 90;
+                  this.powers[index].attackFail.scale.x = 1;
+                  this.powers[index].attackFail.scale.x *= -1;
+                }
+                console.log("attack did");
+              }
+              
+              if(character.countFrame <= 30 && character.countFrame >= 15) {
+              this.utils.shake(this.scenes.game, 20, false);
+              console.log(this.countFrames[index]);
+              }
+
+              if(character.countFrame > this.gameEffects[0].screenLines.totalFrames) {
+                this.gameEffects[0].screenLines.visible = false;
+              }
+
+              if(character.countFrame === this.powers[index].attackFail.totalFrames) {
+                this.action[index] = "stance";
+                character.actions.punch.visible = false;
+                this.powers[index].attackFail.visible = false;
+                character.countFrame = 0;
+                character.moveFinished = true;
+                if(index === 0)
+                character.position.x = 400;
+                else {
+                character.position.x = 800;
+                }
+              }
+            }
+            break;
+            
+          case "attackKO":
+            if (character.actions.punch) {
+              if(!character.moveFinished) {
+                character.countFrame = 0;
+                character.moveFinished = true;
+              }
+              
+              character.countFrame += 1;
+              console.log(character.countFrame + character + character.moveFinished);
+
+              if(character.countFrame === 1) {
+                this.playSound("successattack");
+                this.playSound("successattackwoosh");
+                character.actions.stance.visible = false;
+                character.actions.punch.visible = true;
+                this.powers[index].attackSuccess.gotoAndPlay(0);
+                this.powers[index].attackSuccess.visible = true;
+                this.powers[index].attackSuccess.y = this.groundY - 30;
+                this.powers[index].attackSuccess.x = character.position.x;
+
+                this.gameEffects[0].screenLines.gotoAndPlay(0);
+                this.gameEffects[0].screenLines.visible = true;
+                this.gameEffects[0].screenLines.y = 0;
+                this.gameEffects[0].screenLines.x = 0;
+                if(index === 0) {
+                  character.position.x = 550;
+                  this.powers[index].attackSuccess.position.x = character.position.x;
+                }
+                else {
+                  character.position.x = 650;
+                  this.powers[index].attackSuccess.position.x = character.position.x;
+                  this.powers[index].attackSuccess.scale.x = 1;
+                  this.powers[index].attackSuccess.scale.x *= -1;
+                }
+                console.log("attack did");
+              }
+              
+              if(character.countFrame <= 30 && character.countFrame >= 15) {
+              this.utils.shake(this.scenes.game, 20, false);
+              console.log(this.countFrames[index]);
+              }
+
+              if(character.countFrame > this.gameEffects[0].screenLines.totalFrames * 2) {
+                this.gameEffects[0].screenLines.visible = false;
+              }
+
+              if(character.countFrame === this.powers[index].attackSuccess.totalFrames) {
+                this.action[index] = "stance";
+                character.actions.punch.visible = false;
+                this.powers[index].attackSuccess.visible = false;
+                character.countFrame = 0;
+                character.moveFinished = true;
+                if(index === 0)
+                character.position.x = 400;
+                else {
+                character.position.x = 800;
+                }
+              }
+            }
+            break;
+            
+          case "attackCancelOut":
+            if (character.actions.punch) {
+              if(!character.moveFinished) {
+                character.countFrame = 0;
+                character.moveFinished = true;
+              }
+              
+              character.countFrame += 1;
+              console.log(character.countFrame + character + character.moveFinished);
+
+              if(character.countFrame === 1) {
+                this.playSound("attackfusion");
+                character.actions.stance.visible = false;
+                character.actions.punch.visible = true;
+                this.powers[index].fusion.gotoAndPlay(0);
+                this.powers[index].fusion.visible = true;
+                this.powers[index].fusion.y = 200;
+                this.powers[index].fusion.x = 600;
+
+                this.gameEffects[0].screenLines.gotoAndPlay(0);
+                this.gameEffects[0].screenLines.visible = true;
+                this.gameEffects[0].screenLines.y = 0;
+                this.gameEffects[0].screenLines.x = 0;
+                console.log("fuuuusssiioooonn HAAAA");
+                if(index === 0) {
+                  character.position.x = 550;
+                }
+                else {
+                  character.position.x = 650;
+                }
+              }
+              
+              if(character.countFrame <= 30 && character.countFrame >= 15) {
+              this.utils.shake(this.scenes.game, 33, false);
+              console.log(this.countFrames[index]);
+              }
+
+              if(character.countFrame > this.gameEffects[0].screenLines.totalFrames * 2) {
+                this.gameEffects[0].screenLines.visible = false;
+              }
+
+              if(character.countFrame === this.powers[index].fusion.totalFrames * 3) {
+                this.action[index] = "stance";
+                character.actions.punch.visible = false;
+                this.powers[index].fusion.visible = false;
+                character.countFrame = 0;
+                character.moveFinished = true;
+                if(index === 0)
+                character.position.x = 400;
+                else {
+                character.position.x = 800;
+                }
+              }
+            }
+            break;
+            
+          case "takeDamage":
             if (character.actions.stance) {
-              character.actions.staticjump.visible = true;
-              console.log("confirm");
-              this.youWin();
-              //turn off other buttons
-              //check if opponent has confirmed
-              //if yes, calculate results
-              //if no, wait
+              console.log(character + "took damage");
+              if(!character.moveFinished) {
+                character.countFrame = 0;
+                character.moveFinished = true;
+              }
+              
+              character.countFrame += 1;
+              console.log(character.countFrame + character + character.moveFinished);
+
+              if(character.countFrame === 1) {
+                this.playSound("hitscream");
+                character.actions.stance.visible = false;
+                character.actions.hit.visible = true;
+
+                if(index === 0) {
+                  character.position.x = 550;
+                }
+                else {
+                  character.position.x = 650;
+                }
+              }
+              
+              if(character.countFrame <= 30 && character.countFrame >= 15) {
+                if(index === 0) {
+                  character.position.x -= 2;
+                }
+                else {
+                  character.position.x += 2;
+                  }
+              }
+
+              if(character.countFrame === this.powers[index].attackSuccess.totalFrames) {
+                this.action[index] = "stance";
+                character.actions.hit.visible = false;
+                character.countFrame = 0;
+                character.moveFinished = true;
+                if(index === 0)
+                character.position.x = 400;
+                else {
+                character.position.x = 800;
+                }
+              }
+              }
+            break;
+            
+          case "knockedOut":
+            if (character.actions.death) {
+              character.actions.stance.visible = false;
+              character.actions.highhit.visible = false;
+              character.actions.hit.visible = true;
+             }
+            break;
+            
+          case "doubleRecharge":
+            if (character.actions.stance) {
+              console.log("double recharge -- setup a new effect for this");
             }
             break;
 
             default:
-              character.actions.stance.visible = true;
+              //character.actions.stance.visible = true;
       }
       });
      });
@@ -422,7 +833,7 @@ class Game {
 
     this.setActiveScene("select");
     this.stopSound();
-    this.playSound("fight", { loop: true, bg: true });
+    this.playSound("bg", { loop: true, bg: true });
     let introPrompt = this.textObj.customText(
     "choose your move", 532,200);
     this.scenes.select.addChild(introPrompt);
@@ -433,7 +844,19 @@ class Game {
 
     //setup characters
     this.setupCharacters(this.opponentNFTCharacter);
+    this.setupAttackSuccess();
+    this.setupFusion();
+    this.setupAttackFail();
+    this.setupRecharge();
     this.setupCharacters(this.playerNFTCharacter, true);
+    this.setupAttackSuccess(true);
+    this.setupFusion(true);
+    this.setupAttackFail(true);
+    this.setupRecharge(true);
+
+    //setup global effects
+    this.setupScreenLines();
+
 
     /*
     * set buttons to each do their own ability, then confirm based on both player inputs
@@ -529,7 +952,7 @@ class Game {
 
     this.round++;
     this.buttonsPushed = true;
-    //this.battleScene();
+    this.battleScene();
 
     let animate = () => {
       requestAnimationFrame(animate);
@@ -551,7 +974,7 @@ class Game {
 
     this.setActiveScene("game");
     this.stopSound();
-    this.playSound("fight", { loop: true, bg: true });
+    this.playSound("bg", { loop: true, bg: true });
 
     let roundText = this.textObj.customText(
     ("ROUND " + this.round), 560,20);
@@ -677,12 +1100,8 @@ class Game {
     console.log("button is down");
 
     parent.playSound("button-click");
-
-    //console.log(this.parent);
-    //this.setActiveScene("gameOver");
     parent.battleScene();
 
-    //if(this.button.)
     }
   }
 
@@ -792,6 +1211,14 @@ class Game {
     this.keys.recharge = this.keys.recharge || [];
     this.keys.shield = this.keys.shield || [];
     this.keys.confirm = this.keys.confirm || [];
+    //for show, cna delete for game\\
+    this.keys.attackFail = this.keys.attackFail || [];
+    this.keys.attackCrit = this.keys.attackCrit || [];
+    this.keys.attackKO = this.keys.attackKO || [];
+    this.keys.attackCancelOut = this.keys.attackCancelOut || [];
+    this.keys.takeDamage = this.keys.takeDamage || [];
+    this.keys.knockedOut = this.keys.knockedOut || [];
+    this.keys.doubleRecharge = this.keys.doubleRecharge || [];
 
     let player = opponent ? 1 : 0;
 
@@ -800,17 +1227,34 @@ class Game {
       this.keys.recharge[player] = Keyboard(57); // 9
       this.keys.shield[player] = Keyboard(48); // 0
       this.keys.confirm[player] = Keyboard(13); // Enter
+
+      this.keys.attackFail[player] = Keyboard(55); // 7
+      this.keys.attackCrit[player] = Keyboard(54); // 6
+      this.keys.attackKO[player] = Keyboard(80); // p
+      this.keys.attackCancelOut[player] = Keyboard(79); // o
+      this.keys.takeDamage[player] = Keyboard(73); // i
+      this.keys.knockedOut[player] = Keyboard(85); // u
+      this.keys.doubleRecharge[player] = Keyboard(89); // y
     } else {
       this.keys.attack[player] = Keyboard(49); // 1
       this.keys.recharge[player] = Keyboard(50); // 2
       this.keys.shield[player] = Keyboard(51); // 3
       this.keys.confirm[player] = Keyboard(9); // TAB
+      //for show to delete\\
+      this.keys.attackFail[player] = Keyboard(52); // 4
+      this.keys.attackCrit[player] = Keyboard(53); // 5
+      this.keys.attackKO[player] = Keyboard(81); // q
+      this.keys.attackCancelOut[player] = Keyboard(87); // w
+      this.keys.takeDamage[player] = Keyboard(69); // e
+      this.keys.knockedOut[player] = Keyboard(82); // r
+      this.keys.doubleRecharge[player] = Keyboard(84); // t
     }
 
     this.keys.attack[player].press = () => {
       if (!this.characters[player].isDeath) {
         if (character.actions.punch) {
-            this.action[player] = "attack";
+          this.action[player] = "attack";
+          this.power[player] = "attackSuccess";
         }
       }
     };
@@ -838,50 +1282,125 @@ class Game {
         }
       }
     };
+
+    //show off to delete
+    this.keys.attackFail[player].press = () => {
+      if (!this.characters[player].isDeath) {
+        if (character.actions.stance) {
+            this.action[player] = "attackFail";
+        }
+      }
+    };
+    this.keys.attackCrit[player].press = () => {
+      if (!this.characters[player].isDeath) {
+        if (character.actions.stance) {
+            this.action[player] = "attackCrit";
+        }
+      }
+    };
+    this.keys.attackKO[player].press = () => {
+      if (!this.characters[player].isDeath) {
+        if (character.actions.stance) {
+            this.action[player] = "attackKO";
+        }
+      }
+    };
+    this.keys.attackCancelOut[player].press = () => {
+      if (!this.characters[player].isDeath) {
+        if (character.actions.stance) {
+            this.action[player] = "attackCancelOut";
+        }
+      }
+    };
+    this.keys.takeDamage[player].press = () => {
+      if (!this.characters[player].isDeath) {
+        if (character.actions.stance) {
+            this.action[player] = "takeDamage";
+        }
+      }
+    };
+    this.keys.knockedOut[player].press = () => {
+      if (!this.characters[player].isDeath) {
+        if (character.actions.stance) {
+            this.action[player] = "knockedOut";
+        }
+      }
+    };
+    this.keys.doubleRecharge[player].press = () => {
+      if (!this.characters[player].isDeath) {
+        if (character.actions.stance) {
+            this.action[player] = "doubleRecharge";
+        }
+      }
+    };
     //Metaduels//
   }
 
-  setupPowers(opponent) {
+  setupAttackSuccess(opponent) {
     const player = opponent ? 0 : 1;
 
     this.powers[player] = {};
 
-    this.powers[player].yelo = this.createAnimation("yelo-moving", 1);
-    this.powers[player].yelo.visible = false;
-    this.powers[player].yelo.x = 0;
-    this.powers[player].yelo.vx = 15;
+    this.powers[player].attackSuccess = this.createAnimation("Carson Attack Successful PNG", 36);
+    this.powers[player].attackSuccess.visible = false;
+    this.powers[player].attackSuccess.x = 0;
+    this.powers[player].attackSuccess.vx = 15;
     if (player === 1) {
-      this.powers[player].yelo.vx = -15;
+      this.powers[player].attackSuccess.vx = -15;
     }
-
-    this.scenes.game.addChild(this.powers[player].yelo);
+    this.scenes.game.addChild(this.powers[player].attackSuccess);
   }
-
-  setupFatality(opponent) {
+  
+  setupRecharge(opponent) {
     const player = opponent ? 0 : 1;
 
-    this.powers[player].fire = this.createAnimation("fire0", 7);
-    this.powers[player].fire.loop = true;
-    this.powers[player].fire.animationSpeed = 0.25;
-    this.powers[player].fire.visible = false;
-    this.powers[player].fire.x = 0;
-    this.powers[player].fire.vx = 15;
+    this.powers[player].recharge = this.createAnimation("Reload circle ", 21);
+    this.powers[player].recharge.visible = false;
+    this.powers[player].recharge.x = 0;
+    this.powers[player].recharge.vx = 15;
     if (player === 1) {
-      this.powers[player].fire.vx = -15;
+      this.powers[player].recharge.vx = -15;
     }
+    this.scenes.game.addChild(this.powers[player].recharge);
+  }
+  
+  setupAttackFail(opponent) {
+    const player = opponent ? 0 : 1;
 
-    this.scenes.game.addChild(this.powers[player].fire);
+    this.powers[player].attackFail = this.createAnimation("Unsuccesfful attack 08", 22);
+    this.powers[player].attackFail.visible = false;
+    this.powers[player].attackFail.x = 0;
+    this.powers[player].attackFail.vx = 15;
+    if (player === 1) {
+      this.powers[player].attackFail.vx = -15;
+    }
+    this.scenes.game.addChild(this.powers[player].attackFail);
+  }
+  
+  setupFusion(opponent) {
+    const player = opponent ? 0 : 1;
+
+    this.powers[player].fusion = this.createAnimation("Attack fusion 2 ", 20);
+    this.powers[player].fusion.visible = false;
+    this.powers[player].fusion.loop = false;
+    this.powers[player].fusion.x = 0;
+    this.powers[player].fusion.vx = 15;
+    if (player === 1) {
+      this.powers[player].fusion.vx = -15;
+    }
+    this.scenes.game.addChild(this.powers[player].fusion);
   }
 
   setupScreenLines() {
-    this.gameEffects[0] = this.createAnimation("Action Lines 100.png", 12);
-    this.gameEffects[0].loop = true;
-    this.gameEffects[0].animationSpeed = 0.25;
-    this.gameEffects[0].visible = false;
-    this.gameEffects[0].x = 0;
-    this.gameEffects[0].vx = 15;
+    this.gameEffects[0] = [];
+    this.gameEffects[0].screenLines = this.createAnimation("Action Lines 10", 11);
+    this.gameEffects[0].screenLines.loop = true;
+    this.gameEffects[0].screenLines.animationSpeed = 0.25;
+    this.gameEffects[0].screenLines.visible = false;
+    this.gameEffects[0].screenLines.x = 0;
+    this.gameEffects[0].screenLines.vx = 15;
 
-    this.scenes.game.addChild(this.gameEffects[0]);
+    this.scenes.game.addChild(this.gameEffects[0].screenLines);
   }
 
   setupCharacters(selectedPlayer, opponent) {
