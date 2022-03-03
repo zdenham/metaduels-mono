@@ -1,14 +1,19 @@
 <!DOCTYPE html>
-<html>
+<html style="margin: 0px; padding: 0px">
   <head>
     <title>MetaDuels</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
   </head>
 
   <body
     style="
+      padding: 0px;
+      margin: 0px;
       overflow-x: hidden;
-      width: 100vw;
-      height: 100vh;
+      text-align: center;
+      min-height: 100vh;
+      height: 100%;
+      width: 100%;
       font-family: roboto;
       background: linear-gradient(180deg, #ee9d6f 11.46%, #e76565 100%);
     "
@@ -93,6 +98,41 @@
         font-family: DroidSansMono;
         text-transform: uppercase;
       }
+
+      .footer {
+        margin: 45px;
+      }
+
+      .inviteText {
+        font-family: SingleFighter;
+        font-size: 46px;
+        margin: 0px;
+      }
+
+      .playableText {
+        font-size: 30px;
+        font-family: DroidSansMono;
+      }
+
+      .droppingText {
+        font-family: VT323;
+        font-size: 55px;
+        margin: 0px;
+      }
+
+      @media only screen and (max-width: 768px) {
+        .inviteText {
+          font-size: 38px;
+        }
+
+        .playableText {
+          font-size: 18px;
+        }
+
+        .droppingText {
+          font-size: 34px;
+        }
+      }
     </style>
     <div
       style="
@@ -107,15 +147,9 @@
         src="./assets/images/metaDuelsLogo.png"
         style="max-width: 80vw; width: 250px; margin-top: 15px"
       />
-      <h2 style="font-family: SingleFighter; font-size: 46px; margin: 0px">
-        INVITE ONLY PRESALE
-      </h2>
-      <h3 style="font-family: DroidSansMono; font-size: 30px">
-        100 1/1 NFT PLAYABLE CHARACTERS
-      </h3>
-      <h3 style="font-family: VT323; font-size: 55px; margin: 0px">
-        dropping 03/29/2022 @ 5pm PST
-      </h3>
+      <h2 class="inviteText">INVITE ONLY PRESALE</h2>
+      <h3 class="playableText">100 1/1 NFT PLAYABLE CHARACTERS</h3>
+      <h3 class="droppingText">dropping 03/29/2022 @ 5pm PST</h3>
 
       <div class="cards">
         <div class="cardWrapper">
@@ -279,7 +313,7 @@
           <div class="cardFooter">Flamez</div>
         </div>
       </div>
-      <div className="footer">
+      <div class="footer">
         <a href="mailto:sho@metaduels.org">shoe@metaduels.org</a>
       </div>
     </div>
