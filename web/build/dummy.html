@@ -13,33 +13,75 @@
     <div>
       <input id="opponentAddress" placeholder="Opponent Address (0x...)" />
       <button id="startGame">Start Game</button>
+      <span id="gameIdDisplay" style="margin-left: 15px"></span>
     </div>
     <span>or</span>
     <br />
     <br />
     <div>
       <input id="gameId" placeholder="enter gameId to join" />
-      <button id="joinGame">submit</button>
+      <button id="joinGame">Join Game</button>
     </div>
-
-    <div style="display: flex; flex-direction: row">
-      <div
-        style="
-          width: 50vw;
-          height: 60vh;
-          border-right: 1px solid black;
-          padding: 20px;
-        "
-      >
-        <h1>DUELER</h1>
-        <h2 id="address"></h2>
-        <div>
-          <button id="attack">ATTACK</button><button id="block">BLOCK</button
-          ><button id="reload">RELOAD</button>
+    <h1 style="width: 100vw; text-align: center" id="winner"></h1>
+    <div id="gameContainer" style="display: none; flex-direction: column">
+      <div style="display: flex; flex-direction: row">
+        <div
+          style="
+            width: 45vw;
+            height: 30vh;
+            border-right: 1px solid black;
+            padding: 20px;
+          "
+        >
+          <h1 id="duelerHeader">DUELER</h1>
+          <div id="duelerMoveState" style="margin: 10px 0px"></div>
+          <div id="duelerMoves" style="display: none">
+            <button id="duelerAttack">ATTACK</button
+            ><button id="duelerBlock">BLOCK</button
+            ><button id="duelerReload">RELOAD</button>
+            <button id="duelerConfirm">REVEAL MOVE!</button>
+          </div>
+          <div>
+            <div id="duelerHealth"></div>
+            <div id="duelerAmmo"></div>
+            <div id="duelerShield"></div>
+          </div>
+        </div>
+        <div style="width: 45vw; height: 30vh; padding: 20px">
+          <h1 id="dueleeHeader">DUELEE</h1>
+          <div id="dueleeMoveState" style="margin: 10px 0px"></div>
+          <div id="dueleeMoves" style="display: none">
+            <button id="dueleeAttack">ATTACK</button
+            ><button id="dueleeBlock">BLOCK</button
+            ><button id="dueleeReload">RELOAD</button>
+            <button id="dueleeConfirm">REVEAL MOVE!</button>
+          </div>
+          <div>
+            <div id="dueleeHealth"></div>
+            <div id="dueleeAmmo"></div>
+            <div id="dueleeShield"></div>
+          </div>
         </div>
       </div>
-      <div style="width: 50vw; height: 60vh; padding: 20px">
-        <h1>DUELEE</h1>
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          width: 100vw;
+          border-top: 1px solid black;
+        "
+      >
+        <h1>ROUND MOVES</h1>
+        <div
+          id="moveContainer"
+          style="
+            width: 50vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          "
+        ></div>
       </div>
     </div>
   </body>

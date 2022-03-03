@@ -1,320 +1,28 @@
-const { ethers } = require("ethers");
+import { ethers } from "ethers";
+import { v4 } from "uuid";
+import gameContract from "./contract";
 
-const criticalHit = (nonce1, nonce2) => {
-  const encoder = new ethers.utils.AbiCoder();
-  const bytes = encoder.encode(["string", "string"], [nonce1, nonce2]);
-  const hash = ethers.utils.solidityKeccak256(["bytes"], [bytes]);
-  const binaryHash = ethers.utils.arrayify(hash);
-  const isCritical = binaryHash[31] < 25;
+const GAME_NETWORK_ID = "0x13881";
 
-  return isCritical;
+export const MOVES = {
+  None: 0,
+  Attack: 1,
+  Block: 2,
+  Reload: 3,
 };
 
-const GAME_CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-const GAME_NETWORK_ID = "0x7A69";
-
-const gameContract = {
-  address: GAME_CONTRACT_ADDRESS,
-  abi: [
-    {
-      inputs: [],
-      stateMutability: "nonpayable",
-      type: "constructor",
-    },
-    {
-      inputs: [
-        {
-          internalType: "uint256",
-          name: "gameId",
-          type: "uint256",
-        },
-        {
-          internalType: "uint8",
-          name: "moveType",
-          type: "uint8",
-        },
-        {
-          internalType: "string",
-          name: "nonce",
-          type: "string",
-        },
-      ],
-      name: "_createSignatureInputHash",
-      outputs: [
-        {
-          internalType: "bytes32",
-          name: "",
-          type: "bytes32",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "bytes32",
-          name: "data",
-          type: "bytes32",
-        },
-        {
-          internalType: "bytes",
-          name: "signature",
-          type: "bytes",
-        },
-        {
-          internalType: "address",
-          name: "maybeSigner",
-          type: "address",
-        },
-      ],
-      name: "_validateSignature",
-      outputs: [
-        {
-          internalType: "bool",
-          name: "",
-          type: "bool",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "uint256",
-          name: "gameId",
-          type: "uint256",
-        },
-      ],
-      name: "gameStateForId",
-      outputs: [
-        {
-          components: [
-            {
-              internalType: "address",
-              name: "winner",
-              type: "address",
-            },
-            {
-              internalType: "address",
-              name: "duelerAddress",
-              type: "address",
-            },
-            {
-              internalType: "address",
-              name: "dueleeAddress",
-              type: "address",
-            },
-            {
-              components: [
-                {
-                  internalType: "int8",
-                  name: "ammo",
-                  type: "int8",
-                },
-                {
-                  internalType: "int8",
-                  name: "health",
-                  type: "int8",
-                },
-                {
-                  internalType: "int8",
-                  name: "shield",
-                  type: "int8",
-                },
-              ],
-              internalType: "struct MetaDuelsGame.PlayerState",
-              name: "duelerState",
-              type: "tuple",
-            },
-            {
-              components: [
-                {
-                  internalType: "int8",
-                  name: "ammo",
-                  type: "int8",
-                },
-                {
-                  internalType: "int8",
-                  name: "health",
-                  type: "int8",
-                },
-                {
-                  internalType: "int8",
-                  name: "shield",
-                  type: "int8",
-                },
-              ],
-              internalType: "struct MetaDuelsGame.PlayerState",
-              name: "dueleeState",
-              type: "tuple",
-            },
-            {
-              components: [
-                {
-                  internalType: "uint8",
-                  name: "moveType",
-                  type: "uint8",
-                },
-                {
-                  internalType: "bytes",
-                  name: "signature",
-                  type: "bytes",
-                },
-                {
-                  internalType: "string",
-                  name: "nonce",
-                  type: "string",
-                },
-              ],
-              internalType: "struct MetaDuelsGame.Move",
-              name: "currDuelerMove",
-              type: "tuple",
-            },
-            {
-              components: [
-                {
-                  internalType: "uint8",
-                  name: "moveType",
-                  type: "uint8",
-                },
-                {
-                  internalType: "bytes",
-                  name: "signature",
-                  type: "bytes",
-                },
-                {
-                  internalType: "string",
-                  name: "nonce",
-                  type: "string",
-                },
-              ],
-              internalType: "struct MetaDuelsGame.Move",
-              name: "currDueleeMove",
-              type: "tuple",
-            },
-          ],
-          internalType: "struct MetaDuelsGame.Game",
-          name: "",
-          type: "tuple",
-        },
-      ],
-      stateMutability: "view",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "address",
-          name: "dueler",
-          type: "address",
-        },
-        {
-          internalType: "address",
-          name: "duelee",
-          type: "address",
-        },
-      ],
-      name: "letItBegin",
-      outputs: [
-        {
-          internalType: "uint256",
-          name: "",
-          type: "uint256",
-        },
-      ],
-      stateMutability: "nonpayable",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "uint256",
-          name: "gameId",
-          type: "uint256",
-        },
-        {
-          components: [
-            {
-              internalType: "uint8",
-              name: "moveType",
-              type: "uint8",
-            },
-            {
-              internalType: "bytes",
-              name: "signature",
-              type: "bytes",
-            },
-            {
-              internalType: "string",
-              name: "nonce",
-              type: "string",
-            },
-          ],
-          internalType: "struct MetaDuelsGame.Move",
-          name: "revealedMove",
-          type: "tuple",
-        },
-      ],
-      name: "revealMove",
-      outputs: [],
-      stateMutability: "nonpayable",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "uint256",
-          name: "gameId",
-          type: "uint256",
-        },
-        {
-          internalType: "bytes",
-          name: "signature",
-          type: "bytes",
-        },
-      ],
-      name: "submitMoveSignature",
-      outputs: [],
-      stateMutability: "nonpayable",
-      type: "function",
-    },
-  ],
-};
-
-const getSignedMove = async (move, signer, gameId = 1) => {
-  const moveType = typeof move === "object" ? move.moveType : move;
-  const nonce = typeof move === "object" ? move.nonce : nonCriticalNonce;
-
-  const encoder = new ethers.utils.AbiCoder();
-
-  const bytes = encoder.encode(
-    ["uint256", "uint8", "string"],
-    [gameId, moveType, nonce]
-  );
-
-  const hash = ethers.utils.solidityKeccak256(["bytes"], [bytes]);
-
-  const binaryHash = ethers.utils.arrayify(hash);
-
-  const signature = await signer.signMessage(binaryHash);
-
-  return {
-    moveType,
-    nonce,
-    signature,
-  };
-};
-
-const signAndSendMove = async (moveType, nonce, gameId) => {
-  const { signature } = await getSignedMove(moveType, nonce, gameId);
-  await game.submitMoveSignature(gameId, signature);
-};
-
-const revealMove = async (move, gameId) => {
-  await game.revealMove(gameId, move);
-};
+export function moveToString(move) {
+  switch (move) {
+    case MOVES.Attack:
+      return "Attack";
+    case MOVES.Block:
+      return "Block";
+    case MOVES.Reload:
+      return "Reload";
+    default:
+      return "None";
+  }
+}
 
 export async function connectWallet() {
   if (!window.ethereum) {
@@ -341,11 +49,8 @@ class GameClient {
       signer
     );
     this.gameId = null;
-  }
-
-  async getGameState() {
-    console.log("GETTING GAMESTATE FOR ID: ", this.gameId);
-    return await this.game.gameStateForId(this.gameId);
+    this.duelerAddress = null;
+    this.dueleeAddress = null;
   }
 
   async newGame(dueleeAddress) {
@@ -353,13 +58,167 @@ class GameClient {
       throw new Error("No Game Contract found");
     }
 
-    const duelerAddress = await this.signer.getAddress();
+    this.duelerAddress = await this.signer.getAddress();
+    this.dueleeAddress = dueleeAddress;
 
-    await this.game.letItBegin(duelerAddress, dueleeAddress);
+    await this.game.letItBegin(this.duelerAddress, this.dueleeAddress);
   }
 
   async connectToGame(gameId) {
     this.gameId = gameId;
+  }
+
+  async getGameState() {
+    const state = await this.game.gameStateForId(this.gameId);
+
+    return state;
+  }
+
+  async signAndSendMove(moveType) {
+    const nonce = v4();
+
+    const signature = await this._getMoveSignature(moveType, nonce);
+
+    await this.game.submitMoveSignature(this.gameId, signature);
+    this._saveCurrentMoveToLocalStorage(nonce, moveType, signature);
+  }
+
+  async revealMove() {
+    const move = this._loadLatestMoveFromLocalStorage();
+    await this.game.revealMove(this.gameId, move);
+  }
+
+  // eventType: GameCreated | MoveSubmitted | MoveRevealed | RoundCompleted | WinnerDeclared
+  async addEventListener(eventType, handler) {
+    const startBlockNum = await this.signer.provider.getBlockNumber();
+
+    const filter = {
+      address: gameContract.address,
+      topics: this._topicsForEventType(eventType),
+    };
+
+    this.signer.provider.on(filter, (event) => {
+      if (startBlockNum < event.blockNumber) {
+        handler(this._parseDataFromEvent(eventType, event));
+      }
+    });
+  }
+
+  async queryEvents(eventType) {
+    const MAX_BLOCKS = 900;
+
+    const currentBlock = await this.signer.provider.getBlockNumber();
+
+    const fromBlock = Math.max(currentBlock - MAX_BLOCKS, 0);
+
+    const filter = {
+      address: gameContract.address,
+      topics: this._topicsForEventType(eventType),
+    };
+
+    const events = await this.game.queryFilter(filter, fromBlock);
+
+    const decodedEvents = events.map((event) => {
+      const decodedArr = event.decode(event.data, event.topics);
+
+      return { ...decodedArr };
+    });
+
+    return decodedEvents;
+  }
+
+  async _getMoveSignature(moveType, nonce) {
+    const encoder = new ethers.utils.AbiCoder();
+
+    const bytes = encoder.encode(
+      ["uint256", "uint8", "string"],
+      [this.gameId, moveType, nonce]
+    );
+
+    const hash = ethers.utils.solidityKeccak256(["bytes"], [bytes]);
+
+    const binaryHash = ethers.utils.arrayify(hash);
+
+    const signature = await this.signer.signMessage(binaryHash);
+
+    return signature;
+  }
+
+  _saveCurrentMoveToLocalStorage(nonce, moveType, signature) {
+    const moves =
+      JSON.parse(window.localStorage.getItem("metaDuelsCurrentMoves")) || {};
+
+    window.localStorage.setItem(
+      "metaDuelsCurrentMoves",
+      JSON.stringify({
+        ...moves,
+        [this.gameId]: { nonce, moveType, signature },
+      })
+    );
+  }
+
+  _topicsForEventType(eventType) {
+    switch (eventType) {
+      case "GameCreated":
+        return [
+          ethers.utils.id("GameStarted(address,address,uint256)"),
+          [
+            ethers.utils.hexZeroPad(this.duelerAddress, 32),
+            ethers.utils.hexZeroPad(this.dueleeAddress, 32),
+          ],
+          [
+            ethers.utils.hexZeroPad(this.duelerAddress, 32),
+            ethers.utils.hexZeroPad(this.dueleeAddress, 32),
+          ],
+        ];
+      case "MoveSubmitted":
+        return [
+          ethers.utils.id("MoveSubmitted(uint256,address)"),
+          ethers.utils.hexZeroPad(this.gameId, 32),
+        ];
+      case "MoveRevealed":
+        return [
+          ethers.utils.id("MoveRevealed(uint256,address)"),
+          ethers.utils.hexZeroPad(this.gameId, 32),
+        ];
+      case "RoundCompleted":
+        return [
+          ethers.utils.id("RoundCompleted(uint256,uint8,uint8)"),
+          ethers.utils.hexZeroPad(this.gameId, 32),
+        ];
+      case "WinnerDeclared":
+        return [
+          ethers.utils.id("WinnerDeclared(uint256,address)"),
+          ethers.utils.hexZeroPad(this.gameId, 32),
+        ];
+      default:
+        return [];
+    }
+  }
+
+  _parseDataFromEvent(eventType, event) {
+    switch (eventType) {
+      case "GameCreated":
+        const gameId = parseInt(event.data, 16);
+        return { gameId };
+      case "MoveSubmitted":
+        return {};
+      case "MoveRevealed":
+        return {};
+      case "RoundCompleted":
+        return {};
+      case "WinnerDeclared":
+        return {};
+      default:
+        return {};
+    }
+  }
+
+  _loadLatestMoveFromLocalStorage() {
+    const moves =
+      JSON.parse(window.localStorage.getItem("metaDuelsCurrentMoves")) || {};
+
+    return moves[this.gameId];
   }
 }
 

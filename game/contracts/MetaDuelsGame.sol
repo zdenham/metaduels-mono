@@ -3,10 +3,27 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "hardhat/console.sol";
+
+// import "hardhat/console.sol";
 
 contract MetaDuelsGame {
     using Counters for Counters.Counter;
+
+    event GameStarted(
+        address indexed dueler,
+        address indexed duelee,
+        uint256 gameId
+    );
+    event MoveSubmitted(uint256 indexed gameId, address signer);
+    event MoveRevealed(uint256 indexed gameId, address revealer);
+    event RoundCompleted(
+        uint256 indexed gameId,
+        uint8 duelerMove,
+        uint8 dueleeMove,
+        bool isDuelerMoveCritical,
+        bool isDueleeMoveCritical
+    );
+    event WinnerDeclared(uint256 indexed gameId, address winner);
 
     // move types
     uint8 None = 0;
@@ -42,10 +59,7 @@ contract MetaDuelsGame {
 
     constructor() {}
 
-    function letItBegin(address dueler, address duelee)
-        public
-        returns (uint256)
-    {
+    function letItBegin(address dueler, address duelee) public {
         _gameIds.increment();
         uint256 newGameId = _gameIds.current();
 
@@ -67,19 +81,13 @@ contract MetaDuelsGame {
             })
         });
 
-        return newGameId;
+        emit GameStarted(dueler, duelee, newGameId);
     }
 
     function submitMoveSignature(uint256 gameId, bytes memory signature)
         public
     {
         Game storage game = _gameStates[gameId];
-
-        // require(
-        //     game != address(0x0),
-        //     "MetaDuels: attempting to submit a signature for a game that does not exist"
-        // );
-
         address sender = msg.sender;
         require(
             sender == game.duelerAddress || sender == game.dueleeAddress,
@@ -96,16 +104,12 @@ contract MetaDuelsGame {
         );
 
         moveToUpdate.signature = signature;
+
+        emit MoveSubmitted(gameId, sender);
     }
 
     function revealMove(uint256 gameId, Move memory revealedMove) public {
         Game storage game = _gameStates[gameId];
-
-        // require(
-        //     game != address(0x0),
-        //     "MetaDuels: attempting to submit a signature for a game that does not exist"
-        // );
-
         address sender = msg.sender;
         require(
             sender == game.duelerAddress || sender == game.dueleeAddress,
@@ -135,6 +139,8 @@ contract MetaDuelsGame {
         moveToUpdate.nonce = revealedMove.nonce;
         moveToUpdate.moveType = revealedMove.moveType;
 
+        emit MoveRevealed(gameId, sender);
+
         if (
             game.currDuelerMove.moveType != None &&
             game.currDueleeMove.moveType != None
@@ -145,7 +151,24 @@ contract MetaDuelsGame {
                 game.dueleeState
             );
 
-            _printGameState(gameId);
+            // _printGameState(gameId);
+
+            bool isDuelerMoveCritical = _criticalHitCount(
+                game.currDuelerMove.nonce,
+                game.currDueleeMove.nonce
+            ) > 1;
+            bool isDueleeMoveCritical = _criticalHitCount(
+                game.currDueleeMove.nonce,
+                game.currDuelerMove.nonce
+            ) > 1;
+
+            emit RoundCompleted(
+                gameId,
+                game.currDuelerMove.moveType,
+                game.currDueleeMove.moveType,
+                isDuelerMoveCritical,
+                isDueleeMoveCritical
+            );
 
             // reset the current moves
             game.currDuelerMove = Move({
@@ -163,10 +186,12 @@ contract MetaDuelsGame {
 
         if (game.dueleeState.health == 0) {
             game.winner = game.duelerAddress;
+            emit WinnerDeclared(gameId, game.winner);
         }
 
         if (game.duelerState.health == 0) {
             game.winner = game.dueleeAddress;
+            emit WinnerDeclared(gameId, game.winner);
         }
     }
 
@@ -176,7 +201,7 @@ contract MetaDuelsGame {
 
     function _criticalHitCount(string memory nonce1, string memory nonce2)
         private
-        view
+        pure
         returns (int8)
     {
         bytes memory concatenated = abi.encode(nonce1, nonce2);
@@ -197,7 +222,7 @@ contract MetaDuelsGame {
         bytes32 data,
         bytes memory signature,
         address maybeSigner
-    ) public view returns (bool) {
+    ) public pure returns (bool) {
         bytes32 messageHash = ECDSA.toEthSignedMessageHash(data);
         address signer = ECDSA.recover(messageHash, signature);
 
@@ -341,33 +366,33 @@ contract MetaDuelsGame {
         uint256 gameId,
         uint8 moveType,
         string memory nonce
-    ) public view returns (bytes32) {
+    ) public pure returns (bytes32) {
         return keccak256(abi.encode(gameId, moveType, nonce));
     }
 
-    function _printGameState(uint256 gameId) internal view {
-        Game memory game = _gameStates[gameId];
+    // function _printGameState(uint256 gameId) internal view {
+    //     Game memory game = _gameStates[gameId];
 
-        console.log(
-            "\nDUELER MOVE: %s, DUELEE MOVE: %s",
-            _moveAsString(game.currDuelerMove.moveType),
-            _moveAsString(game.currDueleeMove.moveType)
-        );
+    //     console.log(
+    //         "\nDUELER MOVE: %s, DUELEE MOVE: %s",
+    //         _moveAsString(game.currDuelerMove.moveType),
+    //         _moveAsString(game.currDueleeMove.moveType)
+    //     );
 
-        console.log(
-            "DUELER STATS A: %s, H: %s, S: %s",
-            uint8(game.duelerState.ammo),
-            uint8(game.duelerState.health),
-            uint8(game.duelerState.shield)
-        );
+    //     console.log(
+    //         "DUELER STATS A: %s, H: %s, S: %s",
+    //         uint8(game.duelerState.ammo),
+    //         uint8(game.duelerState.health),
+    //         uint8(game.duelerState.shield)
+    //     );
 
-        console.log(
-            "DUELEE STATS A: %s, H: %s, S: %s",
-            uint8(game.dueleeState.ammo),
-            uint8(game.dueleeState.health),
-            uint8(game.dueleeState.shield)
-        );
-    }
+    //     console.log(
+    //         "DUELEE STATS A: %s, H: %s, S: %s",
+    //         uint8(game.dueleeState.ammo),
+    //         uint8(game.dueleeState.health),
+    //         uint8(game.dueleeState.shield)
+    //     );
+    // }
 
     function _moveAsString(uint8 moveType)
         private

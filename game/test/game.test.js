@@ -1,8 +1,5 @@
 const chai = require('chai');
-var chaiAsPromised = require('chai-as-promised');
 const hre = require('hardhat');
-
-chai.use(chaiAsPromised);
 
 const { expect } = chai;
 const { ethers } = hre;
@@ -32,6 +29,16 @@ const getCriticalHitNonce = 'critical2';
 // regardless of the order. This should be used to test scenarios
 // where both players have critical hits
 const mutualCriticalHitNonce = 'bothPlayersCritical';
+
+const criticalHit = (nonce1, nonce2) => {
+  const encoder = new ethers.utils.AbiCoder();
+  const bytes = encoder.encode(['string', 'string'], [nonce1, nonce2]);
+  const hash = ethers.utils.solidityKeccak256(['bytes'], [bytes]);
+  const binaryHash = ethers.utils.arrayify(hash);
+  const isCritical = binaryHash[31] < 25;
+
+  return isCritical;
+};
 
 const getSignedMove = async (move, signer) => {
   const gameId = 1;
@@ -107,6 +114,59 @@ describe('TestMetaDuelGame', function () {
     expect(state.winner).to.equal(dueler.address);
   });
 
+  it('should emit an event when a move is submitted', async function () {
+    const duelerMove = await getSignedMove(M.A, dueler);
+
+    await expect(game.submitMoveSignature(1, duelerMove.signature))
+      .to.emit(game, 'MoveSubmitted')
+      .withArgs(1, dueler.address);
+  });
+
+  it('should emit the winner as an event on the final move', async function () {
+    const initialMoves = [M.A, M.R, M.R, M.B];
+    await runMoves(initialMoves, dueler, duelee, game);
+
+    const lastMoves = [M.A, M.R];
+
+    const duelerMove = await getSignedMove(lastMoves[0], dueler);
+    const dueleeMove = await getSignedMove(lastMoves[1], duelee);
+
+    const duelerGame = await game.connect(dueler);
+    const dueleeGame = await game.connect(duelee);
+
+    await duelerGame.submitMoveSignature(1, duelerMove.signature);
+    await dueleeGame.submitMoveSignature(1, dueleeMove.signature);
+
+    await duelerGame.revealMove(1, duelerMove);
+
+    await expect(dueleeGame.revealMove(1, dueleeMove))
+      .to.emit(dueleeGame, 'WinnerDeclared')
+      .withArgs(1, dueler.address);
+  });
+
+  it('should emit an event with appropriate critical hits on round end', async function () {
+    const duelerMove = await getSignedMove(
+      { moveType: M.A, nonce: giveCriticalHitNonce },
+      dueler
+    );
+    const dueleeMove = await getSignedMove(
+      { moveType: M.R, nonce: getCriticalHitNonce },
+      duelee
+    );
+
+    const duelerGame = await game.connect(dueler);
+    const dueleeGame = await game.connect(duelee);
+
+    await duelerGame.submitMoveSignature(1, duelerMove.signature);
+    await dueleeGame.submitMoveSignature(1, dueleeMove.signature);
+
+    await duelerGame.revealMove(1, duelerMove);
+
+    await expect(dueleeGame.revealMove(1, dueleeMove))
+      .to.emit(dueleeGame, 'RoundCompleted')
+      .withArgs(1, M.A, M.R, true, false);
+  });
+
   it('should replenish a shield after two rounds', async function () {
     const moves = [M.A, M.B, M.R, M.R, M.R, M.R, M.A, M.B, M.R, M.A, M.R, M.A];
 
@@ -122,8 +182,5 @@ describe('TestMetaDuelGame', function () {
 
     const state = await runMoves(moves, dueler, duelee, game);
     expect(state.winner).to.equal(dueler.address);
-
-    const newState = await game.gameStateForId(0);
-    console.log('THE NEW STATE: ', newState);
   });
 });

@@ -6,6 +6,7 @@ var inquirer = require('inquirer');
 const contractArgs = {
   mumbai: {
     ChildTunnel: ['0xCf73231F28B7331BBe3124B907840A94851f9f11'],
+    MetaDuelsGame: [],
   },
   goerli: {
     RootTunnel: ['0x2890bA17EfE978480615e330ecB65333b880928e'],

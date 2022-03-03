@@ -1,24 +1,321 @@
 <!DOCTYPE html>
-<html>
-<head>
-  <title>metaduels</title>
+<html style="margin: 0px; padding: 0px">
+  <head>
+    <title>MetaDuels</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
+  </head>
 
-  <link href="assets/css/styles.css" rel="stylesheet">
-</head>
+  <body
+    style="
+      padding: 0px;
+      margin: 0px;
+      overflow-x: hidden;
+      text-align: center;
+      min-height: 100vh;
+      height: 100%;
+      width: 100%;
+      font-family: roboto;
+      background: linear-gradient(180deg, #ee9d6f 11.46%, #e76565 100%);
+    "
+  >
+    <style>
+      @font-face {
+        font-family: SingleFighter;
+        src: url("./assets/fonts/SingleFighter.otf") format("opentype");
+      }
 
-<body>
- <div class="app"></div>
- </body>
+      @font-face {
+        font-family: VT323;
+        src: url("./assets/fonts/VT323.ttf") format("truetype");
+      }
 
+      @font-face {
+        font-family: DroidSansMono;
+        src: url("./assets/fonts/DroidSansMono.ttf") format("truetype");
+      }
 
+      .cards {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        max-width: 1150px;
+        width: 90vw;
+        margin-top: 30px;
+      }
 
-<script>
-  const myFont = new FontFace('mk', 'url(assets/fonts/mkx.ttf)');
+      .cardWrapper {
+        margin-bottom: 20px;
+        position: relative;
+        border: 2px solid black;
+        width: 210px;
+        height: 300px;
+        box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
+      }
 
-  // We need to preload the font, otherwise pixi does not find it
-  myFont.load().then(() => {
-    const script = document.createElement('script');
-    script.src = 'bundle.js';
-    document.body.appendChild(script);
-  });
-</script>
+      .cardGradientBackground {
+        width: 100%;
+        height: 270px;
+        display: flex;
+        align-items: center;
+      }
+
+      .oneForOne {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 50px;
+        height: 25px;
+        border: 1px solid black;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: DroidSansMono;
+        background-color: white;
+      }
+
+      .cardImage {
+        width: 100%;
+      }
+
+      .cardFooter {
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
+        right: 0px;
+        height: 30px;
+        background-color: white;
+        border-top: 2px solid black;
+        display: flex;
+        width: 100%;
+        align-items: center;
+        justify-content: center;
+        font-family: DroidSansMono;
+      }
+
+      a {
+        color: black;
+        text-decoration: none;
+        font-family: DroidSansMono;
+        text-transform: uppercase;
+      }
+
+      .footer {
+        margin: 45px;
+      }
+
+      .inviteText {
+        font-family: SingleFighter;
+        font-size: 46px;
+        margin: 0px;
+      }
+
+      .playableText {
+        font-size: 30px;
+        font-family: DroidSansMono;
+      }
+
+      .droppingText {
+        font-family: VT323;
+        font-size: 55px;
+        margin: 0px;
+      }
+
+      @media only screen and (max-width: 768px) {
+        .inviteText {
+          font-size: 38px;
+        }
+
+        .playableText {
+          font-size: 18px;
+        }
+
+        .droppingText {
+          font-size: 34px;
+        }
+      }
+    </style>
+    <div
+      style="
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        width: 100vw;
+        height: 100%;
+      "
+    >
+      <img
+        src="./assets/images/metaDuelsLogo.png"
+        style="max-width: 80vw; width: 250px; margin-top: 15px"
+      />
+      <h2 class="inviteText">INVITE ONLY PRESALE</h2>
+      <h3 class="playableText">100 1/1 NFT PLAYABLE CHARACTERS</h3>
+      <h3 class="droppingText">dropping 03/29/2022 @ 5pm PST</h3>
+
+      <div class="cards">
+        <div class="cardWrapper">
+          <div
+            class="cardGradientBackground"
+            style="
+              background: radial-gradient(
+                50% 50% at 50% 50%,
+                #40d0b6 0%,
+                #23ae95 100%
+              );
+            "
+          >
+            <div class="oneForOne">1/1</div>
+            <img class="cardImage" src="./assets/nfts/0.png" />
+          </div>
+          <div class="cardFooter">Razor</div>
+        </div>
+        <div class="cardWrapper">
+          <div
+            class="cardGradientBackground"
+            style="
+              background: radial-gradient(
+                50% 50% at 50% 50%,
+                #eba0bb 0%,
+                #e27199 100%
+              );
+            "
+          >
+            <div class="oneForOne">1/1</div>
+            <img class="cardImage" src="./assets/nfts/1.png" />
+          </div>
+          <div class="cardFooter">Sixpack</div>
+        </div>
+        <div class="cardWrapper">
+          <div
+            class="cardGradientBackground"
+            style="
+              background: radial-gradient(
+                50% 50% at 50% 50%,
+                #e8bc7c 0%,
+                #df9f3f 100%
+              );
+            "
+          >
+            <div class="oneForOne">1/1</div>
+            <img class="cardImage" src="./assets/nfts/2.png" />
+          </div>
+          <div class="cardFooter">DMT Goblin</div>
+        </div>
+        <div class="cardWrapper">
+          <div
+            class="cardGradientBackground"
+            style="
+              background: radial-gradient(
+                50% 50% at 50% 50%,
+                #939ce9 0%,
+                #7882de 100%
+              );
+            "
+          >
+            <div class="oneForOne">1/1</div>
+            <img class="cardImage" src="./assets/nfts/3.png" />
+          </div>
+          <div class="cardFooter">Baby Elon</div>
+        </div>
+        <div class="cardWrapper">
+          <div
+            class="cardGradientBackground"
+            style="
+              background: radial-gradient(
+                50% 50% at 50% 50%,
+                #fffbf2 0%,
+                #f1e7d4 100%
+              );
+            "
+          >
+            <div class="oneForOne">1/1</div>
+            <img class="cardImage" src="./assets/nfts/4.png" />
+          </div>
+          <div class="cardFooter">Right-Click</div>
+        </div>
+        <div class="cardWrapper">
+          <div
+            class="cardGradientBackground"
+            style="
+              background: radial-gradient(
+                50% 50% at 50% 50%,
+                #bcd040 0%,
+                #abae23 100%
+              );
+            "
+          >
+            <div class="oneForOne">1/1</div>
+            <img class="cardImage" src="./assets/nfts/5.png" />
+          </div>
+          <div class="cardFooter">Junk Food</div>
+        </div>
+        <div class="cardWrapper">
+          <div
+            class="cardGradientBackground"
+            style="
+              background: radial-gradient(
+                50% 50% at 50% 50%,
+                #9e4e18 0%,
+                #c04a25 100%
+              );
+            "
+          >
+            <div class="oneForOne">1/1</div>
+            <img class="cardImage" src="./assets/nfts/6.png" />
+          </div>
+          <div class="cardFooter">Eliza</div>
+        </div>
+        <div class="cardWrapper">
+          <div
+            class="cardGradientBackground"
+            style="
+              background: radial-gradient(
+                50% 50% at 50% 50%,
+                #ffffff 0%,
+                #e1ccac 100%
+              );
+            "
+          >
+            <div class="oneForOne">1/1</div>
+            <img class="cardImage" src="./assets/nfts/7.png" />
+          </div>
+          <div class="cardFooter">Footie</div>
+        </div>
+        <div class="cardWrapper">
+          <div
+            class="cardGradientBackground"
+            style="
+              background: radial-gradient(
+                50% 50% at 50% 50%,
+                #698ff1 0%,
+                #375eeb 100%
+              );
+            "
+          >
+            <div class="oneForOne">1/1</div>
+            <img class="cardImage" src="./assets/nfts/8.png" />
+          </div>
+          <div class="cardFooter">Chirp</div>
+        </div>
+        <div class="cardWrapper">
+          <div
+            class="cardGradientBackground"
+            style="
+              background: radial-gradient(
+                50% 50% at 50% 50%,
+                #e7c78a 0%,
+                #cea455 100%
+              );
+            "
+          >
+            <div class="oneForOne">1/1</div>
+            <img class="cardImage" src="./assets/nfts/9.png" />
+          </div>
+          <div class="cardFooter">Flamez</div>
+        </div>
+      </div>
+      <div class="footer">
+        <a href="mailto:sho@metaduels.org">shoe@metaduels.org</a>
+      </div>
+    </div>
+  </body>
+</html>
