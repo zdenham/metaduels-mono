@@ -109,7 +109,7 @@ class GameClient {
 
     const currentBlock = await this.signer.provider.getBlockNumber();
 
-    const fromBlock = Math.max(currentBlock - 900, 0);
+    const fromBlock = Math.max(currentBlock - MAX_BLOCKS, 0);
 
     const filter = {
       address: gameContract.address,
