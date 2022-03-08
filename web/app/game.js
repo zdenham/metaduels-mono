@@ -1,16 +1,15 @@
 import * as PIXI from "pixi.js";
-import { cheapColi } from "./coli.js";
 import "howler";
 import SpriteUtilities from "./spriteUtilities.js";
 import TextStyles from "./textStyles.js";
 import Keyboard from "./keyboard.js";
 import characterData from "./characters.json";
+import "./connect";
 
 class Game {
   constructor() {
-
-  ////////////////////////////////////////////////////////////////////setup\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-
+    ////////////////////////////////////////////////////////////////////setup\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    this.contractClient = null;
     this.app = new PIXI.Application(1200, 400);
     this.textObj = new TextStyles(this.app.renderer);
     this.utils = new SpriteUtilities(PIXI);
@@ -19,7 +18,7 @@ class Game {
       select: {},
       game: {},
       gameOver: {},
-      youWin: {}
+      youWin: {},
     };
 
     this.powers = [];
@@ -35,26 +34,60 @@ class Game {
     this.opponentNFTCharacter = "scorpion";
     this.playerAddress = "0x12...k6nL";
     this.opponentAddress = "0x71...976F";
-    this.playerWagerImage = PIXI.Texture.fromImage('assets/images/placeholder/wager15.png');
-    this.opponentWagerImage = PIXI.Texture.fromImage('assets/images/placeholder/wager25.png');
+    this.playerWagerImage = PIXI.Texture.fromImage(
+      "assets/images/placeholder/wager15.png"
+    );
+    this.opponentWagerImage = PIXI.Texture.fromImage(
+      "assets/images/placeholder/wager25.png"
+    );
 
-    this.healthIcon = PIXI.Texture.fromImage('assets/images/buttons/heart-full.png');
-    this.healthIconEmpty = PIXI.Texture.fromImage('assets/images/buttons/heart-empty.png');
-    this.attackIcon = PIXI.Texture.fromImage('assets/images/buttons/attack.png');
-    this.shieldIcon = PIXI.Texture.fromImage('assets/images/buttons/shield-full.png');
-    this.shieldIconHalf = PIXI.Texture.fromImage('assets/images/buttons/shield-half.jpg');
-    this.shieldIconEmpty = PIXI.Texture.fromImage('assets/images/buttons/shield-empty.png');
-    this.rechargeIcon = PIXI.Texture.fromImage('assets/images/buttons/recharge.png');
-    this.rechargeHover = PIXI.Texture.fromImage('assets/images/buttons/recharge-hover.png');
-    this.rechargeSelect = PIXI.Texture.fromImage('assets/images/buttons/recharge-select.png');
-    this.shieldHover = PIXI.Texture.fromImage('assets/images/buttons/shield-hover.png');
-    this.shieldSelect = PIXI.Texture.fromImage('assets/images/buttons/shield-select.png');
-    this.attackHover = PIXI.Texture.fromImage('assets/images/buttons/attack-hover.png');
-    this.attackSelect = PIXI.Texture.fromImage('assets/images/buttons/attack-select.png');
-    this.confirmButton = PIXI.Texture.fromImage('assets/images/buttons/confirm.png');
+    this.healthIcon = PIXI.Texture.fromImage(
+      "assets/images/buttons/heart-full.png"
+    );
+    this.healthIconEmpty = PIXI.Texture.fromImage(
+      "assets/images/buttons/heart-empty.png"
+    );
+    this.attackIcon = PIXI.Texture.fromImage(
+      "assets/images/buttons/attack.png"
+    );
+    this.shieldIcon = PIXI.Texture.fromImage(
+      "assets/images/buttons/shield-full.png"
+    );
+    this.shieldIconHalf = PIXI.Texture.fromImage(
+      "assets/images/buttons/shield-half.jpg"
+    );
+    this.shieldIconEmpty = PIXI.Texture.fromImage(
+      "assets/images/buttons/shield-empty.png"
+    );
+    this.rechargeIcon = PIXI.Texture.fromImage(
+      "assets/images/buttons/recharge.png"
+    );
+    this.rechargeHover = PIXI.Texture.fromImage(
+      "assets/images/buttons/recharge-hover.png"
+    );
+    this.rechargeSelect = PIXI.Texture.fromImage(
+      "assets/images/buttons/recharge-select.png"
+    );
+    this.shieldHover = PIXI.Texture.fromImage(
+      "assets/images/buttons/shield-hover.png"
+    );
+    this.shieldSelect = PIXI.Texture.fromImage(
+      "assets/images/buttons/shield-select.png"
+    );
+    this.attackHover = PIXI.Texture.fromImage(
+      "assets/images/buttons/attack-hover.png"
+    );
+    this.attackSelect = PIXI.Texture.fromImage(
+      "assets/images/buttons/attack-select.png"
+    );
+    this.confirmButton = PIXI.Texture.fromImage(
+      "assets/images/buttons/confirm.png"
+    );
     this.buttonsPushed = false;
 
-    this.logo = PIXI.Texture.fromImage('assets/images/placeholder/metaduels-logo.png');
+    this.logo = PIXI.Texture.fromImage(
+      "assets/images/placeholder/metaduels-logo.png"
+    );
     this.round = 1;
 
     this.didAttack = false;
@@ -79,25 +112,25 @@ class Game {
     this.sound = null;
 
     // create some textures from an image path
-    this.textureButton = PIXI.Texture.fromImage('assets/images/buttons/button.png');
-    this.textureButtonDown = PIXI.Texture.fromImage('assets/images/buttons/button-chosen.png');
-    this.textureButtonOver = PIXI.Texture.fromImage('assets/images/buttons/button-highlight.png');
+    this.textureButton = PIXI.Texture.fromImage(
+      "assets/images/buttons/button.png"
+    );
+    this.textureButtonDown = PIXI.Texture.fromImage(
+      "assets/images/buttons/button-chosen.png"
+    );
+    this.textureButtonOver = PIXI.Texture.fromImage(
+      "assets/images/buttons/button-highlight.png"
+    );
 
     this.buttons = [];
 
     this.buttonPositions = [
-        100, 340,
-        160, 340,
-        220, 340,
-        1100, 340,
-        1040, 340,
-        980, 340,
-        400, 340,
-        800, 340
+      100, 340, 160, 340, 220, 340, 1100, 340, 1040, 340, 980, 340, 400, 340,
+      800, 340,
     ];
 
     var noop = function () {
-	    console.log('click');
+      console.log("click");
     };
 
     PIXI.loader
@@ -153,12 +186,16 @@ class Game {
         "assets/audio/Misc/buttonhover.mp3",
         "assets/audio/Misc/deathbirdschirp.mp3",
         "assets/audio/Misc/duelsbg.mp3",
-        "assets/audio/Misc/lostlife.mp3"    
+        "assets/audio/Misc/lostlife.mp3",
       ])
       .load(() => {
         this.initGame();
       });
     document.querySelector(".app").appendChild(this.app.renderer.view);
+  }
+
+  setContractClient(client) {
+    this.contractClient = client;
   }
 
   initScenes() {
@@ -235,31 +272,31 @@ class Game {
       case "buttonhover":
         soundPath = "assets/audio/Misc/buttonclick.mp3";
         break;
-        case "attackfusion":
+      case "attackfusion":
         soundPath = "assets/audio/Misc/attackfusion.mp3";
         break;
-        case "bodyhitground":
+      case "bodyhitground":
         soundPath = "assets/audio/Misc/bodyhitground.mp3";
         break;
-        case "deathbirdschirp":
+      case "deathbirdschirp":
         soundPath = "assets/audio/Misc/deathbirdschirp.mp3";
         break;
-        case "bg":
+      case "bg":
         soundPath = "assets/audio/Misc/duelsbg.mp3";
         break;
-        case "lostlife":
+      case "lostlife":
         soundPath = "assets/audio/Misc/lostlife.mp3";
         break;
-        case "failedattack":
+      case "failedattack":
         soundPath = "assets/audio/Carson/carson-failedattack.mp3";
         break;
-        case "recharge":
+      case "recharge":
         soundPath = "assets/audio/Carson/carson-reload.mp3";
         break;
-        case "successattack":
+      case "successattack":
         soundPath = "assets/audio/Carson/carson-successattack.mp3";
         break;
-        case "successattackwhoosh":
+      case "successattackwhoosh":
         soundPath = "assets/audio/Carson/carson-successattackwhoosh.mp3";
         break;
       default:
@@ -269,13 +306,13 @@ class Game {
     if (options.bg) {
       this.bgSound = new Howl({
         src: [soundPath],
-        loop: options.loop
+        loop: options.loop,
       });
       this.bgSound.play();
     } else {
       this.sound = new Howl({
         src: [soundPath],
-        loop: options.loop
+        loop: options.loop,
       });
       this.sound.play();
     }
@@ -317,7 +354,6 @@ class Game {
     this.scenes.youWin.addChild(this.backgrounds.win);
   }
 
-
   ////////////////////////////////////////////////game\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
   // Set intro Container, first scene
@@ -327,32 +363,34 @@ class Game {
     this.gameLoop();
   }
 
-  gameLoop() {   // This is all you Zaccy. Unless you need help then hmu
+  gameLoop() {
+    // This is all you Zaccy. Unless you need help then hmu
     this.app.ticker.add(() => {
+      this.utils.update();
       if (!this.scenes.game.visible) return;
 
       this.characters.forEach((character, index) => {
         let collision;
         const opponent = index === 0 ? this.characters[1] : this.characters[0];
 
-        this.utils.update();
-
         switch (this.action[index]) {
-        case "stance":
-          character.actions.stance.visible = true;
-        break;
+          case "stance":
+            character.actions.stance.visible = true;
+            break;
 
           case "attack":
             if (character.actions.punch) {
-              if(!character.moveFinished) {
+              if (!character.moveFinished) {
                 character.countFrame = 0;
                 character.moveFinished = true;
               }
-              
-              character.countFrame += 1;
-              console.log(character.countFrame + character + character.moveFinished);
 
-              if(character.countFrame === 1) {
+              character.countFrame += 1;
+              console.log(
+                character.countFrame + character + character.moveFinished
+              );
+
+              if (character.countFrame === 1) {
                 this.playSound("successattack");
                 this.playSound("successattackwoosh");
                 character.actions.stance.visible = false;
@@ -366,80 +404,90 @@ class Game {
                 this.gameEffects[0].screenLines.visible = true;
                 this.gameEffects[0].screenLines.y = 0;
                 this.gameEffects[0].screenLines.x = 0;
-                if(index === 0) {
+                if (index === 0) {
                   character.position.x = 550;
-                  this.powers[index].attackSuccess.position.x = character.position.x;
-                }
-                else {
+                  this.powers[index].attackSuccess.position.x =
+                    character.position.x;
+                } else {
                   character.position.x = 650;
-                  this.powers[index].attackSuccess.position.x = character.position.x;
+                  this.powers[index].attackSuccess.position.x =
+                    character.position.x;
                   this.powers[index].attackSuccess.scale.x = 1;
                   this.powers[index].attackSuccess.scale.x *= -1;
                 }
                 console.log("attack did");
               }
-              
-              if(character.countFrame <= 30 && character.countFrame >= 15) {
-              this.utils.shake(this.scenes.game, 20, false);
-              console.log(this.countFrames[index]);
+
+              if (character.countFrame <= 30 && character.countFrame >= 15) {
+                this.utils.shake(this.scenes.game, 20, false);
+                console.log(this.countFrames[index]);
               }
 
-              if(character.countFrame > this.gameEffects[0].screenLines.totalFrames * 2) {
+              if (
+                character.countFrame >
+                this.gameEffects[0].screenLines.totalFrames * 2
+              ) {
                 this.gameEffects[0].screenLines.visible = false;
               }
 
-              if(character.countFrame === this.powers[index].attackSuccess.totalFrames) {
+              if (
+                character.countFrame ===
+                this.powers[index].attackSuccess.totalFrames
+              ) {
                 this.action[index] = "stance";
                 character.actions.punch.visible = false;
                 this.powers[index].attackSuccess.visible = false;
                 character.countFrame = 0;
                 character.moveFinished = true;
-                if(index === 0)
-                character.position.x = 400;
+                if (index === 0) character.position.x = 400;
                 else {
-                character.position.x = 800;
+                  character.position.x = 800;
                 }
               }
-
             }
             break;
 
           case "recharge":
             if (character.actions.stance) {
-              if(!character.moveFinished) {
+              if (!character.moveFinished) {
                 character.countFrame = 0;
                 character.moveFinished = true;
               }
-              
-              character.countFrame += 1;
-              console.log(character.countFrame + character + character.moveFinished);
 
-              if(character.countFrame === 1) {
+              character.countFrame += 1;
+              console.log(
+                character.countFrame + character + character.moveFinished
+              );
+
+              if (character.countFrame === 1) {
                 this.playSound("recharge");
                 this.powers[index].recharge.gotoAndPlay(0);
                 this.powers[index].recharge.visible = true;
                 this.powers[index].recharge.y = this.groundY - 30;
                 this.powers[index].recharge.x = character.position.x;
 
-                if(index === 0) {
+                if (index === 0) {
                   character.position.x = 550;
-                  this.powers[index].recharge.position.x = character.position.x - 100;
-                }
-                else {
+                  this.powers[index].recharge.position.x =
+                    character.position.x - 100;
+                } else {
                   character.position.x = 650;
-                  this.powers[index].recharge.position.x = character.position.x - 100;
+                  this.powers[index].recharge.position.x =
+                    character.position.x - 100;
                 }
               }
 
-              if(character.countFrame === this.powers[index].recharge.totalFrames * 5) {
+              if (
+                character.countFrame ===
+                this.powers[index].recharge.totalFrames * 5
+              ) {
                 this.action[index] = "stance";
                 this.powers[index].recharge.visible = false;
                 character.countFrame = 0;
                 character.moveFinished = true;
-                if(index === 0)
-                character.position.x = 400;
+                if (index === 0) character.position.x = 400;
                 else {
-                character.position.x = 800;
+                  character.position.x = 800;
                 }
               }
             }
@@ -451,48 +499,50 @@ class Game {
               character.actions.stance.visible = false;
               console.log("shield did");
 
-              if(!character.moveFinished) {
+              if (!character.moveFinished) {
                 character.countFrame = 0;
                 character.moveFinished = true;
               }
-              
-              character.countFrame += 1;
-              console.log(character.countFrame + character + character.moveFinished);
 
-              if(character.countFrame === 1) {
-                if(index === 0) {
+              character.countFrame += 1;
+              console.log(
+                character.countFrame + character + character.moveFinished
+              );
+
+              if (character.countFrame === 1) {
+                if (index === 0) {
                   character.position.x = 550;
-                }
-                else {
+                } else {
                   character.position.x = 650;
                 }
               }
 
-              if(character.countFrame === 60) {
+              if (character.countFrame === 60) {
                 this.action[index] = "stance";
                 character.actions.duck.visible = false;
                 character.countFrame = 0;
                 character.moveFinished = true;
-                if(index === 0)
-                character.position.x = 400;
+                if (index === 0) character.position.x = 400;
                 else {
-                character.position.x = 800;
+                  character.position.x = 800;
                 }
               }
             }
             break;
-            
+
           case "attackCrit":
             if (character.actions.punch) {
-              if(!character.moveFinished) {
+              if (!character.moveFinished) {
                 character.countFrame = 0;
                 character.moveFinished = true;
               }
-              
-              character.countFrame += 1;
-              console.log(character.countFrame + character + character.moveFinished);
 
-              if(character.countFrame === 1) {
+              character.countFrame += 1;
+              console.log(
+                character.countFrame + character + character.moveFinished
+              );
+
+              if (character.countFrame === 1) {
                 this.playSound("hit");
                 character.actions.stance.visible = false;
                 character.actions.punch.visible = true;
@@ -505,54 +555,62 @@ class Game {
                 this.gameEffects[0].screenLines.visible = true;
                 this.gameEffects[0].screenLines.y = 0;
                 this.gameEffects[0].screenLines.x = 0;
-                if(index === 0) {
+                if (index === 0) {
                   character.position.x = 550;
-                  this.powers[index].attackSuccess.position.x = character.position.x;
-                }
-                else {
+                  this.powers[index].attackSuccess.position.x =
+                    character.position.x;
+                } else {
                   character.position.x = 650;
-                  this.powers[index].attackSuccess.position.x = character.position.x;
+                  this.powers[index].attackSuccess.position.x =
+                    character.position.x;
                   this.powers[index].attackSuccess.scale.x = 1;
                   this.powers[index].attackSuccess.scale.x *= -1;
                 }
                 console.log("attack did");
               }
-              
-              if(character.countFrame <= 30 && character.countFrame >= 15) {
-              this.utils.shake(this.scenes.game, 20, false);
-              console.log(this.countFrames[index]);
+
+              if (character.countFrame <= 30 && character.countFrame >= 15) {
+                this.utils.shake(this.scenes.game, 20, false);
+                console.log(this.countFrames[index]);
               }
 
-              if(character.countFrame > this.gameEffects[0].screenLines.totalFrames * 2) {
+              if (
+                character.countFrame >
+                this.gameEffects[0].screenLines.totalFrames * 2
+              ) {
                 this.gameEffects[0].screenLines.visible = false;
               }
 
-              if(character.countFrame === this.powers[index].attackSuccess.totalFrames) {
+              if (
+                character.countFrame ===
+                this.powers[index].attackSuccess.totalFrames
+              ) {
                 this.action[index] = "stance";
                 character.actions.punch.visible = false;
                 this.powers[index].attackSuccess.visible = false;
                 character.countFrame = 0;
                 character.moveFinished = true;
-                if(index === 0)
-                character.position.x = 400;
+                if (index === 0) character.position.x = 400;
                 else {
-                character.position.x = 800;
+                  character.position.x = 800;
                 }
               }
             }
             break;
-            
+
           case "attackFail":
             if (character.actions.punch) {
-              if(!character.moveFinished) {
+              if (!character.moveFinished) {
                 character.countFrame = 0;
                 character.moveFinished = true;
               }
-              
-              character.countFrame += 1;
-              console.log(character.countFrame + character + character.moveFinished);
 
-              if(character.countFrame === 1) {
+              character.countFrame += 1;
+              console.log(
+                character.countFrame + character + character.moveFinished
+              );
+
+              if (character.countFrame === 1) {
                 this.playSound("failedattack");
                 character.actions.stance.visible = false;
                 character.actions.punch.visible = true;
@@ -565,54 +623,62 @@ class Game {
                 this.gameEffects[0].screenLines.visible = true;
                 this.gameEffects[0].screenLines.y = 0;
                 this.gameEffects[0].screenLines.x = 0;
-                if(index === 0) {
+                if (index === 0) {
                   character.position.x = 550;
-                  this.powers[index].attackFail.position.x = character.position.x + 90;
-                }
-                else {
+                  this.powers[index].attackFail.position.x =
+                    character.position.x + 90;
+                } else {
                   character.position.x = 650;
-                  this.powers[index].attackFail.position.x = character.position.x - 90;
+                  this.powers[index].attackFail.position.x =
+                    character.position.x - 90;
                   this.powers[index].attackFail.scale.x = 1;
                   this.powers[index].attackFail.scale.x *= -1;
                 }
                 console.log("attack did");
               }
-              
-              if(character.countFrame <= 30 && character.countFrame >= 15) {
-              this.utils.shake(this.scenes.game, 20, false);
-              console.log(this.countFrames[index]);
+
+              if (character.countFrame <= 30 && character.countFrame >= 15) {
+                this.utils.shake(this.scenes.game, 20, false);
+                console.log(this.countFrames[index]);
               }
 
-              if(character.countFrame > this.gameEffects[0].screenLines.totalFrames) {
+              if (
+                character.countFrame >
+                this.gameEffects[0].screenLines.totalFrames
+              ) {
                 this.gameEffects[0].screenLines.visible = false;
               }
 
-              if(character.countFrame === this.powers[index].attackFail.totalFrames) {
+              if (
+                character.countFrame ===
+                this.powers[index].attackFail.totalFrames
+              ) {
                 this.action[index] = "stance";
                 character.actions.punch.visible = false;
                 this.powers[index].attackFail.visible = false;
                 character.countFrame = 0;
                 character.moveFinished = true;
-                if(index === 0)
-                character.position.x = 400;
+                if (index === 0) character.position.x = 400;
                 else {
-                character.position.x = 800;
+                  character.position.x = 800;
                 }
               }
             }
             break;
-            
+
           case "attackKO":
             if (character.actions.punch) {
-              if(!character.moveFinished) {
+              if (!character.moveFinished) {
                 character.countFrame = 0;
                 character.moveFinished = true;
               }
-              
-              character.countFrame += 1;
-              console.log(character.countFrame + character + character.moveFinished);
 
-              if(character.countFrame === 1) {
+              character.countFrame += 1;
+              console.log(
+                character.countFrame + character + character.moveFinished
+              );
+
+              if (character.countFrame === 1) {
                 this.playSound("successattack");
                 this.playSound("successattackwoosh");
                 character.actions.stance.visible = false;
@@ -626,54 +692,62 @@ class Game {
                 this.gameEffects[0].screenLines.visible = true;
                 this.gameEffects[0].screenLines.y = 0;
                 this.gameEffects[0].screenLines.x = 0;
-                if(index === 0) {
+                if (index === 0) {
                   character.position.x = 550;
-                  this.powers[index].attackSuccess.position.x = character.position.x;
-                }
-                else {
+                  this.powers[index].attackSuccess.position.x =
+                    character.position.x;
+                } else {
                   character.position.x = 650;
-                  this.powers[index].attackSuccess.position.x = character.position.x;
+                  this.powers[index].attackSuccess.position.x =
+                    character.position.x;
                   this.powers[index].attackSuccess.scale.x = 1;
                   this.powers[index].attackSuccess.scale.x *= -1;
                 }
                 console.log("attack did");
               }
-              
-              if(character.countFrame <= 30 && character.countFrame >= 15) {
-              this.utils.shake(this.scenes.game, 20, false);
-              console.log(this.countFrames[index]);
+
+              if (character.countFrame <= 30 && character.countFrame >= 15) {
+                this.utils.shake(this.scenes.game, 20, false);
+                console.log(this.countFrames[index]);
               }
 
-              if(character.countFrame > this.gameEffects[0].screenLines.totalFrames * 2) {
+              if (
+                character.countFrame >
+                this.gameEffects[0].screenLines.totalFrames * 2
+              ) {
                 this.gameEffects[0].screenLines.visible = false;
               }
 
-              if(character.countFrame === this.powers[index].attackSuccess.totalFrames) {
+              if (
+                character.countFrame ===
+                this.powers[index].attackSuccess.totalFrames
+              ) {
                 this.action[index] = "stance";
                 character.actions.punch.visible = false;
                 this.powers[index].attackSuccess.visible = false;
                 character.countFrame = 0;
                 character.moveFinished = true;
-                if(index === 0)
-                character.position.x = 400;
+                if (index === 0) character.position.x = 400;
                 else {
-                character.position.x = 800;
+                  character.position.x = 800;
                 }
               }
             }
             break;
-            
+
           case "attackCancelOut":
             if (character.actions.punch) {
-              if(!character.moveFinished) {
+              if (!character.moveFinished) {
                 character.countFrame = 0;
                 character.moveFinished = true;
               }
-              
-              character.countFrame += 1;
-              console.log(character.countFrame + character + character.moveFinished);
 
-              if(character.countFrame === 1) {
+              character.countFrame += 1;
+              console.log(
+                character.countFrame + character + character.moveFinished
+              );
+
+              if (character.countFrame === 1) {
                 this.playSound("attackfusion");
                 character.actions.stance.visible = false;
                 character.actions.punch.visible = true;
@@ -687,105 +761,111 @@ class Game {
                 this.gameEffects[0].screenLines.y = 0;
                 this.gameEffects[0].screenLines.x = 0;
                 console.log("fuuuusssiioooonn HAAAA");
-                if(index === 0) {
+                if (index === 0) {
                   character.position.x = 550;
-                }
-                else {
+                } else {
                   character.position.x = 650;
                 }
               }
-              
-              if(character.countFrame <= 30 && character.countFrame >= 15) {
-              this.utils.shake(this.scenes.game, 33, false);
-              console.log(this.countFrames[index]);
+
+              if (character.countFrame <= 30 && character.countFrame >= 15) {
+                this.utils.shake(this.scenes.game, 33, false);
+                console.log(this.countFrames[index]);
               }
 
-              if(character.countFrame > this.gameEffects[0].screenLines.totalFrames * 2) {
+              if (
+                character.countFrame >
+                this.gameEffects[0].screenLines.totalFrames * 2
+              ) {
                 this.gameEffects[0].screenLines.visible = false;
               }
 
-              if(character.countFrame === this.powers[index].fusion.totalFrames * 3) {
+              if (
+                character.countFrame ===
+                this.powers[index].fusion.totalFrames * 3
+              ) {
                 this.action[index] = "stance";
                 character.actions.punch.visible = false;
                 this.powers[index].fusion.visible = false;
                 character.countFrame = 0;
                 character.moveFinished = true;
-                if(index === 0)
-                character.position.x = 400;
+                if (index === 0) character.position.x = 400;
                 else {
-                character.position.x = 800;
+                  character.position.x = 800;
                 }
               }
             }
             break;
-            
+
           case "takeDamage":
             if (character.actions.stance) {
               console.log(character + "took damage");
-              if(!character.moveFinished) {
+              if (!character.moveFinished) {
                 character.countFrame = 0;
                 character.moveFinished = true;
               }
-              
-              character.countFrame += 1;
-              console.log(character.countFrame + character + character.moveFinished);
 
-              if(character.countFrame === 1) {
+              character.countFrame += 1;
+              console.log(
+                character.countFrame + character + character.moveFinished
+              );
+
+              if (character.countFrame === 1) {
                 this.playSound("hitscream");
                 character.actions.stance.visible = false;
                 character.actions.hit.visible = true;
 
-                if(index === 0) {
+                if (index === 0) {
                   character.position.x = 550;
-                }
-                else {
+                } else {
                   character.position.x = 650;
                 }
               }
-              
-              if(character.countFrame <= 30 && character.countFrame >= 15) {
-                if(index === 0) {
+
+              if (character.countFrame <= 30 && character.countFrame >= 15) {
+                if (index === 0) {
                   character.position.x -= 2;
-                }
-                else {
+                } else {
                   character.position.x += 2;
-                  }
+                }
               }
 
-              if(character.countFrame === this.powers[index].attackSuccess.totalFrames) {
+              if (
+                character.countFrame ===
+                this.powers[index].attackSuccess.totalFrames
+              ) {
                 this.action[index] = "stance";
                 character.actions.hit.visible = false;
                 character.countFrame = 0;
                 character.moveFinished = true;
-                if(index === 0)
-                character.position.x = 400;
+                if (index === 0) character.position.x = 400;
                 else {
-                character.position.x = 800;
+                  character.position.x = 800;
                 }
               }
-              }
+            }
             break;
-            
+
           case "knockedOut":
             if (character.actions.death) {
               character.actions.stance.visible = false;
               character.actions.highhit.visible = false;
               character.actions.hit.visible = true;
-             }
+            }
             break;
-            
+
           case "doubleRecharge":
             if (character.actions.stance) {
               console.log("double recharge -- setup a new effect for this");
             }
             break;
 
-            default:
-              //character.actions.stance.visible = true;
-      }
+          default:
+          //character.actions.stance.visible = true;
+        }
       });
-     });
-    }
+    });
+  }
 
   finish(side) {
     var winner = side === "left" ? 1 : 0;
@@ -834,13 +914,12 @@ class Game {
     this.setActiveScene("select");
     this.stopSound();
     this.playSound("bg", { loop: true, bg: true });
-    let introPrompt = this.textObj.customText(
-    "choose your move", 532,200);
+    let introPrompt = this.textObj.customText("choose your move", 532, 200);
     this.scenes.select.addChild(introPrompt);
 
     /*
-    * intialize player in both scenes
-    */
+     * intialize player in both scenes
+     */
 
     //setup characters
     this.setupCharacters(this.opponentNFTCharacter);
@@ -857,60 +936,53 @@ class Game {
     //setup global effects
     this.setupScreenLines();
 
-
     /*
-    * set buttons to each do their own ability, then confirm based on both player inputs
-    */
+     * set buttons to each do their own ability, then confirm based on both player inputs
+     */
 
     //setup buttons
-    for (var i = 0; i < 8; i++)
-      {
-      if(i == 0 || i == 3) {
+    for (var i = 0; i < 8; i++) {
+      if (i == 0 || i == 3) {
         var button = new PIXI.Sprite(this.attackIcon);
         //set attack actions
         //button.on('mousedown', )
-      }
-      else if(i == 1 || i == 4) {
+      } else if (i == 1 || i == 4) {
         var button = new PIXI.Sprite(this.shieldIcon);
         //set shield actions
-      }
-      else if(i == 2 || i == 5) {
+      } else if (i == 2 || i == 5) {
         var button = new PIXI.Sprite(this.rechargeIcon);
         //set recharge actions
-      }
-      else {
-      var button = new PIXI.Sprite(this.confirmButton);
-      //set confirm action
+      } else {
+        var button = new PIXI.Sprite(this.confirmButton);
+        //set confirm action
       }
       //GET BUTTON FUNCTIONS TO STOP CALLING THEMSELVES
       button.buttonMode = true;
       button.anchor.set(0.5);
-      button.position.x = this.buttonPositions[i*2];
-      button.position.y = this.buttonPositions[i*2 + 1];
+      button.position.x = this.buttonPositions[i * 2];
+      button.position.y = this.buttonPositions[i * 2 + 1];
       button.interactive = true;
       button
-      .on('mousedown', this.onButtonDown(this))
-      .on('mouseup', this.onButtonUp(this))
-      .on('touchend', this.onButtonOut(this))
-      .on('mouseupoutside', this.onButtonOut(this))
-      .on('touchendoutside', this.onButtonOut(this))
-      .on('mouseover', this.onButtonOver(this))
-	    button.tap = this.noop;
-	    button.click = this.noop;
+        .on("mousedown", this.onButtonDown(this))
+        .on("mouseup", this.onButtonUp(this))
+        .on("touchend", this.onButtonOut(this))
+        .on("mouseupoutside", this.onButtonOut(this))
+        .on("touchendoutside", this.onButtonOut(this))
+        .on("mouseover", this.onButtonOver(this));
+      button.tap = this.noop;
+      button.click = this.noop;
 
       this.scenes.select.addChild(button);
 
       this.buttons.push(button);
-      }
-
+    }
 
     /*
-    * define player and opponent values based on start and gameplay
-    */
+     * define player and opponent values based on start and gameplay
+     */
 
     //define player One UI
-    let name1 = this.textObj.customText(
-    this.playerAddress, 60,20);
+    let name1 = this.textObj.customText(this.playerAddress, 60, 20);
     var wagerImage = new PIXI.Sprite(this.playerWagerImage);
     wagerImage.position.x = 60;
     wagerImage.position.y = 50;
@@ -929,9 +1001,8 @@ class Game {
     this.scenes.select.addChild(shield);
     this.scenes.select.addChild(wagerImage);
 
-    //define player 2 UI 
-    let name2 = this.textObj.customText(
-    this.opponentAddress, 1060,20);
+    //define player 2 UI
+    let name2 = this.textObj.customText(this.opponentAddress, 1060, 20);
     var wagerImage2 = new PIXI.Sprite(this.opponentWagerImage);
     wagerImage2.position.x = 1020;
     wagerImage2.position.y = 50;
@@ -965,9 +1036,9 @@ class Game {
     console.log("battle scene started");
 
     /*
-    * on battle start import player's moves from choose scene
-    * loop back to choose scene or win scene once a winner is determined
-    */
+     * on battle start import player's moves from choose scene
+     * loop back to choose scene or win scene once a winner is determined
+     */
 
     this.stopSound();
     this.playSound("vs");
@@ -976,13 +1047,11 @@ class Game {
     this.stopSound();
     this.playSound("bg", { loop: true, bg: true });
 
-    let roundText = this.textObj.customText(
-    ("ROUND " + this.round), 560,20);
+    let roundText = this.textObj.customText("ROUND " + this.round, 560, 20);
     this.scenes.game.addChild(roundText);
 
     //define player One UI
-    let name1 = this.textObj.customText(
-    this.playerAddress, 60,20);
+    let name1 = this.textObj.customText(this.playerAddress, 60, 20);
     var wagerImage = new PIXI.Sprite(this.playerWagerImage);
     wagerImage.position.x = 60;
     wagerImage.position.y = 50;
@@ -1001,9 +1070,8 @@ class Game {
     this.scenes.game.addChild(shield);
     this.scenes.game.addChild(wagerImage);
 
-    //define player 2 UI 
-    let name2 = this.textObj.customText(
-    this.opponentAddress, 1060,20);
+    //define player 2 UI
+    let name2 = this.textObj.customText(this.opponentAddress, 1060, 20);
     var wagerImage2 = new PIXI.Sprite(this.opponentWagerImage);
     wagerImage2.position.x = 1020;
     wagerImage2.position.y = 50;
@@ -1038,7 +1106,6 @@ class Game {
       this.playSound("fightScream");
     }, 1000);
     this.scenes.game.addChild(fightAnim);
-    
 
     let animate = () => {
       requestAnimationFrame(animate);
@@ -1090,55 +1157,49 @@ class Game {
 
   ///////////////////////////////////////////////////////////////more setup\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
-  onButtonDown(parent)
-  {
-  console.log(parent.buttonsPushed);
-  if(parent.buttonsPushed == true) {
-    this.isdown = true;
-    this.texture = PIXI.Texture.fromImage('assets/images/buttons/attack-select.png');
-    this.alpha = 1;
-    console.log("button is down");
+  onButtonDown(parent) {
+    console.log(parent.buttonsPushed);
+    if (parent.buttonsPushed == true) {
+      this.isdown = true;
+      this.texture = PIXI.Texture.fromImage(
+        "assets/images/buttons/attack-select.png"
+      );
+      this.alpha = 1;
+      console.log("button is down");
 
-    parent.playSound("button-click");
-    parent.battleScene();
-
+      parent.playSound("button-click");
+      parent.battleScene();
     }
   }
 
-  
-  onButtonUp(parent)
-  {
+  onButtonUp(parent) {
     this.isdown = false;
-    if (this.isOver)
-    {
-        this.texture = PIXI.Texture.fromImage('assets/images/buttons/attack-hover.png');
+    if (this.isOver) {
+      this.texture = PIXI.Texture.fromImage(
+        "assets/images/buttons/attack-hover.png"
+      );
+    } else {
+      this.texture = PIXI.Texture.fromImage("assets/images/buttons/attack.png");
     }
-    else
-    {
-        this.texture = PIXI.Texture.fromImage('assets/images/buttons/attack.png');
-    }  
   }
 
-  onButtonOver(parent)
-  {
+  onButtonOver(parent) {
     this.isOver = true;
-    if (this.isdown)
-    {
-        return;
+    if (this.isdown) {
+      return;
     }
-    this.texture = PIXI.Texture.fromImage('assets/images/buttons/attack-hover.png');
+    this.texture = PIXI.Texture.fromImage(
+      "assets/images/buttons/attack-hover.png"
+    );
     parent.playSound("button-hover");
-
   }
 
-  onButtonOut(parent)
-  {
+  onButtonOut(parent) {
     this.isOver = false;
-    if (this.isdown)
-    {
-        return;
+    if (this.isdown) {
+      return;
     }
-    this.texture = PIXI.Texture.fromImage('assets/images/buttons/attack.png'); 
+    this.texture = PIXI.Texture.fromImage("assets/images/buttons/attack.png");
   }
 
   groupSprites(container, options) {
@@ -1166,7 +1227,7 @@ class Game {
   }
 
   attachEvents() {
-    window.addEventListener("keydown", e => {
+    window.addEventListener("keydown", (e) => {
       if (this.scenes.intro.visible) {
         if (e.key === "Enter") {
           this.chooseScreen();
@@ -1262,7 +1323,7 @@ class Game {
     this.keys.recharge[player].press = () => {
       if (!this.characters[player].isDeath) {
         if (character.actions.stance) {
-            this.action[player] = "recharge";
+          this.action[player] = "recharge";
         }
       }
     };
@@ -1270,7 +1331,7 @@ class Game {
     this.keys.shield[player].press = () => {
       if (!this.characters[player].isDeath) {
         if (character.actions.duck) {
-            this.action[player] = "shield";
+          this.action[player] = "shield";
         }
       }
     };
@@ -1278,7 +1339,7 @@ class Game {
     this.keys.confirm[player].press = () => {
       if (!this.characters[player].isDeath) {
         if (character.actions.stance) {
-            this.action[player] = "confirm";
+          this.action[player] = "confirm";
         }
       }
     };
@@ -1287,49 +1348,49 @@ class Game {
     this.keys.attackFail[player].press = () => {
       if (!this.characters[player].isDeath) {
         if (character.actions.stance) {
-            this.action[player] = "attackFail";
+          this.action[player] = "attackFail";
         }
       }
     };
     this.keys.attackCrit[player].press = () => {
       if (!this.characters[player].isDeath) {
         if (character.actions.stance) {
-            this.action[player] = "attackCrit";
+          this.action[player] = "attackCrit";
         }
       }
     };
     this.keys.attackKO[player].press = () => {
       if (!this.characters[player].isDeath) {
         if (character.actions.stance) {
-            this.action[player] = "attackKO";
+          this.action[player] = "attackKO";
         }
       }
     };
     this.keys.attackCancelOut[player].press = () => {
       if (!this.characters[player].isDeath) {
         if (character.actions.stance) {
-            this.action[player] = "attackCancelOut";
+          this.action[player] = "attackCancelOut";
         }
       }
     };
     this.keys.takeDamage[player].press = () => {
       if (!this.characters[player].isDeath) {
         if (character.actions.stance) {
-            this.action[player] = "takeDamage";
+          this.action[player] = "takeDamage";
         }
       }
     };
     this.keys.knockedOut[player].press = () => {
       if (!this.characters[player].isDeath) {
         if (character.actions.stance) {
-            this.action[player] = "knockedOut";
+          this.action[player] = "knockedOut";
         }
       }
     };
     this.keys.doubleRecharge[player].press = () => {
       if (!this.characters[player].isDeath) {
         if (character.actions.stance) {
-            this.action[player] = "doubleRecharge";
+          this.action[player] = "doubleRecharge";
         }
       }
     };
@@ -1341,7 +1402,10 @@ class Game {
 
     this.powers[player] = {};
 
-    this.powers[player].attackSuccess = this.createAnimation("Carson Attack Successful PNG", 36);
+    this.powers[player].attackSuccess = this.createAnimation(
+      "Carson Attack Successful PNG",
+      36
+    );
     this.powers[player].attackSuccess.visible = false;
     this.powers[player].attackSuccess.x = 0;
     this.powers[player].attackSuccess.vx = 15;
@@ -1350,7 +1414,7 @@ class Game {
     }
     this.scenes.game.addChild(this.powers[player].attackSuccess);
   }
-  
+
   setupRecharge(opponent) {
     const player = opponent ? 0 : 1;
 
@@ -1363,11 +1427,14 @@ class Game {
     }
     this.scenes.game.addChild(this.powers[player].recharge);
   }
-  
+
   setupAttackFail(opponent) {
     const player = opponent ? 0 : 1;
 
-    this.powers[player].attackFail = this.createAnimation("Unsuccesfful attack 08", 22);
+    this.powers[player].attackFail = this.createAnimation(
+      "Unsuccesfful attack 08",
+      22
+    );
     this.powers[player].attackFail.visible = false;
     this.powers[player].attackFail.x = 0;
     this.powers[player].attackFail.vx = 15;
@@ -1376,7 +1443,7 @@ class Game {
     }
     this.scenes.game.addChild(this.powers[player].attackFail);
   }
-  
+
   setupFusion(opponent) {
     const player = opponent ? 0 : 1;
 
@@ -1393,7 +1460,10 @@ class Game {
 
   setupScreenLines() {
     this.gameEffects[0] = [];
-    this.gameEffects[0].screenLines = this.createAnimation("Action Lines 10", 11);
+    this.gameEffects[0].screenLines = this.createAnimation(
+      "Action Lines 10",
+      11
+    );
     this.gameEffects[0].screenLines.loop = true;
     this.gameEffects[0].screenLines.animationSpeed = 0.25;
     this.gameEffects[0].screenLines.visible = false;
@@ -1404,13 +1474,13 @@ class Game {
   }
 
   setupCharacters(selectedPlayer, opponent) {
-  console.log("setting up a player started " + selectedPlayer);
+    console.log("setting up a player started " + selectedPlayer);
     const player = opponent ? 1 : 0;
 
-    characterData.characters.forEach(data => {
+    characterData.characters.forEach((data) => {
       if (data.name === selectedPlayer) {
         if (data.active) {
-        console.log("data name: " + data.name);
+          console.log("data name: " + data.name);
           const character = new PIXI.Container();
           const animations = [];
           const actions = {};
@@ -1420,7 +1490,7 @@ class Game {
           character.scale.x = opponent ? -data.scale : data.scale;
           character.scale.y = data.scale;
 
-          data.animations.forEach(animation => {
+          data.animations.forEach((animation) => {
             const sprite = this.createAnimation(
               `${data.name}-${animation.name}`,
               animation.frames
@@ -1462,7 +1532,7 @@ class Game {
       }
     });
 
-    this.characters.forEach(character => {
+    this.characters.forEach((character) => {
       if (character.active) {
         this.scenes.game.addChild(character);
         //this.scenes.select.addChild(character);
@@ -1474,15 +1544,13 @@ class Game {
   }
 
   loseHealthAnimation(heart) {
-  heart.visible = false;
-  //time = deltaTime;
+    heart.visible = false;
+    //time = deltaTime;
   }
 
   shakeScreen() {
     this.utils.shake(this.scenes.game, 0.01, true);
   }
-
-
 }
 
 export default Game;

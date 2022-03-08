@@ -4,9 +4,35 @@
     <title>metaduels</title>
 
     <link href="assets/css/styles.css" rel="stylesheet" />
+    <style>
+      body {
+        display: flex;
+        flex-direction: column;
+      }
+    </style>
   </head>
 
   <body>
+    <div style="padding-top: 20px">
+      <button id="connectWallet">Connect Wallet</button>
+      <div>Connected Wallet:</div>
+      <span id="connectedWallet">none</span>
+      <br />
+      <br />
+      <div>
+        <input id="opponentAddress" placeholder="Opponent Address (0x...)" />
+        <button id="startGame">Start Game</button>
+        <span id="gameIdDisplay" style="margin-left: 15px"></span>
+      </div>
+      <span>or</span>
+      <br />
+      <br />
+      <div>
+        <input id="gameId" placeholder="enter gameId to join" />
+        <button id="joinGame">Join Game</button>
+      </div>
+    </div>
+    <h1 style="width: 100vw; text-align: center" id="winner"></h1>
     <div class="app"></div>
   </body>
 

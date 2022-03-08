@@ -1,39 +1,11 @@
-import GameClient, { connectWallet, MOVES, moveToString } from "../lib/game";
+import GameClient, {
+  connectWallet,
+  MOVES,
+  moveToString,
+} from "../lib/gameClient";
 
 var signer = null;
 var gameClient = null;
-
-document.getElementById("connectWallet").addEventListener("click", async () => {
-  signer = await connectWallet();
-  const address = await signer.getAddress();
-
-  document.getElementById("connectedWallet").innerText = address;
-});
-
-document.getElementById("startGame").addEventListener("click", async () => {
-  const dueleeAddress = document.getElementById("opponentAddress").value;
-
-  gameClient = new GameClient(signer);
-
-  gameClient.addEventListener("GameCreated", async ({ gameId }) => {
-    document.getElementById(
-      "gameIdDisplay"
-    ).innerText = `Game Created with ID: ${gameId}`;
-
-    joinGame(gameId);
-  });
-
-  await gameClient.newGame(dueleeAddress);
-
-  document.getElementById("gameIdDisplay").innerText = `Creating Game...`;
-});
-
-document.getElementById("joinGame").addEventListener("click", async () => {
-  const gameId = parseInt(document.getElementById("gameId").value);
-
-  gameClient = new GameClient(signer);
-  await joinGame(gameId);
-});
 
 function setUpGameEventListeners(role) {
   document
@@ -171,12 +143,4 @@ async function renderGameState() {
   }
 
   return role;
-}
-
-async function joinGame(gameId) {
-  gameClient.connectToGame(gameId);
-
-  const role = await renderGameState();
-
-  setUpGameEventListeners(role);
 }
