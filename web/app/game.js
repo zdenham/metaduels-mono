@@ -34,42 +34,41 @@ class Game {
     this.dueleeNFTCharacter = "scorpion";
     this.duelerAddress = "0x12...k6nL";
     this.dueleeAddress = "0x71...976F";
-    this.playerWagerImage = PIXI.Texture.fromImage(
-      "assets/images/placeholder/wager15.png"
+    this.duelerWagerImage = PIXI.Texture.fromImage(
+      "assets/images/placeholder/duelerWagerImage.png"
     );
     this.dueleeWagerImage = PIXI.Texture.fromImage(
-      "assets/images/placeholder/wager25.png"
+      "assets/images/placeholder/dueleeWagerImage.png"
     );
-
     this.healthIcon = PIXI.Texture.fromImage(
-      "assets/images/buttons/heart-full.png"
+      "assets/images/buttons/healthIcon.png"
     );
     this.healthIconEmpty = PIXI.Texture.fromImage(
-      "assets/images/buttons/heart-empty.png"
+      "assets/images/buttons/healthIconEmpty.png"
     );
     this.attackIcon = PIXI.Texture.fromImage(
-      "assets/images/buttons/attack.png"
+      "assets/images/buttons/attackIcon.png"
     );
     this.shieldIcon = PIXI.Texture.fromImage(
-      "assets/images/buttons/shield-full.png"
+      "assets/images/buttons/shieldIcon.png"
     );
     this.shieldIconHalf = PIXI.Texture.fromImage(
-      "assets/images/buttons/shield-half.jpg"
+      "assets/images/buttons/shieldIconHalf.jpg"
     );
     this.shieldIconEmpty = PIXI.Texture.fromImage(
-      "assets/images/buttons/shield-empty.png"
+      "assets/images/buttons/shieldIconEmpty.png"
     );
     this.rechargeIcon = PIXI.Texture.fromImage(
-      "assets/images/buttons/recharge.png"
+      "assets/images/buttons/rechargeIcon.png"
     );
     this.rechargeHover = PIXI.Texture.fromImage(
-      "assets/images/buttons/recharge-hover.png"
+      "assets/images/buttons/rechargeHover.png"
     );
     this.rechargeSelect = PIXI.Texture.fromImage(
-      "assets/images/buttons/recharge-select.png"
+      "assets/images/buttons/rechargeSelect.png"
     );
     this.shieldHover = PIXI.Texture.fromImage(
-      "assets/images/buttons/shield-hover.png"
+      "assets/images/buttons/shieldHover.png"
     );
     this.shieldSelect = PIXI.Texture.fromImage(
       "assets/images/buttons/shield-select.png"
@@ -128,10 +127,6 @@ class Game {
       100, 340, 160, 340, 220, 340, 1100, 340, 1040, 340, 980, 340, 400, 340,
       800, 340,
     ];
-
-    var noop = function () {
-      console.log("click");
-    };
 
     PIXI.loader
       .add([
@@ -1034,7 +1029,7 @@ class Game {
 
     //define player One UI
     let name1 = this.textObj.customText(this.duelerAddress, 60, 20);
-    var wagerImage = new PIXI.Sprite(this.playerWagerImage);
+    var wagerImage = new PIXI.Sprite(this.duelerWagerImage);
     wagerImage.position.x = 60;
     wagerImage.position.y = 50;
     var health1 = new PIXI.Sprite(this.healthIcon);
@@ -1103,7 +1098,7 @@ class Game {
 
     //define player One UI
     let name1 = this.textObj.customText(this.duelerAddress, 60, 20);
-    var wagerImage = new PIXI.Sprite(this.playerWagerImage);
+    var wagerImage = new PIXI.Sprite(this.duelerWagerImage);
     wagerImage.position.x = 60;
     wagerImage.position.y = 50;
     var health1 = new PIXI.Sprite(this.healthIcon);

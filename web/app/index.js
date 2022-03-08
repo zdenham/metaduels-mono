@@ -1,3 +1,3 @@
-import Game from "./game.js";
+import Game from "./game2.js";
 
 window.game = new Game();
