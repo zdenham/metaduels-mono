@@ -68,7 +68,7 @@ function getMoveStateText(move) {
 
 async function renderGameState() {
   const myAddress = await signer.getAddress();
-  const state = await gameClient.getGameState(gameId);
+  const state = await gameClient.getGameState();
 
   const role = myAddress === state.duelerAddress ? `dueler` : `duelee`;
 

@@ -31,13 +31,13 @@ class Game {
 
     //Metaduels//
     this.playerNFTCharacter = "scorpion";
-    this.opponentNFTCharacter = "scorpion";
-    this.playerAddress = "0x12...k6nL";
-    this.opponentAddress = "0x71...976F";
+    this.dueleeNFTCharacter = "scorpion";
+    this.duelerAddress = "0x12...k6nL";
+    this.dueleeAddress = "0x71...976F";
     this.playerWagerImage = PIXI.Texture.fromImage(
       "assets/images/placeholder/wager15.png"
     );
-    this.opponentWagerImage = PIXI.Texture.fromImage(
+    this.dueleeWagerImage = PIXI.Texture.fromImage(
       "assets/images/placeholder/wager25.png"
     );
 
@@ -196,6 +196,56 @@ class Game {
 
   setContractClient(client) {
     this.contractClient = client;
+    this.initContractEventListeners();
+  }
+
+  // TODO - implement
+  // onMoveSubmitted is called after a player has submitted a move
+  // to the smart contract, but before it has been revealed to the duelee
+  onMoveSubmitted(eventData, gameState) {}
+
+  // TODO - implement
+  // onMoveRevealed is called after a move has been revealed or confirmed
+  // by submitting the password to the smart contract to reveal the move
+  onMoveRevealed(eventData, gameState) {}
+
+  // TODO - implement
+  // onRoundCompleted is called once the round is completed. Both Players
+  // have submitted their moves and revealed them. The smart contract has
+  // updated the player's health and ammo etc... accordingly. The information
+  // returned in this event includes the player moves & critical hit details
+  onRoundCompleted(eventData, gameState) {}
+
+  // TODO - implement
+  // onWinnerDeclared is a smart contract event for when someone has won a duel
+  onWinnerDeclared(eventData, gameState) {}
+
+  // getGameState fetches the current game state from the smart contract
+  async getGameState() {
+    return await this.contractClient.getGameState();
+  }
+
+  initContractEventListeners() {
+    // re-render game state whenever something important happens
+    this.contractClient.addEventListener("MoveSubmitted", async (data) => {
+      const gameState = await this.getGameState();
+      this.onMoveSubmitted(data, gameState);
+    });
+
+    this.contractClient.addEventListener("MoveRevealed", async (data) => {
+      const gameState = await this.getGameState();
+      this.onMoveRevealed(data, gameState);
+    });
+
+    this.contractClient.addEventListener("RoundCompleted", async (data) => {
+      const gameState = await this.getGameState();
+      this.onRoundCompleted(data, gameState);
+    });
+
+    this.contractClient.addEventListener("WinnerDeclared", async (data) => {
+      const gameState = await this.getGameState();
+      this.onWinnerDeclared(data, gameState);
+    });
   }
 
   initScenes() {
@@ -366,12 +416,13 @@ class Game {
   gameLoop() {
     // This is all you Zaccy. Unless you need help then hmu
     this.app.ticker.add(() => {
-      this.utils.update();
       if (!this.scenes.game.visible) return;
+
+      this.utils.update();
 
       this.characters.forEach((character, index) => {
         let collision;
-        const opponent = index === 0 ? this.characters[1] : this.characters[0];
+        const duelee = index === 0 ? this.characters[1] : this.characters[0];
 
         switch (this.action[index]) {
           case "stance":
@@ -922,7 +973,7 @@ class Game {
      */
 
     //setup characters
-    this.setupCharacters(this.opponentNFTCharacter);
+    this.setupCharacters(this.dueleeNFTCharacter);
     this.setupAttackSuccess();
     this.setupFusion();
     this.setupAttackFail();
@@ -978,11 +1029,11 @@ class Game {
     }
 
     /*
-     * define player and opponent values based on start and gameplay
+     * define player and duelee values based on start and gameplay
      */
 
     //define player One UI
-    let name1 = this.textObj.customText(this.playerAddress, 60, 20);
+    let name1 = this.textObj.customText(this.duelerAddress, 60, 20);
     var wagerImage = new PIXI.Sprite(this.playerWagerImage);
     wagerImage.position.x = 60;
     wagerImage.position.y = 50;
@@ -1002,8 +1053,8 @@ class Game {
     this.scenes.select.addChild(wagerImage);
 
     //define player 2 UI
-    let name2 = this.textObj.customText(this.opponentAddress, 1060, 20);
-    var wagerImage2 = new PIXI.Sprite(this.opponentWagerImage);
+    let name2 = this.textObj.customText(this.dueleeAddress, 1060, 20);
+    var wagerImage2 = new PIXI.Sprite(this.dueleeWagerImage);
     wagerImage2.position.x = 1020;
     wagerImage2.position.y = 50;
     var health3 = new PIXI.Sprite(this.healthIcon);
@@ -1051,7 +1102,7 @@ class Game {
     this.scenes.game.addChild(roundText);
 
     //define player One UI
-    let name1 = this.textObj.customText(this.playerAddress, 60, 20);
+    let name1 = this.textObj.customText(this.duelerAddress, 60, 20);
     var wagerImage = new PIXI.Sprite(this.playerWagerImage);
     wagerImage.position.x = 60;
     wagerImage.position.y = 50;
@@ -1071,8 +1122,8 @@ class Game {
     this.scenes.game.addChild(wagerImage);
 
     //define player 2 UI
-    let name2 = this.textObj.customText(this.opponentAddress, 1060, 20);
-    var wagerImage2 = new PIXI.Sprite(this.opponentWagerImage);
+    let name2 = this.textObj.customText(this.dueleeAddress, 1060, 20);
+    var wagerImage2 = new PIXI.Sprite(this.dueleeWagerImage);
     wagerImage2.position.x = 1020;
     wagerImage2.position.y = 50;
     var health3 = new PIXI.Sprite(this.healthIcon);
@@ -1266,7 +1317,7 @@ class Game {
     return anim;
   }
 
-  setupKeys(character, opponent) {
+  setupKeys(character, duelee) {
     //Metaduels//
     this.keys.attack = this.keys.attack || [];
     this.keys.recharge = this.keys.recharge || [];
@@ -1281,9 +1332,9 @@ class Game {
     this.keys.knockedOut = this.keys.knockedOut || [];
     this.keys.doubleRecharge = this.keys.doubleRecharge || [];
 
-    let player = opponent ? 1 : 0;
+    let player = duelee ? 1 : 0;
 
-    if (opponent) {
+    if (duelee) {
       this.keys.attack[player] = Keyboard(56); // 8
       this.keys.recharge[player] = Keyboard(57); // 9
       this.keys.shield[player] = Keyboard(48); // 0
@@ -1397,8 +1448,8 @@ class Game {
     //Metaduels//
   }
 
-  setupAttackSuccess(opponent) {
-    const player = opponent ? 0 : 1;
+  setupAttackSuccess(duelee) {
+    const player = duelee ? 0 : 1;
 
     this.powers[player] = {};
 
@@ -1415,8 +1466,8 @@ class Game {
     this.scenes.game.addChild(this.powers[player].attackSuccess);
   }
 
-  setupRecharge(opponent) {
-    const player = opponent ? 0 : 1;
+  setupRecharge(duelee) {
+    const player = duelee ? 0 : 1;
 
     this.powers[player].recharge = this.createAnimation("Reload circle ", 21);
     this.powers[player].recharge.visible = false;
@@ -1428,8 +1479,8 @@ class Game {
     this.scenes.game.addChild(this.powers[player].recharge);
   }
 
-  setupAttackFail(opponent) {
-    const player = opponent ? 0 : 1;
+  setupAttackFail(duelee) {
+    const player = duelee ? 0 : 1;
 
     this.powers[player].attackFail = this.createAnimation(
       "Unsuccesfful attack 08",
@@ -1444,8 +1495,8 @@ class Game {
     this.scenes.game.addChild(this.powers[player].attackFail);
   }
 
-  setupFusion(opponent) {
-    const player = opponent ? 0 : 1;
+  setupFusion(duelee) {
+    const player = duelee ? 0 : 1;
 
     this.powers[player].fusion = this.createAnimation("Attack fusion 2 ", 20);
     this.powers[player].fusion.visible = false;
@@ -1473,9 +1524,9 @@ class Game {
     this.scenes.game.addChild(this.gameEffects[0].screenLines);
   }
 
-  setupCharacters(selectedPlayer, opponent) {
+  setupCharacters(selectedPlayer, duelee) {
     console.log("setting up a player started " + selectedPlayer);
-    const player = opponent ? 1 : 0;
+    const player = duelee ? 1 : 0;
 
     characterData.characters.forEach((data) => {
       if (data.name === selectedPlayer) {
@@ -1485,9 +1536,9 @@ class Game {
           const animations = [];
           const actions = {};
 
-          character.x = opponent ? 800 : 400;
+          character.x = duelee ? 800 : 400;
           character.y = this.groundY;
-          character.scale.x = opponent ? -data.scale : data.scale;
+          character.scale.x = duelee ? -data.scale : data.scale;
           character.scale.y = data.scale;
 
           data.animations.forEach((animation) => {
@@ -1521,13 +1572,13 @@ class Game {
 
           character.actions = actions;
           character.animations = animations;
-          character.opponent = data.opponent;
+          character.duelee = data.duelee;
           character.active = data.active;
           character.isDeath = false;
 
           this.characters.push(character);
 
-          this.setupKeys(character, opponent);
+          this.setupKeys(character, duelee);
         }
       }
     });
