@@ -69,6 +69,10 @@ class GameContractClient {
     return state;
   }
 
+  async signerAddress() {
+    return await this.signer.getAddress();
+  }
+
   async signAndSendMove(moveType) {
     const nonce = v4();
 

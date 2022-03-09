@@ -148,7 +148,7 @@ class Game {
         "assets/images/characters/claudia-portrait.png",
         "assets/images/characters/pao-portrait.png",
         "assets/images/backgrounds/combat.jpg",
-        "assets/images/backgrounds/mddojobg.jpg",
+        "assets/images/backgrounds/mddojobg.png",
         "assets/sounds/fight.mp3",
         "assets/sounds/hitsounds/mk3-00100.mp3",
         "assets/sounds/hitsounds/mk3-00105.mp3",
@@ -373,25 +373,25 @@ class Game {
 
   loadBackgrounds() {
     this.backgrounds.intro = new PIXI.Sprite.from(
-      PIXI.loader.resources["assets/images/backgrounds/mddojobg.jpg"].texture
+      PIXI.loader.resources["assets/images/backgrounds/mddojobg.png"].texture
     );
     this.setBGScale(this.backgrounds.intro);
     this.scenes.intro.addChild(this.backgrounds.intro);
 
     this.backgrounds.select = new PIXI.Sprite.from(
-      PIXI.loader.resources["assets/images/backgrounds/mddojobg.jpg"].texture
+      PIXI.loader.resources["assets/images/backgrounds/mddojobg.png"].texture
     );
     this.setBGScale(this.backgrounds.select);
     this.scenes.select.addChild(this.backgrounds.select);
 
     this.backgrounds.battle = new PIXI.Sprite.from(
-      PIXI.loader.resources["assets/images/backgrounds/mddojobg.jpg"].texture
+      PIXI.loader.resources["assets/images/backgrounds/mddojobg.png"].texture
     );
     this.setBGScale(this.backgrounds.battle);
     this.scenes.game.addChild(this.backgrounds.battle);
 
     this.backgrounds.win = new PIXI.Sprite.from(
-      PIXI.loader.resources["assets/images/backgrounds/mddojobg.jpg"].texture
+      PIXI.loader.resources["assets/images/backgrounds/mddojobg.png"].texture
     );
     this.setBGScale(this.backgrounds.win);
     this.scenes.youWin.addChild(this.backgrounds.win);
@@ -1220,10 +1220,12 @@ class Game {
     this.isdown = false;
     if (this.isOver) {
       this.texture = PIXI.Texture.fromImage(
-        "assets/images/buttons/attack-hover.png"
+        "assets/images/buttons/attackHover.png"
       );
     } else {
-      this.texture = PIXI.Texture.fromImage("assets/images/buttons/attack.png");
+      this.texture = PIXI.Texture.fromImage(
+        "assets/images/buttons/attackIcon.png"
+      );
     }
   }
 
@@ -1233,7 +1235,7 @@ class Game {
       return;
     }
     this.texture = PIXI.Texture.fromImage(
-      "assets/images/buttons/attack-hover.png"
+      "assets/images/buttons/attackHover.png"
     );
     parent.playSound("button-hover");
   }
@@ -1243,7 +1245,9 @@ class Game {
     if (this.isdown) {
       return;
     }
-    this.texture = PIXI.Texture.fromImage("assets/images/buttons/attack.png");
+    this.texture = PIXI.Texture.fromImage(
+      "assets/images/buttons/attackIcon.png"
+    );
   }
 
   groupSprites(container, options) {
