@@ -16,12 +16,14 @@ class Game {
 
     // Initialize the scene
     this.scene = new PIXI.Container();
-    this.scene.alpha = 0;
+    // this.scene.alpha = 0;
     this.app.stage.addChild(this.scene);
 
     PIXI.loader.add(["assets/images/backgrounds/mddojobg.jpg"]).load(() => {
       console.log("COMPLETED LOADING THE GAME ASSETS!");
     });
+
+    // document.querySelector(".app").appendChild(this.app.renderer.view);
   }
 
   // create a game on the blockchain!
@@ -46,6 +48,8 @@ class Game {
 
   // Scene / game SetUp!!
   initGameScene() {
+    document.querySelector(".app").appendChild(this.app.renderer.view);
+
     this.initBackground();
     this.initControls();
     this.gameLoop();
@@ -59,6 +63,8 @@ class Game {
     this.background = setBGScale(this.backgroundSprite);
     this.scene.addChild(this.backgroundSprite);
   }
+
+  initControls() {}
 
   gameLoop() {}
 
