@@ -4,7 +4,8 @@ import SpriteUtilities from "./spriteUtilities.js";
 import TextStyles from "./textStyles.js";
 import Keyboard from "./keyboard.js";
 import characterData from "./characters.json";
-import "./connect";
+import GameContractClient from "../lib/gameClient.js";
+import { setBGScale } from "../lib/pixiUtils.js";
 
 class Game {
   constructor() {
@@ -13,15 +14,53 @@ class Game {
     this.textObj = new TextStyles(this.app.renderer);
     this.utils = new SpriteUtilities(PIXI);
 
-    initScene();
+    // Initialize the scene
+    this.scene = new PIXI.Container();
+    this.scene.alpha = 0;
+    this.app.stage.addChild(this.scene);
+
+    PIXI.loader.add(["assets/images/backgrounds/mddojobg.jpg"]).load(() => {
+      console.log("COMPLETED LOADING THE GAME ASSETS!");
+    });
   }
 
-  initScene() {}
+  // create a game on the blockchain!
+  async startGame(signer, dueleeAddress) {
+    this.contractClient = new GameContractClient(signer);
+    const gameId = await this.contractClient.newGame(dueleeAddress);
 
-  setContractClient(client) {
-    this.contractClient = client;
-    this.initContractEventListeners();
+    this.initGameScene();
+
+    return gameId;
   }
+
+  // resume an existing game on the blockchain
+  async joinGame(signer, gameId) {
+    this.contractClient = new GameContractClient(signer);
+    this.contractClient.connectToGame(gameId);
+
+    this.initGameScene();
+
+    return gameId;
+  }
+
+  // Scene / game SetUp!!
+  initGameScene() {
+    this.initBackground();
+    this.initControls();
+    this.gameLoop();
+  }
+
+  initBackground() {
+    this.backgroundSprite = new PIXI.Sprite.from(
+      PIXI.loader.resources["assets/images/backgrounds/mddojobg.jpg"].texture
+    );
+
+    this.background = setBGScale(this.backgroundSprite);
+    this.scene.addChild(this.backgroundSprite);
+  }
+
+  gameLoop() {}
 
   // TODO - implement
   // onMoveSubmitted is called after a player has submitted a move
@@ -50,7 +89,6 @@ class Game {
   }
 
   initContractEventListeners() {
-    // re-render game state whenever something important happens
     this.contractClient.addEventListener("MoveSubmitted", async (data) => {
       const gameState = await this.getGameState();
       this.onMoveSubmitted(data, gameState);
@@ -72,3 +110,5 @@ class Game {
     });
   }
 }
+
+export default Game;

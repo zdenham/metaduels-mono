@@ -2,8 +2,6 @@ import { ethers } from "ethers";
 import { v4 } from "uuid";
 import gameContract from "./contract";
 
-const GAME_NETWORK_ID = "0x13881";
-
 export const MOVES = {
   None: 0,
   Attack: 1,
@@ -24,23 +22,7 @@ export function moveToString(move) {
   }
 }
 
-export async function connectWallet() {
-  if (!window.ethereum) {
-    throw new Error("No Metamask has been installed");
-  }
-
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
-
-  await provider.send("wallet_switchEthereumChain", [
-    { chainId: GAME_NETWORK_ID },
-  ]);
-
-  await provider.send("eth_requestAccounts", []);
-
-  return provider.getSigner();
-}
-
-class GameClient {
+class GameContractClient {
   constructor(signer) {
     this.signer = signer;
     this.game = new ethers.Contract(
@@ -53,6 +35,15 @@ class GameClient {
     this.dueleeAddress = null;
   }
 
+  waitForGameId() {
+    return new Promise((resolve) => {
+      this.addEventListener("GameCreated", async ({ gameId }) => {
+        // TODO - remove event listener or only listen for one event
+        resolve(gameId);
+      });
+    });
+  }
+
   async newGame(dueleeAddress) {
     if (!this.game) {
       throw new Error("No Game Contract found");
@@ -62,6 +53,10 @@ class GameClient {
     this.dueleeAddress = dueleeAddress;
 
     await this.game.letItBegin(this.duelerAddress, this.dueleeAddress);
+
+    this.gameId = await this.waitForGameId();
+
+    return this.gameId;
   }
 
   async connectToGame(gameId) {
@@ -222,4 +217,4 @@ class GameClient {
   }
 }
 
-export default GameClient;
+export default GameContractClient;

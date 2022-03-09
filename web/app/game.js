@@ -4,7 +4,6 @@ import SpriteUtilities from "./spriteUtilities.js";
 import TextStyles from "./textStyles.js";
 import Keyboard from "./keyboard.js";
 import characterData from "./characters.json";
-import "./connect";
 
 class Game {
   constructor() {
@@ -30,7 +29,7 @@ class Game {
     this.moveFinished = false;
 
     //Metaduels//
-    this.playerNFTCharacter = "scorpion";
+    this.duelerNFTCharacter = "scorpion";
     this.dueleeNFTCharacter = "scorpion";
     this.duelerAddress = "0x12...k6nL";
     this.dueleeAddress = "0x71...976F";
@@ -71,22 +70,21 @@ class Game {
       "assets/images/buttons/shieldHover.png"
     );
     this.shieldSelect = PIXI.Texture.fromImage(
-      "assets/images/buttons/shield-select.png"
+      "assets/images/buttons/shieldSelect.png"
     );
     this.attackHover = PIXI.Texture.fromImage(
-      "assets/images/buttons/attack-hover.png"
+      "assets/images/buttons/attackHover.png"
     );
     this.attackSelect = PIXI.Texture.fromImage(
-      "assets/images/buttons/attack-select.png"
+      "assets/images/buttons/attackSelect.png"
     );
     this.confirmButton = PIXI.Texture.fromImage(
       "assets/images/buttons/confirm.png"
     );
     this.buttonsPushed = false;
 
-    this.logo = PIXI.Texture.fromImage(
-      "assets/images/placeholder/metaduels-logo.png"
-    );
+    this.logo = PIXI.Texture.fromImage("assets/images/placeholder/logo.png");
+
     this.round = 1;
 
     this.didAttack = false;
@@ -970,12 +968,12 @@ class Game {
     //setup characters
     this.setupCharacters(this.dueleeNFTCharacter);
     this.setupAttackSuccess();
-    this.setupFusion();
+    this.setupDoubleAttack();
     this.setupAttackFail();
     this.setupRecharge();
-    this.setupCharacters(this.playerNFTCharacter, true);
+    this.setupCharacters(this.duelerNFTCharacter, true);
     this.setupAttackSuccess(true);
-    this.setupFusion(true);
+    this.setupDoubleAttack(true);
     this.setupAttackFail(true);
     this.setupRecharge(true);
 
@@ -1254,22 +1252,22 @@ class Game {
     }
   }
 
-  setBGScale(sprite) {
-    const winAspectRatio = 1200 / 400;
+  setBGScale(sprite, width = 1200, height = 400) {
+    const winAspectRatio = width / height;
     const bgAspectRatio = sprite.texture.width / sprite.texture.height;
     let ratio;
 
     if (winAspectRatio > bgAspectRatio) {
-      ratio = 1200 / sprite.texture.width;
+      ratio = width / sprite.texture.width;
     } else {
-      ratio = 400 / sprite.texture.height;
+      ratio = height / sprite.texture.height;
     }
 
     sprite.scale.x = ratio;
     sprite.scale.y = ratio;
 
-    sprite.x = (1200 - sprite.width) / 2;
-    sprite.y = (400 - sprite.height) / 2;
+    sprite.x = (width - sprite.width) / 2;
+    sprite.y = (height - sprite.height) / 2;
   }
 
   attachEvents() {
@@ -1490,7 +1488,7 @@ class Game {
     this.scenes.game.addChild(this.powers[player].attackFail);
   }
 
-  setupFusion(duelee) {
+  setupDoubleAttack(duelee) {
     const player = duelee ? 0 : 1;
 
     this.powers[player].fusion = this.createAnimation("Attack fusion 2 ", 20);
