@@ -5,7 +5,13 @@ import TextStyles from "./textStyles.js";
 import Keyboard from "./keyboard.js";
 import characterData from "./characters.json";
 import GameContractClient from "../lib/gameClient.js";
-import { setBGScale, texture } from "../lib/pixiUtils.js";
+import {
+  setBGScale,
+  createSpriteAtPosition,
+  texture,
+} from "../lib/pixiUtils.js";
+import PlayerStates from "./playerStates.js";
+import PlayerControls from "./playerControls.js";
 
 class Game {
   constructor() {
@@ -21,10 +27,9 @@ class Game {
     this.app.stage.addChild(this.scene);
 
     // Containers - null until a game is created or joined
-    this.playersStateContainer = null;
-    this.duelerControlsContainer = null;
-    this.dueleeControlsContainer = null;
-    this.charactersContainer = null;
+    this.playersStates = null;
+    this.playerControls = null;
+    this.characters = null;
 
     PIXI.loader
       .add([
@@ -35,6 +40,15 @@ class Game {
         "assets/images/buttons/shieldIconHalf.png",
         "assets/images/buttons/shieldIconEmpty.png",
         "assets/images/buttons/attackIcon.png",
+        "assets/images/buttons/attackIconEmpty.png",
+        "assets/images/buttons/attackIconHover.png",
+        "assets/images/buttons/attackIconSelected.png",
+        "assets/images/buttons/reloadIcon.png",
+        "assets/images/buttons/reloadIconHover.png",
+        "assets/images/buttons/reloadIconSelect.png",
+        "assets/images/buttons/confirmIcon.png",
+        "assets/images/placeholder/duelerWagerImage.png",
+        "assets/images/placeholder/dueleeWagerImage.png",
       ])
       .load(() => {
         console.log("COMPLETED LOADING THE GAME ASSETS!");
@@ -64,15 +78,23 @@ class Game {
   // Scene / game SetUp!!
   async initGameScene() {
     document.querySelector(".app").appendChild(this.app.renderer.view);
+    const gameState = await this.getGameState();
+    const userAddress = await this.contractClient.signerAddress();
 
     this.initBackground();
-
-    await this.initPlayerStates();
-    await this.initPlayerControls();
-
     this.initContractListeners();
-
     this.initGameLoop();
+
+    this.playersStates = new PlayerStates(gameState, this.textObj);
+    this.playerControls = new PlayerControls(
+      gameState,
+      userAddress,
+      () => {},
+      () => {}
+    );
+
+    this.scene.addChild(this.playersStates.container);
+    this.scene.addChild(this.playerControls.container);
   }
 
   initBackground() {
@@ -82,117 +104,6 @@ class Game {
 
     this.background = setBGScale(this.backgroundSprite);
     this.scene.addChild(this.backgroundSprite);
-  }
-
-  createSpriteAtPosition(spritePath, x, y) {
-    const sprite = new PIXI.Sprite.from(texture(spritePath));
-    sprite.position.x = x;
-    sprite.position.y = y;
-
-    return sprite;
-  }
-
-  // TODO
-  async initPlayerStates() {
-    const gameState = await this.contractClient.getGameState();
-    this.playerStateContainer = new PIXI.Container();
-    this.playerStateContainer.position.x = 0;
-    this.playerStateContainer.position.y = 0;
-    this.playerStateContainer.width = 1200;
-    this.playerStateContainer.height = 400;
-
-    this.renderPlayersAddresses(gameState);
-    this.renderPlayersHealth(gameState);
-    this.renderPlayersShield(gameState);
-    this.renderPlayersAmmo(gameState);
-
-    this.scene.addChild(this.playerStateContainer);
-  }
-
-  renderPlayersAddresses(gameState) {
-    const duelerTruncated = `${gameState.duelerAddress.substring(
-      0,
-      4
-    )}...${gameState.duelerAddress.substring(38, 42)}`;
-
-    const dueleeTruncated = `${gameState.dueleeAddress.substring(
-      0,
-      4
-    )}...${gameState.dueleeAddress.substring(38, 42)}`;
-
-    const duelerAddressText = this.textObj.customText(duelerTruncated, 60, 20);
-
-    const dueleeAddressText = this.textObj.customText(
-      dueleeTruncated,
-      1060,
-      20
-    );
-
-    this.playerStateContainer.addChild(duelerAddressText);
-    this.playerStateContainer.addChild(dueleeAddressText);
-  }
-
-  renderPlayersHealth(gameState) {
-    this.renderPlayersShield(gameState);
-    const duelerHealthPositions = [
-      { x: 190, y: 50 },
-      { x: 240, y: 50 },
-    ];
-
-    const dueleeHealthPositions = [
-      { x: 960, y: 50 },
-      { x: 900, y: 50 },
-    ];
-
-    for (let i = 0; i < 2; i++) {
-      const duelerSpritePath =
-        i < gameState.duelerState.health
-          ? "buttons/healthIcon"
-          : "buttons/healthIconEmpty";
-      const dueleeSpritePath =
-        i < gameState.dueleeState.health
-          ? "buttons/healthIcon"
-          : "buttons/healthIconEmpty";
-
-      const duelerHealth = this.createSpriteAtPosition(
-        duelerSpritePath,
-        duelerHealthPositions[i].x,
-        duelerHealthPositions[i].y
-      );
-
-      const dueleeHealth = this.createSpriteAtPosition(
-        dueleeSpritePath,
-        dueleeHealthPositions[i].x,
-        dueleeHealthPositions[i].y
-      );
-
-      this.playerStateContainer.addChild(duelerHealth);
-      this.playerStateContainer.addChild(dueleeHealth);
-    }
-  }
-
-  renderPlayersAmmo(gameState) {}
-
-  shieldIconPath(numShield) {
-    switch (numShield) {
-      case 2:
-        return "buttons/shieldIcon";
-      case 1:
-        return "buttons/shieldIconHalf";
-      default:
-        return "buttons/shieldIconEmpty";
-    }
-  }
-
-  renderPlayersShield(gameState) {
-    const duelerShield = this.shieldIconPath(gameState.duelerState.shield);
-    const dueleeShield = this.shieldIconPath(gameState.dueleeState.shield);
-
-    const duelerSprite = this.createSpriteAtPosition(duelerShield, 300, 50);
-    const dueleeSprite = this.createSpriteAtPosition(dueleeShield, 840, 50);
-
-    this.playerStateContainer.addChild(duelerSprite);
-    this.playerStateContainer.addChild(dueleeSprite);
   }
 
   // TODO
