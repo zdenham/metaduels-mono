@@ -4,7 +4,7 @@ import { createSpriteAtPosition, texture } from "../lib/pixiUtils";
 /**
  * THE MOVES N = NONE, A = ATTACK, B = BLOCK, R = RELOAD
  */
-const M = {
+export const M = {
   N: 0,
   A: 1,
   B: 2,
@@ -16,6 +16,7 @@ const duelerButtonPositions = {
   block: { x: 160, y: 340 },
   reload: { x: 220, y: 340 },
   confirm: { x: 400, y: 340 },
+  reveal: { x: 400, y: 340 },
 };
 
 const dueleeButtonPositions = {
@@ -23,6 +24,7 @@ const dueleeButtonPositions = {
   block: { x: 1040, y: 340 },
   reload: { x: 980, y: 340 },
   confirm: { x: 800, y: 340 },
+  reveal: { x: 800, y: 340 },
 };
 
 const playerTypes = {
@@ -82,10 +84,13 @@ function getButtonsToShow(duelerMoveState, dueleeMoveState, playerType) {
 }
 
 class PlayerControls {
-  constructor(gameState, userAddress, onConfirmCb, onRevealCb) {
+  constructor(gameState, userAddress, onConfirmCallback, onRevealCallback) {
     this.gameState = gameState;
     this.userAddress = userAddress;
     this.selectedMove = M.N;
+
+    this.onConfirmCallback = onConfirmCallback;
+    this.onRevealCallback = onRevealCallback;
 
     this.buttons = {
       // attack
@@ -107,7 +112,10 @@ class PlayerControls {
       confirm: {
         assetPath: "buttons/confirmIcon",
       },
-      // reveal - TODO
+      // reveal
+      reveal: {
+        assetPath: "buttons/revealIcon",
+      },
     };
 
     this.playerType =
@@ -179,8 +187,6 @@ class PlayerControls {
       this.playerType
     );
 
-    console.log("BUTTONS TO SHOW!!!", buttonsToShow, gameState);
-
     this.showButtons(...buttonsToShow);
   }
 
@@ -216,9 +222,18 @@ class PlayerControls {
     this.gameState = nextGameState;
   }
 
-  async onConfirmMove() {}
+  async onConfirmMove() {
+    // TODO - maybe set a loading state
+    await this.onConfirmCallback(this.selectedMove);
 
-  async onRevealMove() {}
+    this.hideButtons("attack", "block", "reload", "confirm");
+    this.resetMoveButtons();
+  }
+
+  async onRevealMove() {
+    await this.onRevealCallback();
+    this.hideButtons("reveal");
+  }
 
   onClickMove(buttonKey) {
     const button = this.buttons[buttonKey];
@@ -231,10 +246,37 @@ class PlayerControls {
     this.showButtons("confirm");
   }
 
+  onDuelerMoveSubmitted(nextGameState) {
+    this.gameState = nextGameState;
+    const dueleeMoveState = moveState(this.gameState.currDueleeMove);
+    if (
+      this.playerType === playerTypes.duelee &&
+      dueleeMoveState === moveStates.submitted
+    ) {
+      // show the reveal button
+      this.showButtons("reveal");
+    }
+  }
+
+  onDueleeMoveSubmitted() {
+    this.gameState = nextGameState;
+    const duelerMoveState = moveState(this.gameState.currDuelerMove);
+    if (
+      this.playerType === playerTypes.dueler &&
+      duelerMoveState === moveStates.submitted
+    ) {
+      // show the reveal button
+      this.showButtons("reveal");
+    }
+  }
+
   onClickButton(buttonKey) {
     switch (buttonKey) {
       case "confirm":
         this.onConfirmMove();
+        break;
+      case "reveal":
+        this.onRevealMove();
         break;
       default:
         this.onClickMove(buttonKey);

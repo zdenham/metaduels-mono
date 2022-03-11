@@ -5,13 +5,12 @@ import TextStyles from "./textStyles.js";
 import Keyboard from "./keyboard.js";
 import characterData from "./characters.json";
 import GameContractClient from "../lib/gameClient.js";
-import {
-  setBGScale,
-  createSpriteAtPosition,
-  texture,
-} from "../lib/pixiUtils.js";
+import { setBGScale, texture } from "../lib/pixiUtils.js";
 import PlayerStates from "./playerStates.js";
-import PlayerControls from "./playerControls.js";
+import PlayerControls, { M } from "./playerControls.js";
+import calculateEventFromStateTransition, {
+  gameEventTypes,
+} from "../lib/calculateGameEventType.js";
 
 class Game {
   constructor() {
@@ -27,9 +26,11 @@ class Game {
     this.app.stage.addChild(this.scene);
 
     // Containers - null until a game is created or joined
-    this.playersStates = null;
+    this.playerStates = null;.updateStates(this.gameState);
     this.playerControls = null;
     this.characters = null;
+
+    this.gameSTate = null;
 
     PIXI.loader
       .add([
@@ -55,6 +56,9 @@ class Game {
 
         "assets/images/buttons/confirmIcon.png",
         "assets/images/buttons/confirmIconHover.png",
+
+        "assets/images/buttons/revealIcon.png",
+        "assets/images/buttons/revealIconHover.png",
 
         "assets/images/placeholder/duelerWagerImage.png",
         "assets/images/placeholder/dueleeWagerImage.png",
@@ -87,22 +91,27 @@ class Game {
   // Scene / game SetUp!!
   async initGameScene() {
     document.querySelector(".app").appendChild(this.app.renderer.view);
-    const gameState = await this.getGameState();
+    this.gameState = await this.getGameState();
     const userAddress = await this.contractClient.signerAddress();
 
     this.initBackground();
     this.initContractListeners();
+    // this.initGameStatePolling();
     this.initGameLoop();
 
-    this.playersStates = new PlayerStates(gameState, this.textObj);
+    this.playerStates = new PlayerStates(this.gameState, this.textObj);.updateStates(this.gameState);
+
+    const onMoveConfirm = (move) => this.contractClient.signAndSendMove(move);
+    const onMoveReveal = (move) => this.contractClient.revealMove(move);
+
     this.playerControls = new PlayerControls(
-      gameState,
+      this.gameState,
       userAddress,
-      () => {},
-      () => {}
+      onMoveConfirm,
+      onMoveReveal
     );
 
-    this.scene.addChild(this.playersStates.container);
+    this.scene.addChild(this.playerStates.container);.updateStates(this.gameState);
     this.scene.addChild(this.playerControls.container);
   }
 
@@ -118,50 +127,80 @@ class Game {
   // TODO
   async initPlayerControls() {}
 
+  /**
+   * Keeping this commented in favor of polling game state for now
+   * We may want to add contract event listeners back in the future
+   * if polling proves to be unscalable
+   **/
+
   initContractListeners() {
+    // onMoveSubmitted is called after a player has submitted a move
+    // to the smart contract, but before it has been revealed to the duelee
     this.contractClient.addEventListener("MoveSubmitted", async (data) => {
-      const gameState = await this.getGameState();
-      this.onMoveSubmitted(data, gameState);
+      this.onContractEvent("MoveSubmitted", data);
     });
 
+    // onMoveRevealed is called after a move has been revealed or confirmed
+    // by submitting the password to the smart contract to reveal the move
     this.contractClient.addEventListener("MoveRevealed", async (data) => {
-      const gameState = await this.getGameState();
-      this.onMoveRevealed(data, gameState);
+      this.onContractEvent("MoveRevealed", data);
     });
 
+    // onRoundCompleted is called once the round is completed. Both Players
+    // have submitted their moves and revealed them. The smart contract has
+    // updated the player's health and ammo etc... accordingly. The information
+    // returned in this event includes the player moves & critical hit details
     this.contractClient.addEventListener("RoundCompleted", async (data) => {
-      const gameState = await this.getGameState();
-      this.onRoundCompleted(data, gameState);
+      this.onContractEvent("RoundCompleted", data);
     });
 
+    // onWinnerDeclared is a smart contract event for when someone has won a duel
     this.contractClient.addEventListener("WinnerDeclared", async (data) => {
-      const gameState = await this.getGameState();
-      this.onWinnerDeclared(data, gameState);
+      this.onContractEvent("WinnerDeclared", data);
     });
   }
 
+  async onContractEvent(contractEventType, data) {
+    const nextGameState = await this.getGameState();
+
+    /**
+     * Use getGameState as a source of truth to avoid
+     * race conditions with contract events (may not be necessary)
+     */
+    const eventType = calculateEventFromStateTransition(
+      this.gameState,
+      nextGameState
+    );
+
+    this.gameState = nextGameState;
+
+    // we are passing both the event issued from the contract
+    // as well as the event calculated from the state transition
+    // we will have to see if they are inline / how reliable
+    // the contract based events are
+    this.handleGameEvent(eventType, contractEventType, data);
+  }
+
+  handleGameEvent(eventType, contractEventType, data) {
+    console.log("EVENTS OCCURED: ", eventType, contractEventType, data);
+    switch (eventType) {
+      case gameEventTypes.dueleeMoveRevealed:
+      case gameEventTypes.duelerMoveRevealed:
+        break;
+      case gameEventTypes.duelerMoveSubmitted:
+        this.playerControls.onDuelerMoveSubmitted(this.gameState);
+        break;
+      case gameEventTypes.dueleeMoveSubmitted:
+        this.playerControls.onDueleeMoveSubmitted(this.gameState);
+        break;
+      case gameEventTypes.roundCompleted:
+        this.playerStates.updateStates(this.gameState);
+        break;
+      default:
+    }
+  }
+
   initGameLoop() {}
-
-  // TODO - implement
-  // onMoveSubmitted is called after a player has submitted a move
-  // to the smart contract, but before it has been revealed to the duelee
-  onMoveSubmitted(eventData, gameState) {}
-
-  // TODO - implement
-  // onMoveRevealed is called after a move has been revealed or confirmed
-  // by submitting the password to the smart contract to reveal the move
-  onMoveRevealed(eventData, gameState) {}
-
-  // TODO - implement
-  // onRoundCompleted is called once the round is completed. Both Players
-  // have submitted their moves and revealed them. The smart contract has
-  // updated the player's health and ammo etc... accordingly. The information
-  // returned in this event includes the player moves & critical hit details
-  onRoundCompleted(eventData, gameState) {}
-
-  // TODO - implement
-  // onWinnerDeclared is a smart contract event for when someone has won a duel
-  onWinnerDeclared(eventData, gameState) {}
 
   // getGameState fetches the current game state from the smart contract
   async getGameState() {

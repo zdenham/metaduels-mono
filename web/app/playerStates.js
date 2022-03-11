@@ -134,7 +134,7 @@ class PlayerStates {
           ? "buttons/attackIcon"
           : "buttons/attackIconEmpty";
       const dueleeSpritePath =
-        i < gameState.dueleeState.health
+        i < gameState.dueleeState.ammo
           ? "buttons/attackIcon"
           : "buttons/attackIconEmpty";
 
@@ -153,6 +153,20 @@ class PlayerStates {
       this.container.addChild(duelerAmmo);
       this.container.addChild(dueleeAmmo);
     }
+  }
+
+  updateStates(nextGameState) {
+    // TODO - actually render animations / transitions
+    // For now we are just removing all children and rendering with a fresh state
+    for (let i = this.container.children.length - 1; i <= 0; i--) {
+      this.container.removeChild(this.container.children[i]);
+    }
+
+    this.initPlayerNFTs(nextGameState);
+    this.initPlayersAddresses(nextGameState);
+    this.initPlayersHealth(nextGameState);
+    this.initPlayersShield(nextGameState);
+    this.initPlayersAmmo(nextGameState);
   }
 }
 
