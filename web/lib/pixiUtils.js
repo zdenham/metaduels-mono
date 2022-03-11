@@ -19,7 +19,12 @@ export const setBGScale = function (sprite, width = 1200, height = 400) {
 };
 
 export const texture = function (path) {
-  return PIXI.loader.resources[`assets/images/${path}.png`].texture;
+  const asset = PIXI.loader.resources[`assets/images/${path}.png`];
+  if (!asset) {
+    return null;
+  }
+
+  return asset.texture;
 };
 
 export const createSpriteAtPosition = (spritePath, x, y) => {

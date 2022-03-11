@@ -34,19 +34,28 @@ class Game {
     PIXI.loader
       .add([
         "assets/images/backgrounds/mddojobg.png",
+
         "assets/images/buttons/healthIcon.png",
         "assets/images/buttons/healthIconEmpty.png",
+
         "assets/images/buttons/shieldIcon.png",
         "assets/images/buttons/shieldIconHalf.png",
         "assets/images/buttons/shieldIconEmpty.png",
+        "assets/images/buttons/shieldIconHover.png",
+        "assets/images/buttons/shieldIconSelect.png",
+
         "assets/images/buttons/attackIcon.png",
         "assets/images/buttons/attackIconEmpty.png",
         "assets/images/buttons/attackIconHover.png",
-        "assets/images/buttons/attackIconSelected.png",
+        "assets/images/buttons/attackIconSelect.png",
+
         "assets/images/buttons/reloadIcon.png",
         "assets/images/buttons/reloadIconHover.png",
         "assets/images/buttons/reloadIconSelect.png",
+
         "assets/images/buttons/confirmIcon.png",
+        "assets/images/buttons/confirmIconHover.png",
+
         "assets/images/placeholder/duelerWagerImage.png",
         "assets/images/placeholder/dueleeWagerImage.png",
       ])

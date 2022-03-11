@@ -27,3 +27,16 @@ document.getElementById("joinGame").addEventListener("click", async () => {
   const gameId = parseInt(document.getElementById("gameId").value);
   window.game.joinGame(window.signer, gameId);
 });
+
+// FOR DEBUGGING!
+const setUp = async () => {
+  window.signer = await connectWallet();
+
+  const address = await window.signer.getAddress();
+
+  document.getElementById("connectedWallet").innerText = address;
+
+  window.game.joinGame(window.signer, 5);
+};
+
+setUp();
