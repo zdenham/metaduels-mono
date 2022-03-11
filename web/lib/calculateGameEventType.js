@@ -20,15 +20,15 @@ export const gameEventTypes = {
 
 function calculateEventFromStateTransition(oldState, newState) {
   if (
-    oldState.currDuelerMove.signature === "0x0" &&
-    newState.currDuelerMove.signature !== "0x0"
+    oldState.currDuelerMove.signature === "0x" &&
+    newState.currDuelerMove.signature !== "0x"
   ) {
     return gameEventTypes.duelerMoveSubmitted;
   }
 
   if (
-    oldState.currDueleeMove.signature === "0x0" &&
-    newState.currDueleeMove.signature !== "0x0"
+    oldState.currDueleeMove.signature === "0x" &&
+    newState.currDueleeMove.signature !== "0x"
   ) {
     return gameEventTypes.dueleeMoveSubmitted;
   }
@@ -48,13 +48,13 @@ function calculateEventFromStateTransition(oldState, newState) {
   }
 
   if (
-    oldState.currDuelerMove.moveType !== M.N &&
-    newState.currDuelerMove.moveType === M.N
+    (oldState.currDueleeMove.signature !== "0x" &&
+      newState.currDuelerMove.signature) === "0x"
   ) {
     return gameEventTypes.roundCompleted;
   }
 
-  if (oldState.winner === "0x0" && newState.winner !== "0x0") {
+  if (oldState.winner === "0x" && newState.winner !== "0x") {
     return gameEventTypes.winnerDeclared;
   }
 

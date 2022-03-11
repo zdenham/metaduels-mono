@@ -246,28 +246,29 @@ class PlayerControls {
     this.showButtons("confirm");
   }
 
-  onDuelerMoveSubmitted(nextGameState) {
+  onMoveSubmitted(nextGameState) {
     this.gameState = nextGameState;
     const dueleeMoveState = moveState(this.gameState.currDueleeMove);
+    const duelerMoveState = moveState(this.gameState.currDuelerMove);
+
     if (
-      this.playerType === playerTypes.duelee &&
-      dueleeMoveState === moveStates.submitted
+      dueleeMoveState === moveStates.submitted &&
+      duelerMoveState === moveStates.submitted
     ) {
       // show the reveal button
       this.showButtons("reveal");
     }
   }
 
-  onDueleeMoveSubmitted() {
+  onRoundEnd(nextGameState) {
     this.gameState = nextGameState;
-    const duelerMoveState = moveState(this.gameState.currDuelerMove);
-    if (
-      this.playerType === playerTypes.dueler &&
-      duelerMoveState === moveStates.submitted
-    ) {
-      // show the reveal button
-      this.showButtons("reveal");
+    // TODO - actually render animations / transitions
+    // For now we are just removing all children and rendering with a fresh state
+    for (let i = this.container.children.length - 1; i <= 0; i--) {
+      this.container.removeChild(this.container.children[i]);
     }
+
+    this.initButtons(this.gameState);
   }
 
   onClickButton(buttonKey) {

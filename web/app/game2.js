@@ -26,7 +26,7 @@ class Game {
     this.app.stage.addChild(this.scene);
 
     // Containers - null until a game is created or joined
-    this.playerStates = null;.updateStates(this.gameState);
+    this.playerStates = null;
     this.playerControls = null;
     this.characters = null;
 
@@ -95,11 +95,11 @@ class Game {
     const userAddress = await this.contractClient.signerAddress();
 
     this.initBackground();
-    this.initContractListeners();
-    // this.initGameStatePolling();
+    // this.initContractListeners();
+    this.initGameStatePolling();
     this.initGameLoop();
 
-    this.playerStates = new PlayerStates(this.gameState, this.textObj);.updateStates(this.gameState);
+    this.playerStates = new PlayerStates(this.gameState, this.textObj);
 
     const onMoveConfirm = (move) => this.contractClient.signAndSendMove(move);
     const onMoveReveal = (move) => this.contractClient.revealMove(move);
@@ -111,7 +111,7 @@ class Game {
       onMoveReveal
     );
 
-    this.scene.addChild(this.playerStates.container);.updateStates(this.gameState);
+    this.scene.addChild(this.playerStates.container);
     this.scene.addChild(this.playerControls.container);
   }
 
@@ -124,43 +124,50 @@ class Game {
     this.scene.addChild(this.backgroundSprite);
   }
 
-  // TODO
-  async initPlayerControls() {}
-
   /**
    * Keeping this commented in favor of polling game state for now
    * We may want to add contract event listeners back in the future
    * if polling proves to be unscalable
    **/
 
-  initContractListeners() {
-    // onMoveSubmitted is called after a player has submitted a move
-    // to the smart contract, but before it has been revealed to the duelee
-    this.contractClient.addEventListener("MoveSubmitted", async (data) => {
-      this.onContractEvent("MoveSubmitted", data);
-    });
+  // initContractListeners() {
+  //   // onMoveSubmitted is called after a player has submitted a move
+  //   // to the smart contract, but before it has been revealed to the duelee
+  //   this.contractClient.addEventListener("MoveSubmitted", async (data) => {
+  //     this.onContractEvent("MoveSubmitted", data);
+  //   });
 
-    // onMoveRevealed is called after a move has been revealed or confirmed
-    // by submitting the password to the smart contract to reveal the move
-    this.contractClient.addEventListener("MoveRevealed", async (data) => {
-      this.onContractEvent("MoveRevealed", data);
-    });
+  //   // onMoveRevealed is called after a move has been revealed or confirmed
+  //   // by submitting the password to the smart contract to reveal the move
+  //   this.contractClient.addEventListener("MoveRevealed", async (data) => {
+  //     this.onContractEvent("MoveRevealed", data);
+  //   });
 
-    // onRoundCompleted is called once the round is completed. Both Players
-    // have submitted their moves and revealed them. The smart contract has
-    // updated the player's health and ammo etc... accordingly. The information
-    // returned in this event includes the player moves & critical hit details
-    this.contractClient.addEventListener("RoundCompleted", async (data) => {
-      this.onContractEvent("RoundCompleted", data);
-    });
+  //   // onRoundCompleted is called once the round is completed. Both Players
+  //   // have submitted their moves and revealed them. The smart contract has
+  //   // updated the player's health and ammo etc... accordingly. The information
+  //   // returned in this event includes the player moves & critical hit details
+  //   this.contractClient.addEventListener("RoundCompleted", async (data) => {
+  //     this.onContractEvent("RoundCompleted", data);
+  //   });
 
-    // onWinnerDeclared is a smart contract event for when someone has won a duel
-    this.contractClient.addEventListener("WinnerDeclared", async (data) => {
-      this.onContractEvent("WinnerDeclared", data);
-    });
+  //   // onWinnerDeclared is a smart contract event for when someone has won a duel
+  //   this.contractClient.addEventListener("WinnerDeclared", async (data) => {
+  //     this.onContractEvent("WinnerDeclared", data);
+  //   });
+  // }
+
+  // async onContractEvent(contractEventType, data) {
+  //   await fetchNextGameStateForEvents();
+  // }
+
+  initGameStatePolling() {
+    this.gameStatePollInterval = setInterval(async () => {
+      await this.fetchNextGameStateForEvents();
+    }, 3000);
   }
 
-  async onContractEvent(contractEventType, data) {
+  async fetchNextGameStateForEvents(contractEventType, data) {
     const nextGameState = await this.getGameState();
 
     /**
@@ -182,19 +189,23 @@ class Game {
   }
 
   handleGameEvent(eventType, contractEventType, data) {
-    console.log("EVENTS OCCURED: ", eventType, contractEventType, data);
+    console.log(
+      "EVENTS OCCURED: ",
+      eventType,
+      this.gameState.currDuelerMove.signature,
+      this.gameState.currDueleeMove.signature
+    );
     switch (eventType) {
       case gameEventTypes.dueleeMoveRevealed:
       case gameEventTypes.duelerMoveRevealed:
         break;
       case gameEventTypes.duelerMoveSubmitted:
-        this.playerControls.onDuelerMoveSubmitted(this.gameState);
-        break;
       case gameEventTypes.dueleeMoveSubmitted:
-        this.playerControls.onDueleeMoveSubmitted(this.gameState);
+        this.playerControls.onMoveSubmitted(this.gameState);
         break;
       case gameEventTypes.roundCompleted:
-        this.playerStates.updateStates(this.gameState);
+        this.playerStates.update(this.gameState);
+        this.playerControls.onRoundEnd(this.gameState);
         break;
       default:
     }
