@@ -32,7 +32,11 @@ contract MetaDuelsGame {
         bool isDuelerMoveCritical,
         bool isDueleeMoveCritical
     );
-    event WinnerDeclared(uint256 indexed gameId, address winner);
+    event WinnerDeclared(
+        uint256 indexed gameId,
+        uint256 indexed stateVersion,
+        address winner
+    );
 
     // move types
     uint8 None = 0;
@@ -175,6 +179,8 @@ contract MetaDuelsGame {
                 game.currDuelerMove.nonce
             ) > 1;
 
+            game.stateVersion = game.stateVersion + 1;
+
             emit RoundCompleted(
                 gameId,
                 game.stateVersion,
@@ -200,12 +206,14 @@ contract MetaDuelsGame {
 
         if (game.dueleeState.health == 0) {
             game.winner = game.duelerAddress;
-            emit WinnerDeclared(gameId, game.winner);
+            game.stateVersion = game.stateVersion + 1;
+            emit WinnerDeclared(gameId, game.stateVersion, game.winner);
         }
 
         if (game.duelerState.health == 0) {
             game.winner = game.dueleeAddress;
-            emit WinnerDeclared(gameId, game.winner);
+            game.stateVersion = game.stateVersion + 1;
+            emit WinnerDeclared(gameId, game.stateVersion, game.winner);
         }
     }
 
