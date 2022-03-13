@@ -119,7 +119,7 @@ describe('TestMetaDuelGame', function () {
 
     await expect(game.submitMoveSignature(1, duelerMove.signature))
       .to.emit(game, 'MoveSubmitted')
-      .withArgs(1, dueler.address);
+      .withArgs(1, 2, dueler.address);
   });
 
   it('should emit the winner as an event on the final move', async function () {
@@ -164,7 +164,7 @@ describe('TestMetaDuelGame', function () {
 
     await expect(dueleeGame.revealMove(1, dueleeMove))
       .to.emit(dueleeGame, 'RoundCompleted')
-      .withArgs(1, M.A, M.R, true, false);
+      .withArgs(1, 5, M.A, M.R, true, false);
   });
 
   it('should replenish a shield after two rounds', async function () {

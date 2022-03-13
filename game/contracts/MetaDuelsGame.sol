@@ -14,10 +14,19 @@ contract MetaDuelsGame {
         address indexed duelee,
         uint256 gameId
     );
-    event MoveSubmitted(uint256 indexed gameId, address signer);
-    event MoveRevealed(uint256 indexed gameId, address revealer);
+    event MoveSubmitted(
+        uint256 indexed gameId,
+        uint256 indexed stateVersion,
+        address signer
+    );
+    event MoveRevealed(
+        uint256 indexed gameId,
+        uint256 indexed stateVersion,
+        address revealer
+    );
     event RoundCompleted(
         uint256 indexed gameId,
+        uint256 indexed stateVersion,
         uint8 duelerMove,
         uint8 dueleeMove,
         bool isDuelerMoveCritical,
@@ -46,6 +55,7 @@ contract MetaDuelsGame {
         PlayerState dueleeState;
         Move currDuelerMove;
         Move currDueleeMove;
+        uint256 stateVersion;
     }
 
     struct PlayerState {
@@ -78,7 +88,8 @@ contract MetaDuelsGame {
                 moveType: None,
                 nonce: "",
                 signature: bytes("")
-            })
+            }),
+            stateVersion: 1
         });
 
         emit GameStarted(dueler, duelee, newGameId);
@@ -104,8 +115,9 @@ contract MetaDuelsGame {
         );
 
         moveToUpdate.signature = signature;
+        game.stateVersion = game.stateVersion + 1;
 
-        emit MoveSubmitted(gameId, sender);
+        emit MoveSubmitted(gameId, game.stateVersion, sender);
     }
 
     function revealMove(uint256 gameId, Move memory revealedMove) public {
@@ -138,8 +150,9 @@ contract MetaDuelsGame {
 
         moveToUpdate.nonce = revealedMove.nonce;
         moveToUpdate.moveType = revealedMove.moveType;
+        game.stateVersion = game.stateVersion + 1;
 
-        emit MoveRevealed(gameId, sender);
+        emit MoveRevealed(gameId, game.stateVersion, sender);
 
         if (
             game.currDuelerMove.moveType != None &&
@@ -164,6 +177,7 @@ contract MetaDuelsGame {
 
             emit RoundCompleted(
                 gameId,
+                game.stateVersion,
                 game.currDuelerMove.moveType,
                 game.currDueleeMove.moveType,
                 isDuelerMoveCritical,
