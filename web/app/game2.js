@@ -8,7 +8,7 @@ import GameContractClient from "../lib/gameClient.js";
 import { setBGScale, texture } from "../lib/pixiUtils.js";
 import PlayerStates from "./playerStates.js";
 import PlayerControls from "./playerControls.js";
-import EventEmitter from "./eventEmitter.js";
+import EventEmitter, { gameEventTypes } from "./eventEmitter.js";
 
 class Game {
   constructor() {
@@ -94,10 +94,13 @@ class Game {
 
     this.initBackground();
 
+    const onEventCallback = (eventType, eventData, nextGameState) =>
+      this.handleGameEvent(eventType, eventData, nextGameState);
+
     // initialize the eventEmitter!
     this.eventEmmitter = new EventEmitter(
       initialGameState,
-      this.handleGameEvent,
+      onEventCallback,
       this.contractClient
     );
 

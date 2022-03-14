@@ -28,15 +28,15 @@ const dueleeButtonPositions = {
 };
 
 const playerTypes = {
-  neither: 0,
-  dueler: 1,
-  duelee: 2,
+  neither: "neither",
+  dueler: "dueler",
+  duelee: "duelee",
 };
 
 const moveStates = {
-  none: 0,
-  submitted: 1,
-  revealed: 2,
+  none: "none",
+  submitted: "submitted",
+  revealed: "revealed",
 };
 
 const buttonPosFromPlayerType = (playerType) => {
@@ -84,8 +84,12 @@ function getButtonsToShow(duelerMoveState, dueleeMoveState, playerType) {
 }
 
 class PlayerControls {
-  constructor(gameState, userAddress, onConfirmCallback, onRevealCallback) {
-    this.gameState = gameState;
+  constructor(
+    initialGameState,
+    userAddress,
+    onConfirmCallback,
+    onRevealCallback
+  ) {
     this.userAddress = userAddress;
     this.selectedMove = M.N;
 
@@ -119,9 +123,9 @@ class PlayerControls {
     };
 
     this.playerType =
-      userAddress === gameState.duelerAddress
+      userAddress === initialGameState.duelerAddress
         ? playerTypes.dueler
-        : userAddress === gameState.dueleeAddress
+        : userAddress === initialGameState.dueleeAddress
         ? playerTypes.duelee
         : playerTypes.neither;
 
@@ -133,7 +137,8 @@ class PlayerControls {
     this.container.width = 1200;
     this.container.height = 400;
 
-    this.initButtons(gameState);
+    console.log("INITIAL GAME STATE!", initialGameState);
+    this.initButtons(initialGameState);
   }
 
   initButtons(gameState) {
@@ -181,6 +186,8 @@ class PlayerControls {
     const duelerMoveState = moveState(gameState.currDuelerMove);
     const dueleeMoveState = moveState(gameState.currDueleeMove);
 
+    console.log("MOVE STATES: ", duelerMoveState, dueleeMoveState);
+
     const buttonsToShow = getButtonsToShow(
       duelerMoveState,
       dueleeMoveState,
@@ -191,6 +198,7 @@ class PlayerControls {
   }
 
   showButtons(...buttonKeys) {
+    console.log("SHOWING BUTTONS: ", buttonKeys);
     for (let key of buttonKeys) {
       const button = this.buttons[key];
 
@@ -218,10 +226,6 @@ class PlayerControls {
     }
   }
 
-  updateGameState(nextGameState) {
-    this.gameState = nextGameState;
-  }
-
   async onConfirmMove() {
     // TODO - maybe set a loading state
     await this.onConfirmCallback(this.selectedMove);
@@ -247,9 +251,8 @@ class PlayerControls {
   }
 
   onMoveSubmitted(nextGameState) {
-    this.gameState = nextGameState;
-    const dueleeMoveState = moveState(this.gameState.currDueleeMove);
-    const duelerMoveState = moveState(this.gameState.currDuelerMove);
+    const dueleeMoveState = moveState(nextGameState.currDueleeMove);
+    const duelerMoveState = moveState(nextGameState.currDuelerMove);
 
     if (
       dueleeMoveState === moveStates.submitted &&
@@ -261,15 +264,14 @@ class PlayerControls {
   }
 
   onRoundEnd(nextGameState) {
-    this.gameState = nextGameState;
-
+    console.log("NEXT GAME STATE!!!", nextGameState);
     // TODO - actually render animations / transitions
     // For now we are just removing all children and rendering with a fresh state
-    for (let i = this.container.children.length - 1; i <= 0; i--) {
+    for (let i = this.container.children.length - 1; i >= 0; i--) {
       this.container.removeChild(this.container.children[i]);
     }
 
-    this.initButtons(this.gameState);
+    this.initButtons(nextGameState);
   }
 
   onClickButton(buttonKey) {

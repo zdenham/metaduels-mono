@@ -59,6 +59,9 @@ class GameContractClient {
 
   async connectToGame(gameId) {
     this.gameId = gameId;
+    const state = await this.getGameState();
+    this.duelerAddress = state.duelerAddress;
+    this.dueleeAddress = state.dueleeAddress;
   }
 
   async getGameState() {
@@ -157,8 +160,6 @@ class GameContractClient {
   _topicsForEventType(eventType, ...stateVersions) {
     const stateVersionsTopic = stateVersions.length ? stateVersions : null;
 
-    console.log("STATEVERSIONS: ", stateVersionsTopic);
-
     switch (eventType) {
       case "GameCreated":
         return [
@@ -175,22 +176,22 @@ class GameContractClient {
       case "MoveSubmitted":
         return [
           ethers.utils.id("MoveSubmitted(uint256,uint256,address)"),
-          stateVersionsTopic,
           ethers.utils.hexZeroPad(this.gameId, 32),
+          stateVersionsTopic,
         ];
       case "MoveRevealed":
         return [
           ethers.utils.id("MoveRevealed(uint256,uint256,address)"),
-          stateVersionsTopic,
           ethers.utils.hexZeroPad(this.gameId, 32),
+          stateVersionsTopic,
         ];
       case "RoundCompleted":
         return [
           ethers.utils.id(
             "RoundCompleted(uint256,uint256,uint8,uint8,bool,bool)"
           ),
-          stateVersionsTopic,
           ethers.utils.hexZeroPad(this.gameId, 32),
+          stateVersionsTopic,
         ];
       case "WinnerDeclared":
         return [
@@ -206,9 +207,11 @@ class GameContractClient {
   _parseDataFromEvent(eventType, event) {
     const args = this.iface.parseLog(event).args;
 
+    console.log("THE ARGS: ", args);
+
     switch (eventType) {
       case "GameCreated":
-        return { gameId: args[0] };
+        return { dueler: args[0], duelee: args[1], gameId: args[2] };
       case "MoveSubmitted":
         return {
           gameId: args[0],

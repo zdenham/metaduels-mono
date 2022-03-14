@@ -17,6 +17,7 @@ document.getElementById("startGame").addEventListener("click", async () => {
   const dueleeAddress = document.getElementById("opponentAddress").value;
   document.getElementById("gameIdDisplay").innerText = `Creating Game...`;
   const gameId = await window.game.startGame(window.signer, dueleeAddress);
+
   document.getElementById(
     "gameIdDisplay"
   ).innerText = `Game Created with ID: ${gameId}`;
@@ -36,7 +37,7 @@ const setUp = async () => {
 
   document.getElementById("connectedWallet").innerText = address;
 
-  window.game.joinGame(window.signer, 1);
+  window.game.joinGame(window.signer, 2);
 };
 
 setUp();

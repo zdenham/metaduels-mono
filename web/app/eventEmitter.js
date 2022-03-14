@@ -32,8 +32,9 @@ class EventEmitter {
 
   onContractEvent(contractEventType, eventData) {
     const { nextGameState, eventType } = calculateNextGameState(
+      this.gameState,
       contractEventType,
-      data
+      eventData
     );
 
     console.log(
@@ -52,6 +53,10 @@ class EventEmitter {
 
   async initializeListeners() {
     console.log("SETTING UP LISTENERS!!!!");
+
+    const events = await this.contractClient.queryEvents("MoveSubmitted");
+    console.log("EVENTS: ", events);
+
     // to the smart contract, but before it has been revealed to the duelee
     this.contractClient.addEventListener("MoveSubmitted", async (data) => {
       console.log("MOVE SUBMITTED!!!");

@@ -70,7 +70,7 @@ function calculateShieldChange(duelerMove, dueleeMove) {
 function calculateNextGameState(currGameState, contractEventType, eventData) {
   // event already handled - skip handling
   if (eventData.stateVersion <= currGameState.stateVersion) {
-    return { currGameState, evventType: gameEventTypes.none };
+    return { nextGameState: currGameState, eventType: gameEventTypes.none };
   }
 
   switch (contractEventType) {
@@ -87,7 +87,9 @@ function calculateNextGameState(currGameState, contractEventType, eventData) {
             ? currGameState.currDueleeMove
             : { ...currGameState.currDueleeMove, signature: "0xFF" },
         },
-        eventType: isDuelerSender ? duelerMoveSubmitted : dueleeMoveSubmitted,
+        eventType: isDuelerSender
+          ? gameEventTypes.duelerMoveSubmitted
+          : gameEventTypes.dueleeMoveSubmitted,
       };
     case "MoveRevealed":
       const { revealer } = eventData;
@@ -102,9 +104,11 @@ function calculateNextGameState(currGameState, contractEventType, eventData) {
             ? currGameState.currDueleeMove
             : { ...currGameState.currDueleeMove, moveType: M.A },
         },
-        eventType: isDuelerRevealer ? duelerMoveRevealed : dueleeMoveRevealed,
+        eventType: isDuelerRevealer
+          ? gameEventTypes.duelerMoveRevealed
+          : gameEventTypes.dueleeMoveRevealed,
       };
-    case "RoundEnded":
+    case "RoundCompleted":
       const {
         duelerMove,
         dueleeMove,
@@ -134,6 +138,14 @@ function calculateNextGameState(currGameState, contractEventType, eventData) {
       return {
         nextGameState: {
           ...currGameState,
+          currDuelerMove: {
+            signature: "0x",
+            moveType: M.N,
+          },
+          currDueleeMove: {
+            signature: "0x",
+            moveType: M.N,
+          },
           duelerState: {
             ammo: currGameState.duelerState.ammo + duelerAmmoChange,
             health: currGameState.duelerState.health + duelerHealthChange,

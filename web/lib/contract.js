@@ -134,6 +134,12 @@ const gameContract = {
           type: "uint256",
         },
         {
+          indexed: true,
+          internalType: "uint256",
+          name: "stateVersion",
+          type: "uint256",
+        },
+        {
           indexed: false,
           internalType: "address",
           name: "winner",
