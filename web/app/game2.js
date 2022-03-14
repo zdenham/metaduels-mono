@@ -7,10 +7,8 @@ import characterData from "./characters.json";
 import GameContractClient from "../lib/gameClient.js";
 import { setBGScale, texture } from "../lib/pixiUtils.js";
 import PlayerStates from "./playerStates.js";
-import PlayerControls, { M } from "./playerControls.js";
-import calculateEventFromStateTransition, {
-  gameEventTypes,
-} from "../lib/calculateGameEventType.js";
+import PlayerControls from "./playerControls.js";
+import EventEmitter from "./eventEmitter.js";
 
 class Game {
   constructor() {
@@ -30,7 +28,7 @@ class Game {
     this.playerControls = null;
     this.characters = null;
 
-    this.gameSTate = null;
+    this.eventEmmitter = null;
 
     PIXI.loader
       .add([
@@ -91,28 +89,38 @@ class Game {
   // Scene / game SetUp!!
   async initGameScene() {
     document.querySelector(".app").appendChild(this.app.renderer.view);
-    this.gameState = await this.getGameState();
-    const userAddress = await this.contractClient.signerAddress();
+
+    const initialGameState = await this.contractClient.getGameState();
 
     this.initBackground();
-    // this.initContractListeners();
-    this.initGameStatePolling();
-    this.initGameLoop();
 
-    this.playerStates = new PlayerStates(this.gameState, this.textObj);
+    // initialize the eventEmitter!
+    this.eventEmmitter = new EventEmitter(
+      initialGameState,
+      this.handleGameEvent,
+      this.contractClient
+    );
 
+    // initialize player states
+    this.playerStates = new PlayerStates(initialGameState, this.textObj);
+
+    // initialize player controls
+    // TODO - player controls can be passed the contract client rather than cbs
     const onMoveConfirm = (move) => this.contractClient.signAndSendMove(move);
     const onMoveReveal = (move) => this.contractClient.revealMove(move);
-
+    const userAddress = await this.contractClient.signerAddress();
     this.playerControls = new PlayerControls(
-      this.gameState,
+      initialGameState,
       userAddress,
       onMoveConfirm,
       onMoveReveal
     );
 
+    // add views to the scene
     this.scene.addChild(this.playerStates.container);
     this.scene.addChild(this.playerControls.container);
+
+    this.initGameLoop();
   }
 
   initBackground() {
@@ -124,99 +132,24 @@ class Game {
     this.scene.addChild(this.backgroundSprite);
   }
 
-  /**
-   * Keeping this commented in favor of polling game state for now
-   * We may want to add contract event listeners back in the future
-   * if polling proves to be unscalable
-   **/
-
-  // initContractListeners() {
-  //   // onMoveSubmitted is called after a player has submitted a move
-  //   // to the smart contract, but before it has been revealed to the duelee
-  //   this.contractClient.addEventListener("MoveSubmitted", async (data) => {
-  //     this.onContractEvent("MoveSubmitted", data);
-  //   });
-
-  //   // onMoveRevealed is called after a move has been revealed or confirmed
-  //   // by submitting the password to the smart contract to reveal the move
-  //   this.contractClient.addEventListener("MoveRevealed", async (data) => {
-  //     this.onContractEvent("MoveRevealed", data);
-  //   });
-
-  //   // onRoundCompleted is called once the round is completed. Both Players
-  //   // have submitted their moves and revealed them. The smart contract has
-  //   // updated the player's health and ammo etc... accordingly. The information
-  //   // returned in this event includes the player moves & critical hit details
-  //   this.contractClient.addEventListener("RoundCompleted", async (data) => {
-  //     this.onContractEvent("RoundCompleted", data);
-  //   });
-
-  //   // onWinnerDeclared is a smart contract event for when someone has won a duel
-  //   this.contractClient.addEventListener("WinnerDeclared", async (data) => {
-  //     this.onContractEvent("WinnerDeclared", data);
-  //   });
-  // }
-
-  // async onContractEvent(contractEventType, data) {
-  //   await fetchNextGameStateForEvents();
-  // }
-
-  initGameStatePolling() {
-    this.gameStatePollInterval = setInterval(async () => {
-      await this.fetchNextGameStateForEvents();
-    }, 3000);
-  }
-
-  async fetchNextGameStateForEvents(contractEventType, data) {
-    const nextGameState = await this.getGameState();
-
-    /**
-     * Use getGameState as a source of truth to avoid
-     * race conditions with contract events (may not be necessary)
-     */
-    const eventType = calculateEventFromStateTransition(
-      this.gameState,
-      nextGameState
-    );
-
-    this.gameState = nextGameState;
-
-    // we are passing both the event issued from the contract
-    // as well as the event calculated from the state transition
-    // we will have to see if they are inline / how reliable
-    // the contract based events are
-    this.handleGameEvent(eventType, contractEventType, data);
-  }
-
-  handleGameEvent(eventType, contractEventType, data) {
-    console.log(
-      "EVENTS OCCURED: ",
-      eventType,
-      this.gameState.currDuelerMove.signature,
-      this.gameState.currDueleeMove.signature
-    );
+  handleGameEvent(eventType, eventData, nextGameState) {
     switch (eventType) {
       case gameEventTypes.dueleeMoveRevealed:
       case gameEventTypes.duelerMoveRevealed:
         break;
       case gameEventTypes.duelerMoveSubmitted:
       case gameEventTypes.dueleeMoveSubmitted:
-        this.playerControls.onMoveSubmitted(this.gameState);
+        this.playerControls.onMoveSubmitted(nextGameState);
         break;
       case gameEventTypes.roundCompleted:
-        this.playerStates.update(this.gameState);
-        this.playerControls.onRoundEnd(this.gameState);
+        this.playerStates.update(nextGameState);
+        this.playerControls.onRoundEnd(nextGameState);
         break;
       default:
     }
   }
 
   initGameLoop() {}
-
-  // getGameState fetches the current game state from the smart contract
-  async getGameState() {
-    return await this.contractClient.getGameState();
-  }
 }
 
 export default Game;

@@ -23,13 +23,11 @@ export function moveToString(move) {
 }
 
 class GameContractClient {
-  constructor(signer) {
+  constructor(signer, address = gameContract.address) {
     this.signer = signer;
-    this.game = new ethers.Contract(
-      gameContract.address,
-      gameContract.abi,
-      signer
-    );
+    this.game = new ethers.Contract(address, gameContract.abi, signer);
+
+    this.iface = new ethers.utils.Interface(gameContract.abi);
     this.gameId = null;
     this.duelerAddress = null;
     this.dueleeAddress = null;
@@ -103,7 +101,7 @@ class GameContractClient {
     });
   }
 
-  async queryEvents(eventType) {
+  async queryEvents(eventType, ...stateVersions) {
     const MAX_BLOCKS = 900;
 
     const currentBlock = await this.signer.provider.getBlockNumber();
@@ -112,7 +110,7 @@ class GameContractClient {
 
     const filter = {
       address: gameContract.address,
-      topics: this._topicsForEventType(eventType),
+      topics: this._topicsForEventType(eventType, ...stateVersions),
     };
 
     const events = await this.game.queryFilter(filter, fromBlock);
@@ -156,7 +154,11 @@ class GameContractClient {
     );
   }
 
-  _topicsForEventType(eventType) {
+  _topicsForEventType(eventType, ...stateVersions) {
+    const stateVersionsTopic = stateVersions.length ? stateVersions : null;
+
+    console.log("STATEVERSIONS: ", stateVersionsTopic);
+
     switch (eventType) {
       case "GameCreated":
         return [
@@ -172,23 +174,29 @@ class GameContractClient {
         ];
       case "MoveSubmitted":
         return [
-          ethers.utils.id("MoveSubmitted(uint256,address)"),
+          ethers.utils.id("MoveSubmitted(uint256,uint256,address)"),
+          stateVersionsTopic,
           ethers.utils.hexZeroPad(this.gameId, 32),
         ];
       case "MoveRevealed":
         return [
-          ethers.utils.id("MoveRevealed(uint256,address)"),
+          ethers.utils.id("MoveRevealed(uint256,uint256,address)"),
+          stateVersionsTopic,
           ethers.utils.hexZeroPad(this.gameId, 32),
         ];
       case "RoundCompleted":
         return [
-          ethers.utils.id("RoundCompleted(uint256,uint8,uint8)"),
+          ethers.utils.id(
+            "RoundCompleted(uint256,uint256,uint8,uint8,bool,bool)"
+          ),
+          stateVersionsTopic,
           ethers.utils.hexZeroPad(this.gameId, 32),
         ];
       case "WinnerDeclared":
         return [
-          ethers.utils.id("WinnerDeclared(uint256,address)"),
+          ethers.utils.id("WinnerDeclared(uint256,uint256,address)"),
           ethers.utils.hexZeroPad(this.gameId, 32),
+          stateVersionsTopic,
         ];
       default:
         return [];
@@ -196,18 +204,38 @@ class GameContractClient {
   }
 
   _parseDataFromEvent(eventType, event) {
+    const args = this.iface.parseLog(event).args;
+
     switch (eventType) {
       case "GameCreated":
-        const gameId = parseInt(event.data, 16);
-        return { gameId };
+        return { gameId: args[0] };
       case "MoveSubmitted":
-        return {};
+        return {
+          gameId: args[0],
+          stateVersion: args[1],
+          signer: args[2],
+        };
       case "MoveRevealed":
-        return {};
+        return {
+          gameId: args[0],
+          stateVersion: args[1],
+          revealer: args[2],
+        };
       case "RoundCompleted":
-        return {};
+        return {
+          gameId: args[0],
+          stateVersion: args[1],
+          duelerMove: args[2],
+          dueleeMove: args[3],
+          isDuelerMoveCritical: args[4],
+          isDueleeMoveCritical: args[5],
+        };
       case "WinnerDeclared":
-        return {};
+        return {
+          gameId: args[0],
+          stateVersion: args[1],
+          winner: args[2],
+        };
       default:
         return {};
     }

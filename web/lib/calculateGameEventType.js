@@ -1,22 +1,6 @@
 /**
  * THE MOVES N = NONE, A = ATTACK, B = BLOCK, R = RELOAD
  */
-const M = {
-  N: 0,
-  A: 1,
-  B: 2,
-  R: 3,
-};
-
-export const gameEventTypes = {
-  duelerMoveSubmitted: 0,
-  dueleeMoveSubmitted: 1,
-  duelerMoveRevealed: 2,
-  dueleeMoveRevealed: 3,
-  roundCompleted: 4,
-  winnerDeclared: 5,
-  none: 6,
-};
 
 function calculateEventFromStateTransition(oldState, newState) {
   if (

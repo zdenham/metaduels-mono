@@ -1,11 +1,48 @@
-import GameClient, {
-  connectWallet,
-  MOVES,
-  moveToString,
-} from "../lib/gameClient";
+import GameClient, { MOVES, moveToString } from "../lib/gameClient";
+import connectWallet from "../lib/connectWallet";
 
 var signer = null;
 var gameClient = null;
+
+document.getElementById("connectWallet").addEventListener("click", async () => {
+  signer = await connectWallet();
+  const address = await signer.getAddress();
+
+  document.getElementById("connectedWallet").innerText = address;
+});
+
+document.getElementById("startGame").addEventListener("click", async () => {
+  const dueleeAddress = document.getElementById("opponentAddress").value;
+
+  gameClient = new GameClient(signer);
+
+  gameClient.addEventListener("GameCreated", async ({ gameId }) => {
+    document.getElementById(
+      "gameIdDisplay"
+    ).innerText = `Game Created with ID: ${gameId}`;
+
+    joinGame(gameId);
+  });
+
+  document.getElementById("gameIdDisplay").innerText = `Creating Game...`;
+
+  await gameClient.newGame(dueleeAddress);
+});
+
+document.getElementById("joinGame").addEventListener("click", async () => {
+  const gameId = parseInt(document.getElementById("gameId").value);
+
+  gameClient = new GameClient(signer);
+  await joinGame(gameId);
+});
+
+async function joinGame(gameId) {
+  gameClient.connectToGame(gameId);
+
+  const role = await renderGameState();
+
+  setUpGameEventListeners(role);
+}
 
 function setUpGameEventListeners(role) {
   document
@@ -34,18 +71,22 @@ function setUpGameEventListeners(role) {
 
   // re-render game state whenever something important happens
   gameClient.addEventListener("MoveSubmitted", async () => {
+    console.log("MOVE SUBMITTED YO!");
     await renderGameState();
   });
 
   gameClient.addEventListener("MoveRevealed", async () => {
+    console.log("MOVE REVEALED YO!");
     await renderGameState();
   });
 
   gameClient.addEventListener("RoundCompleted", async () => {
+    console.log("ROUND COMPLETED YO!");
     await renderGameState();
   });
 
   gameClient.addEventListener("WinnerDeclared", async () => {
+    console.log("WINNER DECLARED YO!");
     await renderGameState();
   });
 }
@@ -68,7 +109,7 @@ function getMoveStateText(move) {
 
 async function renderGameState() {
   const myAddress = await signer.getAddress();
-  const state = await gameClient.getGameState();
+  const state = await gameClient.getGameState(gameId);
 
   const role = myAddress === state.duelerAddress ? `dueler` : `duelee`;
 

@@ -1,5 +1,5 @@
 const gameContract = {
-  address: "0xfb8Eb20Fd0256654A5339AE6075516F148309755",
+  address: "0x5731e2e3d72469182D9655fD1D6412B257D03eBD",
   abi: [
     {
       inputs: [],
@@ -41,6 +41,12 @@ const gameContract = {
           type: "uint256",
         },
         {
+          indexed: true,
+          internalType: "uint256",
+          name: "stateVersion",
+          type: "uint256",
+        },
+        {
           indexed: false,
           internalType: "address",
           name: "revealer",
@@ -60,6 +66,12 @@ const gameContract = {
           type: "uint256",
         },
         {
+          indexed: true,
+          internalType: "uint256",
+          name: "stateVersion",
+          type: "uint256",
+        },
+        {
           indexed: false,
           internalType: "address",
           name: "signer",
@@ -76,6 +88,12 @@ const gameContract = {
           indexed: true,
           internalType: "uint256",
           name: "gameId",
+          type: "uint256",
+        },
+        {
+          indexed: true,
+          internalType: "uint256",
+          name: "stateVersion",
           type: "uint256",
         },
         {
@@ -297,6 +315,11 @@ const gameContract = {
               internalType: "struct MetaDuelsGame.Move",
               name: "currDueleeMove",
               type: "tuple",
+            },
+            {
+              internalType: "uint256",
+              name: "stateVersion",
+              type: "uint256",
             },
           ],
           internalType: "struct MetaDuelsGame.Game",
