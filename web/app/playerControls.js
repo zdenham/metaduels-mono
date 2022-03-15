@@ -263,7 +263,7 @@ class PlayerControls {
     }
   }
 
-  onRoundEnd(nextGameState) {
+  onRoundCompleted(nextGameState) {
     console.log("NEXT GAME STATE!!!", nextGameState);
     // TODO - actually render animations / transitions
     // For now we are just removing all children and rendering with a fresh state

@@ -3,12 +3,12 @@ import "howler";
 import SpriteUtilities from "./spriteUtilities.js";
 import TextStyles from "./textStyles.js";
 import Keyboard from "./keyboard.js";
-import characterData from "./characters.json";
 import GameContractClient from "../lib/gameClient.js";
 import { setBGScale, texture } from "../lib/pixiUtils.js";
 import PlayerStates from "./playerStates.js";
 import PlayerControls from "./playerControls.js";
 import EventEmitter, { gameEventTypes } from "./eventEmitter.js";
+import CharacterInteractions from "./characterInteractions.js";
 
 class Game {
   constructor() {
@@ -26,7 +26,7 @@ class Game {
     // Containers - null until a game is created or joined
     this.playerStates = null;
     this.playerControls = null;
-    this.characters = null;
+    this.characterInteractions = null;
 
     this.eventEmmitter = null;
 
@@ -60,6 +60,9 @@ class Game {
 
         "assets/images/placeholder/duelerWagerImage.png",
         "assets/images/placeholder/dueleeWagerImage.png",
+
+        "assets/images/characters/scorpion.jpg",
+        "assets/images/characters/scorpion.json",
       ])
       .load(() => {
         console.log("COMPLETED LOADING THE GAME ASSETS!");
@@ -119,9 +122,13 @@ class Game {
       onMoveReveal
     );
 
+    // initialize character interactions
+    this.characterInteractions = new CharacterInteractions();
+
     // add views to the scene
     this.scene.addChild(this.playerStates.container);
     this.scene.addChild(this.playerControls.container);
+    this.scene.addChild(this.characterInteractions.container);
 
     this.initGameLoop();
   }
@@ -145,8 +152,21 @@ class Game {
         this.playerControls.onMoveSubmitted(nextGameState);
         break;
       case gameEventTypes.roundCompleted:
+        const {
+          duelerMove,
+          dueleeMove,
+          isDuelerMoveCritical,
+          isDueleeMoveCritical,
+        } = eventData;
+
         this.playerStates.update(nextGameState);
-        this.playerControls.onRoundEnd(nextGameState);
+        this.playerControls.onRoundCompleted(nextGameState);
+        this.characterInteractions.onRoundCompleted(
+          duelerMove,
+          dueleeMove,
+          isDuelerMoveCritical,
+          isDueleeMoveCritical
+        );
         break;
       default:
     }
