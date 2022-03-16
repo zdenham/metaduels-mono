@@ -7,7 +7,9 @@ export default async function connectWallet() {
     throw new Error("No Metamask has been installed");
   }
 
-  const provider = new ethers.providers.Web3Provider(window.ethereum);
+  const provider = new ethers.providers.Web3Provider(
+    window.web3.currentProvider || window.ethereum
+  );
 
   await provider.send("wallet_switchEthereumChain", [
     { chainId: GAME_NETWORK_ID },
