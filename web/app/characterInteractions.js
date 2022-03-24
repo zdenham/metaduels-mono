@@ -26,26 +26,28 @@ class CharacterInteractions {
     this.container.addChild(this.duelerCharacter);
     this.container.addChild(this.dueleeCharacter);
 
+    const ci = this;
+
     this.interactions = [
       // id, duelerMoveType, dueleeMoveType, duelerCritical, dueleeCritical, handler, flipped
-      [0, M.A, M.A, C.A, C.A, this.doubleAttack, false],
-      [1, M.A, M.R, C.N, C.N, this.attackReload, false],
-      [2, M.R, M.A, C.N, C.N, this.attackReload, true],
-      [3, M.B, M.B, C.A, C.A, this.doubleBlock, false],
-      [4, M.A, M.B, C.A, C.A, this.attackBlock, false],
-      [5, M.B, M.A, C.A, C.A, this.attackBlock, true],
-      [6, M.R, M.B, C.N, C.N, this.blockReload, false],
-      [7, M.B, M.R, C.N, C.N, this.blockReload, true],
-      [8, M.R, M.R, C.N, C.N, this.doubleReload, false],
-      [9, M.A, M.R, C.C, C.A, this.criticalAttackReload, false],
-      [10, M.R, M.A, C.A, C.C, this.criticalAttackReload, true],
-      [11, M.A, M.R, C.N, C.C, this.attackCriticalReload, false],
-      [12, M.R, M.A, C.C, C.N, this.attackCriticalReload, true],
-      [13, M.B, M.R, C.N, C.C, this.blockCriticalReload, false],
-      [14, M.R, M.B, C.C, C.N, this.blockCriticalReload, true],
-      [15, M.R, M.R, C.N, C.C, this.reloadCriticalReload, false],
-      [16, M.R, M.R, C.C, C.N, this.reloadCriticalReload, true],
-      [17, M.R, M.R, C.C, C.C, this.doubleCriticalReload, false],
+      [0, M.A, M.A, C.A, C.A, ci.doubleAttack, false],
+      [1, M.A, M.R, C.N, C.N, ci.attackReload, false],
+      [2, M.R, M.A, C.N, C.N, ci.attackReload, true],
+      [3, M.B, M.B, C.A, C.A, ci.doubleBlock, false],
+      [4, M.A, M.B, C.A, C.A, ci.attackBlock, false],
+      [5, M.B, M.A, C.A, C.A, ci.attackBlock, true],
+      [6, M.R, M.B, C.N, C.N, ci.blockReload, false],
+      [7, M.B, M.R, C.N, C.N, ci.blockReload, true],
+      [8, M.R, M.R, C.N, C.N, ci.doubleReload, false],
+      [9, M.A, M.R, C.C, C.A, ci.criticalAttackReload, false],
+      [10, M.R, M.A, C.A, C.C, ci.criticalAttackReload, true],
+      [11, M.A, M.R, C.N, C.C, ci.attackCriticalReload, false],
+      [12, M.R, M.A, C.C, C.N, ci.attackCriticalReload, true],
+      [13, M.B, M.R, C.N, C.C, ci.blockCriticalReload, false],
+      [14, M.R, M.B, C.C, C.N, ci.blockCriticalReload, true],
+      [15, M.R, M.R, C.N, C.C, ci.reloadCriticalReload, false],
+      [16, M.R, M.R, C.C, C.N, ci.reloadCriticalReload, true],
+      [17, M.R, M.R, C.C, C.C, ci.doubleCriticalReload, false],
     ];
   }
 
@@ -58,6 +60,14 @@ class CharacterInteractions {
   }
 
   onRoundCompleted(duelerMove, dueleeMove, isDuelerCrit, isDueleeCrit) {
+    console.log(
+      "ROUND COMPLETED PLAYER INTERACTIONS INBOUND!!!!",
+      duelerMove,
+      dueleeMove,
+      isDuelerCrit,
+      isDueleeCrit
+    );
+
     for (let interaction of this.interactions) {
       const [
         interactionId,
@@ -84,10 +94,11 @@ class CharacterInteractions {
       );
 
       if (moveMatch && duelerCritMatch && dueleeCritMatch) {
+        console.log("FOUND OUR INTERACTION MATCH: ", interactionId);
         const c1 = flipped ? this.dueleeCharacter : this.duelerCharacter;
         const c2 = flipped ? this.duelerCharacter : this.dueleeCharacter;
 
-        interactionHandler(c1, c2);
+        interactionHandler.call(this, c1, c2);
       }
     }
   }
@@ -181,6 +192,7 @@ class CharacterInteractions {
   }
 
   doubleReload(c1, c2) {
+    console.log("SHOULD BE DOUBLE RELOADING!!!", c1, c2);
     this.reload(c1);
     this.reload(c2);
   }
@@ -220,6 +232,7 @@ class CharacterInteractions {
   }
 
   reload(character) {
+    console.log("RELOAD FIRED!");
     character.actions["punch"].gotoAndPlay(0);
   }
 

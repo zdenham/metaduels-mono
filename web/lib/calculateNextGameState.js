@@ -68,8 +68,9 @@ function calculateShieldChange(duelerMove, dueleeMove) {
 }
 
 function calculateNextGameState(currGameState, contractEventType, eventData) {
-  // event already handled - skip handling
-  if (eventData.stateVersion <= currGameState.stateVersion) {
+  // we only handle events that create the next state version
+  const nextStateVersion = currGameState.stateVersion.add(1);
+  if (!nextStateVersion.eq(eventData.stateVersion)) {
     return { nextGameState: currGameState, eventType: gameEventTypes.none };
   }
 
@@ -86,6 +87,7 @@ function calculateNextGameState(currGameState, contractEventType, eventData) {
           currDueleeMove: isDuelerSender
             ? currGameState.currDueleeMove
             : { ...currGameState.currDueleeMove, signature: "0xFF" },
+          stateVersion: nextStateVersion,
         },
         eventType: isDuelerSender
           ? gameEventTypes.duelerMoveSubmitted
@@ -103,6 +105,7 @@ function calculateNextGameState(currGameState, contractEventType, eventData) {
           currDueleeMove: isDuelerRevealer
             ? currGameState.currDueleeMove
             : { ...currGameState.currDueleeMove, moveType: M.A },
+          stateVersion: nextStateVersion,
         },
         eventType: isDuelerRevealer
           ? gameEventTypes.duelerMoveRevealed
@@ -147,15 +150,34 @@ function calculateNextGameState(currGameState, contractEventType, eventData) {
             moveType: M.N,
           },
           duelerState: {
-            ammo: currGameState.duelerState.ammo + duelerAmmoChange,
-            health: currGameState.duelerState.health + duelerHealthChange,
-            shield: currGameState.duelerState.shield + duelerShieldChange,
+            ammo: Math.min(
+              currGameState.duelerState.ammo + duelerAmmoChange,
+              3
+            ),
+            health: Math.max(
+              currGameState.duelerState.health + duelerHealthChange,
+              0
+            ),
+            shield: Math.min(
+              currGameState.duelerState.shield + duelerShieldChange,
+              2
+            ),
           },
           dueleeState: {
-            ammo: currGameState.dueleeState.ammo + dueleeAmmoChange,
-            health: currGameState.dueleeState.health + dueleeHealthChange,
-            shield: currGameState.dueleeState.shield + dueleeShieldChange,
+            ammo: Math.min(
+              currGameState.dueleeState.ammo + dueleeAmmoChange,
+              3
+            ),
+            health: Math.max(
+              0,
+              currGameState.dueleeState.health + dueleeHealthChange
+            ),
+            shield: Math.min(
+              currGameState.dueleeState.shield + dueleeShieldChange,
+              2
+            ),
           },
+          stateVersion: nextStateVersion,
         },
         eventType: gameEventTypes.roundCompleted,
       };
@@ -164,6 +186,7 @@ function calculateNextGameState(currGameState, contractEventType, eventData) {
       return {
         nextGameState: {
           ...currGameState,
+          stateVersion: nextStateVersion,
           winner,
         },
         eventType: gameEventTypes.winnerDeclared,

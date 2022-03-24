@@ -85,7 +85,10 @@ class GameContractClient {
 
   async revealMove() {
     const move = this._loadLatestMoveFromLocalStorage();
-    await this.game.revealMove(this.gameId, move);
+    const res = await this.game.revealMove(this.gameId, move, {
+      gasLimit: 200000,
+    });
+    console.log("REVEALED WITH RES: ", res);
   }
 
   // eventType: GameCreated | MoveSubmitted | MoveRevealed | RoundCompleted | WinnerDeclared
@@ -207,8 +210,6 @@ class GameContractClient {
   _parseDataFromEvent(eventType, event) {
     const args = this.iface.parseLog(event).args;
 
-    console.log("THE ARGS: ", args);
-
     switch (eventType) {
       case "GameCreated":
         return { dueler: args[0], duelee: args[1], gameId: args[2] };
@@ -217,12 +218,14 @@ class GameContractClient {
           gameId: args[0],
           stateVersion: args[1],
           signer: args[2],
+          eventType,
         };
       case "MoveRevealed":
         return {
           gameId: args[0],
           stateVersion: args[1],
           revealer: args[2],
+          eventType,
         };
       case "RoundCompleted":
         return {
@@ -232,15 +235,17 @@ class GameContractClient {
           dueleeMove: args[3],
           isDuelerMoveCritical: args[4],
           isDueleeMoveCritical: args[5],
+          eventType,
         };
       case "WinnerDeclared":
         return {
           gameId: args[0],
           stateVersion: args[1],
           winner: args[2],
+          eventType,
         };
       default:
-        return {};
+        return { eventType };
     }
   }
 

@@ -37,7 +37,7 @@ const setUp = async () => {
 
   document.getElementById("connectedWallet").innerText = address;
 
-  // window.game.joinGame(window.signer, 2);
+  window.game.joinGame(window.signer, 4);
 };
 
 setUp();

@@ -186,8 +186,6 @@ class PlayerControls {
     const duelerMoveState = moveState(gameState.currDuelerMove);
     const dueleeMoveState = moveState(gameState.currDueleeMove);
 
-    console.log("MOVE STATES: ", duelerMoveState, dueleeMoveState);
-
     const buttonsToShow = getButtonsToShow(
       duelerMoveState,
       dueleeMoveState,
@@ -264,7 +262,6 @@ class PlayerControls {
   }
 
   onRoundCompleted(nextGameState) {
-    console.log("NEXT GAME STATE!!!", nextGameState);
     // TODO - actually render animations / transitions
     // For now we are just removing all children and rendering with a fresh state
     for (let i = this.container.children.length - 1; i >= 0; i--) {

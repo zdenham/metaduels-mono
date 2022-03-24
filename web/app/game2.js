@@ -2,7 +2,6 @@ import * as PIXI from "pixi.js";
 import "howler";
 import SpriteUtilities from "./spriteUtilities.js";
 import TextStyles from "./textStyles.js";
-import Keyboard from "./keyboard.js";
 import GameContractClient from "../lib/gameClient.js";
 import { setBGScale, texture } from "../lib/pixiUtils.js";
 import PlayerStates from "./playerStates.js";
@@ -64,9 +63,7 @@ class Game {
         "assets/images/characters/scorpion.jpg",
         "assets/images/characters/scorpion.json",
       ])
-      .load(() => {
-        console.log("COMPLETED LOADING THE GAME ASSETS!");
-      });
+      .load();
   }
 
   // create a game on the blockchain!
