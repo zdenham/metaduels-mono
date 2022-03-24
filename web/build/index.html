@@ -93,6 +93,23 @@
         background: white;
       }
 
+      .socials { 
+        width: 120px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        position: absolute;
+        top: 15px;
+        left: 10%;
+        display: flex;
+        flex-direction: row;
+      }
+
+      .socialImage {
+        width: 40px;
+        height: 40px;
+      }
+
       .cardFooter {
         position: absolute;
         bottom: 0px;
@@ -155,6 +172,13 @@
           right: 0px;
           margin-top: 20px;
         }
+
+        .socials {
+          position: relative;
+          top: 0px;
+          left: 0px;
+          margin-top: 20px;
+        }
       }
     </style>
     <div
@@ -181,7 +205,14 @@
       >
         TRY YOUR HAND
       </a>
-
+      <div class="socials">
+        <a href="https://twitter.com/metaduels" target="_blank">
+          <img class="socialImage" src="./assets/images/icons/twitter.svg"></img>
+        </a>
+        <a href="https://discord.gg/sNJ2A7fD" target="_blank">
+          <img class="socialImage" src="./assets/images/icons/discord.svg"></img>
+        </a>
+      </div>
       <div class="cards">
         <div class="cardWrapper">
           <div
