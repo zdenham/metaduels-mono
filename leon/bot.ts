@@ -29,7 +29,7 @@ const larry = new Client({
 });
 
 leon.on('ready', async () => {
-  onboard(leon, larry, '496840772587618306');
+  await onboard(leon, larry, '496840772587618306');
   // onMessageReaction(leon);
   // sendDMToUser(leon, '825831245187252265', 'Im in your DMs, bitch');
   // respondToKeyWord(leon, 'johnson', 'Horse Cock Williams');

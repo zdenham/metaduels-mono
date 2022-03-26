@@ -1,4 +1,6 @@
-import { Client } from 'discord.js';
+import { TextChannel, Channel, Client } from 'discord.js';
+import collectTwitterHandle from './collectTwitterHandle';
+// import collectEthAddress from './collectEthAddress';
 // import deleteChannel from '../utils/deleteChannel';
 // import createPrivateChannel from '../utils/createPrivateChannel';
 // import createChannel from '../utils/createChannel';
@@ -30,7 +32,23 @@ const onboard = async (leon: Client, larry: Client, userId: string) => {
 
   // console.log('THE WELCOME CHANNEL: ', welcomeChannel);
 
-  // await createChannel(leon, userId, welcomeChannelCategoryId);
+  const welcomeChannel = await user.createDM();
+
+  // const ethAddress = await collectEthAddress(
+  //   leon,
+  //   larry,
+  //   welcomeChannel as Channel as TextChannel,
+  //   user
+  // );
+
+  const twitterHandle = await collectTwitterHandle(
+    leon,
+    larry,
+    welcomeChannel as Channel as TextChannel,
+    user
+  );
+
+  console.log('TWITTER HANDLE: ', twitterHandle);
 };
 
 export default onboard;
