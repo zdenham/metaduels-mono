@@ -7,7 +7,8 @@
     "deploy": "hardhat run ./scripts/deploy.js",
     "test": "hardhat test",
     "build": "hardhat compile",
-    "local-node": "hardhat node"
+    "local-node": "hardhat node",
+    "local-deploy": "hardhat run ./scripts/deployLocalGameForTesting.js --network local"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.4",
