@@ -1,4 +1,4 @@
-import PixiGame from "./game2";
+import PixiGame from "./game";
 import connectWallet from "../lib/connectWallet";
 
 window.signer = null;

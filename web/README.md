@@ -1,10 +1,12 @@
-# Huge Kombat
-Game using PixiJS
+# Setting up Multi-Player Game Testing
 
-## Demo
-https://gara501.github.io/pixi-game/
+- You will need **two** separate chrome browser instances with metamask installed
+- The easiest way to accomplish this is by creating a second chrome profile and installing metamask again
+- You will need to add hardhat network to your metamask on both profiles
+- Note: hardhat network is a local netork used for testing
 
-## To Run it
+# Running the Game!
+
 1. npm install (or yarn).
 2. npm start (or yarn start).
-3. Open the game on http://localhost:3001
+3. Open the game on http://localhost:3001/game.html

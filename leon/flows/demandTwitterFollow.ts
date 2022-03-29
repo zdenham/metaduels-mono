@@ -40,12 +40,15 @@ const demandTwitterFollow = async (
     'HOLD UP! This MF is not following @metaduels on twitter - what the FUCK!'
   );
 
+  await sendWithTyping(
+    larryChannel,
+    `Hold up Hold up.... lets give em a chance`
+  );
+
   const msg = await sendWithTyping(
     larryChannel,
-    `Hold up Hold up.... lets give em a chance
-Once you have followed @metaduels on Twitter, react with the 🐦 emoji to this 
-message and I'll see if I can convince Leon re-consider letting you into the server
-`
+    `Once you have followed @metaduels on Twitter, react with the 🐦 emoji to this 
+message and I'll see if I can convince Leon to re-consider letting you into the server`
   );
 
   msg.react('🐦');
@@ -67,7 +70,7 @@ message and I'll see if I can convince Leon re-consider letting you into the ser
     if (!doesFollow) {
       await sendWithTyping(
         leonChannel,
-        `NOPE! @${handle} doesn't follow us on twitter`
+        `@${handle} STILL doesn't follow us on twitter`
       );
     }
   }

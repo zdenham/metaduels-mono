@@ -1,6 +1,8 @@
 import { ethers } from "ethers";
 
-const GAME_NETWORK_ID = "0x13881";
+// POLYGON MUMBAI "0x13881";
+// HARDHAT "0x7A69"
+const GAME_NETWORK_ID = "0x7A69";
 
 export default async function connectWallet() {
   if (!window.ethereum) {
