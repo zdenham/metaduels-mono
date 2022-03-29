@@ -1,3 +1,4 @@
+import { GuildMember } from 'discord.js';
 import onboard from './flows/onboard';
 require('dotenv').config();
 const { Client, Intents } = require('discord.js');
@@ -29,6 +30,10 @@ const larry = new Client({
 });
 
 leon.on('ready', async () => {
+  leon.on('guildMemberAdd', (member: GuildMember) => {
+    console.log('NEW MEMBER!', member);
+    // TODO - onboard them!
+  });
   await onboard(leon, larry, '496840772587618306');
   // onMessageReaction(leon);
   // sendDMToUser(leon, '825831245187252265', 'Im in your DMs, bitch');

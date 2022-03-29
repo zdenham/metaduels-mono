@@ -1,30 +1,36 @@
-import { Client, User, TextChannel } from 'discord.js';
+import { User, TextChannel } from 'discord.js';
 import delay from '../utils/delay';
 import waitForMessage from '../utils/waitForMessage';
 import twitterClient from '../utils/twitter/client';
+import sendWithTyping from '../utils/sendWithTyping';
 
 // const metaDuelsUserId = '1490060609408286721';
 
 const collectTwitterHandle = async (
-  // @ts-ignore
-  leon: Client, // @ts-ignore
-  larry: Client, // @ts-ignore
-  channel: TextChannel,
+  leonChannel: TextChannel,
+  larryChannel: TextChannel,
   user: User
 ): Promise<string> => {
   let handle = null;
 
-  // const { data: metaDuelsFollowers } = await twitterClient.v2.followers(
-  //   metaDuelsUserId
-  // );
+  await sendWithTyping(
+    larryChannel,
+    'Leon - would you be so kind as to let them know the last step to get in?'
+  );
 
-  await channel.sendTyping();
-  await delay(1000);
-  await channel.send('Send us your Twitter handle');
+  await sendWithTyping(
+    leonChannel,
+    'No one gets into the arena without sending us their twitter handle'
+  );
+
+  await sendWithTyping(
+    larryChannel,
+    `If you don't mind, just send your twitter handle into this channel and you can be on your merry way`
+  );
 
   while (!handle) {
     try {
-      handle = await waitForMessage(channel.client, user.id);
+      handle = await waitForMessage(leonChannel.client, user.id);
       if (!/^@?(\w){1,15}$/.test(handle)) {
         throw new Error('Not a Handle');
       }
@@ -38,18 +44,17 @@ const collectTwitterHandle = async (
         }
       );
 
-      console.log('USER TWITTER: ', userTwitter);
-
       if (userTwitter.description) {
-        await channel.sendTyping();
-        await delay(2000);
-        await channel.send(`"${userTwitter.description}"... thats cute`);
+        await sendWithTyping(
+          leonChannel,
+          `"${userTwitter.description}"... thats cute`,
+          2000
+        );
       }
     } catch (e) {
       await delay(750);
-      await channel.sendTyping();
-      await delay(1000);
-      await channel.send(
+      await sendWithTyping(
+        leonChannel,
         "Nope, that don't work--send your REAL twitter handle (case sensitive)"
       );
     }
