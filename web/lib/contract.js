@@ -1,5 +1,5 @@
 const gameContract = {
-  address: "0x5731e2e3d72469182D9655fD1D6412B257D03eBD",
+  address: "0x5fbdb2315678afecb367f032d93f642f64180aa3",
   abi: [
     {
       inputs: [],

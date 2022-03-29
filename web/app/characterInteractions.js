@@ -147,6 +147,10 @@ class CharacterInteractions {
         sprite.play();
       } else {
         sprite.loop = false;
+        sprite.onComplete = () => {
+          sprite.visible = false;
+          actions["stance"].visible = true;
+        };
       }
 
       if (!animation.visible) {
@@ -192,7 +196,6 @@ class CharacterInteractions {
   }
 
   doubleReload(c1, c2) {
-    console.log("SHOULD BE DOUBLE RELOADING!!!", c1, c2);
     this.reload(c1);
     this.reload(c2);
   }
@@ -224,6 +227,8 @@ class CharacterInteractions {
 
   // Base Moves
   attack(character) {
+    character.actions["stance"].visible = false;
+    character.actions["punch"].visible = true;
     character.actions["punch"].gotoAndPlay(0);
   }
 
@@ -232,7 +237,8 @@ class CharacterInteractions {
   }
 
   reload(character) {
-    console.log("RELOAD FIRED!");
+    character.actions["stance"].visible = false;
+    character.actions["punch"].visible = true;
     character.actions["punch"].gotoAndPlay(0);
   }
 

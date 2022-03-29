@@ -86,7 +86,7 @@ class GameContractClient {
   async revealMove() {
     const move = this._loadLatestMoveFromLocalStorage();
     const res = await this.game.revealMove(this.gameId, move, {
-      gasLimit: 200000,
+      gasLimit: 2000000,
     });
     console.log("REVEALED WITH RES: ", res);
   }
