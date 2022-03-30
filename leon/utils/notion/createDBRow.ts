@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { Client } = require('@notionhq/client');
 
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
@@ -8,7 +9,7 @@ const createDBRow = async (
   ethBalance: number,
   twitter: string
 ) => {
-  const response = await notion.pages.create({
+  return await notion.pages.create({
     parent: {
       database_id: '8d15c43fc2964c95905639c55750c1ce',
     },
@@ -23,7 +24,7 @@ const createDBRow = async (
         ],
       },
       eth_address: {
-        title: [
+        rich_text: [
           {
             text: {
               content: ethAddress,
@@ -35,7 +36,7 @@ const createDBRow = async (
         number: ethBalance,
       },
       twitter: {
-        title: [],
+        url: twitter,
       },
     },
   });

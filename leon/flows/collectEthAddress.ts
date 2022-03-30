@@ -7,14 +7,14 @@ import resolveEthAddress from '../utils/ethereum/resolveEthAddress';
 import waitForMessage from '../utils/waitForMessage';
 
 const msg1 = `You don't get into the club unless you show us your ID`;
-const msg2 = `In case you are new around here, your ID is your ETH / ENS address,
-it looks like 0x... send your ETH address in this channel so we can ID you.`;
+const msg2 = `In case you are new around here, your ID is your eeeeehhhhh... ETH / ENS address,
+it looks like "0x..." send your ETH address in this channel so we can ID you.`;
 
 const collectEthAddress = async (
   leonChannel: TextChannel,
   larryChannel: TextChannel,
   user: User
-): Promise<string> => {
+): Promise<[string, number]> => {
   let address = null;
 
   await sendWithTyping(leonChannel, msg1);
@@ -47,10 +47,10 @@ const collectEthAddress = async (
 
   await sendWithTyping(
     larryChannel,
-    `Sorry about that, we see a lot of high rollers come through here so Leon is ehhhhhhh.... not easily impressed`
+    `Sorry about that, we see a lot of high rollers come through here so Frank is ehhhhhhh.... not easily impressed`
   );
 
-  return address;
+  return [address, parseFloat(amountEther)];
 };
 
 export default collectEthAddress;

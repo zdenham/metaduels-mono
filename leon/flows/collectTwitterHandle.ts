@@ -15,7 +15,7 @@ const collectTwitterHandle = async (
 
   await sendWithTyping(
     larryChannel,
-    'Leon - would you be so kind as to let them know the last step to get in?'
+    'Frank - would you be so kind as to let them know the last step to get in?'
   );
 
   await sendWithTyping(

@@ -32,6 +32,11 @@ const demandTwitterFollow = async (
       leonChannel,
       'Damn straight you follow @metaduels on twitter... if you even THINK about unfollowing @metaduels, I will boot you from this discord no questions asked'
     );
+
+    await sendWithTyping(
+      larryChannel,
+      'Thanks for the follow, you are a most esteemed guest--welcome to the tribe'
+    );
     return;
   }
 
@@ -42,13 +47,13 @@ const demandTwitterFollow = async (
 
   await sendWithTyping(
     larryChannel,
-    `Hold up Hold up.... lets give em a chance`
+    `Hold up Hold up ehhhhhh.... lets give em a chance`
   );
 
   const msg = await sendWithTyping(
     larryChannel,
     `Once you have followed @metaduels on Twitter, react with the 🐦 emoji to this 
-message and I'll see if I can convince Leon to re-consider letting you into the server`
+message and I'll see if I can convince Frank to re-consider letting you into the server`
   );
 
   msg.react('🐦');
@@ -77,7 +82,7 @@ message and I'll see if I can convince Leon to re-consider letting you into the 
 
   await sendWithTyping(
     larryChannel,
-    'Thanks for the follow, welcome to the tribe'
+    'Thanks for the follow, you are a most esteemed guest--welcome to the tribe'
   );
 };
 

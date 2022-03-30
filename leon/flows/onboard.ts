@@ -3,10 +3,12 @@ import { TextChannel, Channel, Client } from 'discord.js';
 import demandTwitterFollow from './demandTwitterFollow';
 import collectTwitterHandle from './collectTwitterHandle';
 import collectEthAddress from './collectEthAddress';
-// import deleteChannel from '../utils/deleteChannel';
+import deleteChannel from '../utils/deleteChannel';
 import createPrivateChannel from '../utils/createPrivateChannel';
 import introduceCharacters from './introduceCharacters';
 import delay from '../utils/delay';
+import sendWithTyping from '../utils/sendWithTyping';
+import createDBRow from '../utils/notion/createDBRow';
 
 const onboard = async (leon: Client, larry: Client, userId: string) => {
   const user = await leon.users.fetch(userId);
@@ -37,9 +39,11 @@ const onboard = async (leon: Client, larry: Client, userId: string) => {
 
   // Introduce the characters
 
+  sendWithTyping(leonWelcomeChannel, `<@${user.id}> get over here!`);
+
   await introduceCharacters(leonWelcomeChannel, larryWelcomeChannel);
 
-  const ethAddress = await collectEthAddress(
+  const [ethAddress, balance] = await collectEthAddress(
     leonWelcomeChannel,
     larryWelcomeChannel,
     user
@@ -57,7 +61,16 @@ const onboard = async (leon: Client, larry: Client, userId: string) => {
     twitterHandle
   );
 
-  console.log('USER INFO ', user.username, ethAddress, twitterHandle);
+  await createDBRow(
+    user.username,
+    ethAddress,
+    balance,
+    `https://twitter.com/${twitterHandle}`
+  );
+
+  // wait 5 minutes then delete the channel
+  await delay(5 * 60 * 1000);
+  await deleteChannel(leon, leonWelcomeChannel.id);
 };
 
 export default onboard;

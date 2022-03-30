@@ -2,7 +2,7 @@ import { TextChannel } from 'discord.js';
 import sendWithTyping from '../utils/sendWithTyping';
 import waitForMessageReaction from '../utils/waitForMessageReaction';
 
-const msg1 = `The name is Leon...
+const msg1 = `The name is Frank...
 
 I'm the bouncer for the MetaDuels Arena
 and you... well you are my little baby back bitch
@@ -13,14 +13,16 @@ I will turn your tight lil' asshole into my favorite sock puppet.
 Now, to get us started, react ✅ to this message
 `;
 
-const msg2 = `eeeeeeehhhhhhhhh-xcuse my colleague here, he's a bit eeehhhhhh... irate at the moment.
+const msg2 = `eeeeeeehhhhhhhhh-xcuse my colleague here, he's a bit eeehhhhhh... irate at the moment. 
 
-its probably best to do what he says and react ✅ to the above
+My name is bell boy by the way--much obliged
+
+ehhhhhhh.... its probably best to do what he says and react ✅ to the above
 `;
 
 const msg3 = `Thats exactly right - get used to doing what I say`;
 
-const msg4 = `Alright alright, would you at least tell them the requirements to get into the arena?`;
+const msg4 = `Alright alright meathead, would you at least tell them the requirements to get into the arena?`;
 
 const introduceCharacters = async (
   leonChannel: TextChannel,

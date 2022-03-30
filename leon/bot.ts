@@ -1,7 +1,10 @@
-import { GuildMember } from 'discord.js';
-import onboard from './flows/onboard';
+// import { GuildMember } from 'discord.js';
+// import printAllChannels from './utils/print/printAllChannels';
+// import onboard from './flows/onboard';
 require('dotenv').config();
-const { Client, Intents } = require('discord.js');
+import { Client, Intents } from 'discord.js';
+import delay from './utils/delay';
+import initCommands from './initCommands';
 
 const leon = new Client({
   intents: [
@@ -30,11 +33,13 @@ const larry = new Client({
 });
 
 leon.on('ready', async () => {
-  leon.on('guildMemberAdd', (member: GuildMember) => {
-    console.log('NEW MEMBER!', member);
-    // TODO - onboard them!
-  });
-  await onboard(leon, larry, '496840772587618306');
+  await delay(5000);
+  await initCommands(leon, larry);
+  // leon.on('guildMemberAdd', (member: GuildMember) => {
+  //   console.log('NEW MEMBER!', member);
+  //   // TODO - onboard them!
+  // });
+  // await onboard(leon, larry, '496840772587618306');
   // onMessageReaction(leon);
   // sendDMToUser(leon, '825831245187252265', 'Im in your DMs, bitch');
   // respondToKeyWord(leon, 'johnson', 'Horse Cock Williams');
@@ -42,5 +47,8 @@ leon.on('ready', async () => {
   // respondToKeyWord(leon, 'test', 'Fuck your test');
 });
 
+console.log('WE ARE STARTING!');
 larry.login(process.env.LARRY_BOT_TOKEN);
 leon.login(process.env.LEON_BOT_TOKEN);
+
+// createDBRow('hello', '0xtest', 100, 'https://twitter.com/zac_denham');
