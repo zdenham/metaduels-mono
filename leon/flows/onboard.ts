@@ -30,7 +30,11 @@ const onboard = async (leon: Client, larry: Client, userId: string) => {
     welcomeChannelCategoryId,
     userId,
     leon.user?.id || '',
-    larry.user?.id || ''
+    larry.user?.id || '',
+    '825831245187252265', // fatbeep
+    '230212521628401674', // Jedediah
+    '496840772587618306', // zdenham
+    '309611334495109122' // sk8rkid1027
   )) as Channel as TextChannel;
 
   const larryWelcomeChannel = (await larry.channels.fetch(
@@ -69,7 +73,7 @@ const onboard = async (leon: Client, larry: Client, userId: string) => {
   );
 
   // wait 5 minutes then delete the channel
-  await delay(5 * 60 * 1000);
+  await delay(1 * 60 * 1000);
   await deleteChannel(leon, leonWelcomeChannel.id);
 };
 

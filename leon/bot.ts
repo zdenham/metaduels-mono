@@ -1,10 +1,9 @@
-// import { GuildMember } from 'discord.js';
-// import printAllChannels from './utils/print/printAllChannels';
-// import onboard from './flows/onboard';
+import { GuildMember } from 'discord.js';
 require('dotenv').config();
 import { Client, Intents } from 'discord.js';
 import delay from './utils/delay';
 import initCommands from './initCommands';
+import printAllUsers from './utils/print/printAllUsers';
 
 const leon = new Client({
   intents: [
@@ -33,18 +32,13 @@ const larry = new Client({
 });
 
 leon.on('ready', async () => {
+  await printAllUsers(leon);
   await delay(5000);
   await initCommands(leon, larry);
-  // leon.on('guildMemberAdd', (member: GuildMember) => {
-  //   console.log('NEW MEMBER!', member);
-  //   // TODO - onboard them!
-  // });
-  // await onboard(leon, larry, '496840772587618306');
-  // onMessageReaction(leon);
-  // sendDMToUser(leon, '825831245187252265', 'Im in your DMs, bitch');
-  // respondToKeyWord(leon, 'johnson', 'Horse Cock Williams');
-  // sendMessageToChannel(leon, '956663083319849061');
-  // respondToKeyWord(leon, 'test', 'Fuck your test');
+  leon.on('guildMemberAdd', (member: GuildMember) => {
+    console.log('NEW MEMBER!', member.id);
+    // TODO - onboard them!
+  });
 });
 
 console.log('WE ARE STARTING!');

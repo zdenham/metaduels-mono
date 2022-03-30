@@ -1,5 +1,5 @@
 require('dotenv').config();
-import { Client } from 'discord.js';
+import { Client, CommandInteraction } from 'discord.js';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v9';
 import { SlashCommandBuilder } from '@discordjs/builders';
@@ -17,6 +17,32 @@ const commands = [onboardCommand.toJSON()];
 const rest = new REST({ version: '9' }).setToken(
   process.env.LEON_BOT_TOKEN || ''
 );
+
+const handleOnboard = async (
+  // @ts-ignore
+  leon: Client,
+  // @ts-ignore
+  larry: Client,
+  interaction: CommandInteraction
+) => {
+  const userId = interaction.options.data[0]?.user?.id;
+
+  if (!userId) {
+    await interaction.reply(`Couldn't find that user`);
+    return;
+  }
+
+  const adminRoleId = '953406880095555585';
+  // @ts-ignore
+  const admin = interaction.member?.roles.cache.get(adminRoleId);
+
+  if (!admin) {
+    await interaction.reply('This MF does NOT have permission to onboard');
+  }
+
+  await interaction.reply(`Fine! I'll onboard <@${userId}>`);
+  await onboard(leon, larry, userId);
+};
 
 const initCommands = async (leon: Client, larry: Client) => {
   try {
@@ -38,16 +64,11 @@ const initCommands = async (leon: Client, larry: Client) => {
     leon.on('interactionCreate', async (interaction) => {
       if (!interaction.isCommand()) return;
 
-      if (interaction.commandName === 'onboard') {
-        const userId = interaction.options.data[0]?.user?.id;
-        if (!userId) {
-          await interaction.reply(`Couldn't find that user`);
-          return;
+      switch (interaction.commandName) {
+        case 'onboard': {
+          await handleOnboard(leon, larry, interaction);
+          break;
         }
-
-        await interaction.reply(`Fine! I'll onboard <@${userId}>`);
-
-        await onboard(leon, larry, userId);
       }
     });
   } catch (error) {

@@ -8,7 +8,7 @@ const waitForMessage = (client: Client, userId: string): Promise<string> => {
 
     client.once('messageCreate', (message) => {
       if (message.author.id !== userId) {
-        return;
+        throw new Error('Incorrect user');
       }
 
       clearTimeout(timeout);
