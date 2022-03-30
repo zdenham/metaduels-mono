@@ -17,19 +17,20 @@ const C = {
 };
 
 class CharacterInteractions {
-  constructor() {
-    this.duelerCharacter = this.initCharacter(true);
-    this.dueleeCharacter = this.initCharacter(false);
+  constructor(initialGameState, playerAddress) {
+    this.isPlayerDueler = initialGameState.duelerAddress === playerAddress;
+    this.playerCharacter = this.initCharacter(true);
+    this.opponentCharacter = this.initCharacter(false);
 
     this.container = new PIXI.Container();
 
-    this.container.addChild(this.duelerCharacter);
-    this.container.addChild(this.dueleeCharacter);
+    this.container.addChild(this.playerCharacter);
+    this.container.addChild(this.opponentCharacter);
 
     const ci = this;
 
     this.interactions = [
-      // id, duelerMoveType, dueleeMoveType, duelerCritical, dueleeCritical, handler, flipped
+      // id, playerMoveType, opponentMoveType, playerCritical, opponentCritical, handler
       [0, M.A, M.A, C.A, C.A, ci.doubleAttack, false],
       [1, M.A, M.R, C.N, C.N, ci.attackReload, false],
       [2, M.R, M.A, C.N, C.N, ci.attackReload, true],
@@ -68,35 +69,40 @@ class CharacterInteractions {
       isDueleeCrit
     );
 
+    const playerMove = this.isPlayerDueler ? duelerMove : dueleeMove;
+    const opponentMove = this.isPlayerDueler ? dueleeMove : duelerMove;
+    const isPlayerCrit = this.isPlayerDueler ? isDuelerCrit : isDueleeCrit;
+    const isOpponentCrit = this.isPlayerDueler ? isDueleeCrit : isDuelerCrit;
+
     for (let interaction of this.interactions) {
       const [
         interactionId,
-        interactionDuelerMove,
-        interactionDueleeMove,
-        interactionDuelerCrit,
-        interactionDueleeCrit,
+        interactionPlayerMove,
+        interactionOpponentMove,
+        interactionPlayerCrit,
+        interactionOpponentCrit,
         interactionHandler,
         flipped,
       ] = interaction;
 
       const moveMatch =
-        duelerMove === interactionDuelerMove &&
-        dueleeMove === interactionDueleeMove;
+        playerMove === interactionPlayerMove &&
+        opponentMove === interactionOpponentMove;
 
-      const duelerCritMatch = this.isCritMatch(
-        isDuelerCrit,
-        interactionDuelerCrit
+      const playerCritMatch = this.isCritMatch(
+        isPlayerCrit,
+        interactionPlayerCrit
       );
 
-      const dueleeCritMatch = this.isCritMatch(
-        isDueleeCrit,
-        interactionDueleeCrit
+      const opponentCritMatch = this.isCritMatch(
+        isOpponentCrit,
+        interactionOpponentCrit
       );
 
-      if (moveMatch && duelerCritMatch && dueleeCritMatch) {
+      if (moveMatch && playerCritMatch && opponentCritMatch) {
         console.log("FOUND OUR INTERACTION MATCH: ", interactionId);
-        const c1 = flipped ? this.dueleeCharacter : this.duelerCharacter;
-        const c2 = flipped ? this.duelerCharacter : this.dueleeCharacter;
+        const c1 = flipped ? this.opponentCharacter : this.playerCharacter;
+        const c2 = flipped ? this.playerCharacter : this.opponentCharacter;
 
         interactionHandler.call(this, c1, c2);
       }
@@ -121,7 +127,7 @@ class CharacterInteractions {
     return anim;
   }
 
-  initCharacter(isDueler) {
+  initCharacter(isPlayer) {
     // TODO - add our own characters
     // for now just use scorpion data
     const data = characterData.characters[0];
@@ -129,10 +135,10 @@ class CharacterInteractions {
     const character = new PIXI.Container();
     const actions = {};
 
-    character.x = isDueler ? 400 : 800;
+    character.x = isPlayer ? 400 : 800;
     character.y = 155;
-    character.scale.x = isDueler ? data.scale : -data.scale;
-    character.scale.y = data.scale;
+    character.scale.x = isPlayer ? 2 * data.scale : -data.scale * 0.75;
+    character.scale.y = isPlayer ? 2 * data.scale : data.scale * 0.75;
 
     data.animations.forEach((animation) => {
       const sprite = this.createAnimation(
@@ -164,7 +170,7 @@ class CharacterInteractions {
 
     character.actions = actions;
     character.active = data.active;
-    character.isDueler = isDueler;
+    character.isPlayer = isPlayer;
 
     return character;
   }
@@ -258,7 +264,7 @@ class CharacterInteractions {
     character.actions["punch"].gotoAndPlay(0);
   }
 
-  // Side Effects
+  // Side Effects - TODO
 }
 
 export default CharacterInteractions;

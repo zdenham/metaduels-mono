@@ -62,6 +62,14 @@ class GameContractClient {
     const state = await this.getGameState();
     this.duelerAddress = state.duelerAddress;
     this.dueleeAddress = state.dueleeAddress;
+
+    const signerAddress = await this.signer.getAddress();
+    if (
+      signerAddress !== this.dueleeAddress &&
+      signerAddress !== this.duelerAddress
+    ) {
+      throw new Error("Not a participant in the game!");
+    }
   }
 
   async getGameState() {

@@ -1,7 +1,8 @@
 import { createSpriteAtPosition } from "../lib/pixiUtils";
 
 class PlayerStates {
-  constructor(gameState, textObj) {
+  constructor(gameState, playerAddress, textObj) {
+    this.isPlayerDueler = playerAddress === gameState.duelerAddress;
     this.textObj = textObj;
     this.container = new PIXI.Container();
     this.container.position.x = 0;
@@ -43,25 +44,29 @@ class PlayerStates {
       4
     )}...${gameState.dueleeAddress.substring(38, 42)}`;
 
-    const duelerAddressText = this.textObj.customText(duelerTruncated, 60, 20);
+    const playerAddress = this.textObj.customText(
+      this.isPlayerDueler ? duelerTruncated : dueleeTruncated,
+      60,
+      20
+    );
 
-    const dueleeAddressText = this.textObj.customText(
-      dueleeTruncated,
+    const opponenetAddress = this.textObj.customText(
+      this.isPlayerDueler ? dueleeTruncated : duelerTruncated,
       1060,
       20
     );
 
-    this.container.addChild(duelerAddressText);
-    this.container.addChild(dueleeAddressText);
+    this.container.addChild(playerAddress);
+    this.container.addChild(opponenetAddress);
   }
 
   initPlayersHealth(gameState) {
-    const duelerHealthPositions = [
+    const playerHealthPositions = [
       { x: 190, y: 50 },
       { x: 240, y: 50 },
     ];
 
-    const dueleeHealthPositions = [
+    const opponentHealthPositions = [
       { x: 960, y: 50 },
       { x: 900, y: 50 },
     ];
@@ -76,20 +81,20 @@ class PlayerStates {
           ? "buttons/healthIcon"
           : "buttons/healthIconEmpty";
 
-      const duelerHealth = createSpriteAtPosition(
-        duelerSpritePath,
-        duelerHealthPositions[i].x,
-        duelerHealthPositions[i].y
+      const playerHealth = createSpriteAtPosition(
+        this.isPlayerDueler ? duelerSpritePath : dueleeSpritePath,
+        playerHealthPositions[i].x,
+        playerHealthPositions[i].y
       );
 
-      const dueleeHealth = createSpriteAtPosition(
-        dueleeSpritePath,
-        dueleeHealthPositions[i].x,
-        dueleeHealthPositions[i].y
+      const opponentHealth = createSpriteAtPosition(
+        this.isPlayerDueler ? dueleeSpritePath : duelerSpritePath,
+        opponentHealthPositions[i].x,
+        opponentHealthPositions[i].y
       );
 
-      this.container.addChild(duelerHealth);
-      this.container.addChild(dueleeHealth);
+      this.container.addChild(playerHealth);
+      this.container.addChild(opponentHealth);
     }
   }
 
@@ -108,21 +113,30 @@ class PlayerStates {
     const duelerShield = this.shieldIconPath(gameState.duelerState.shield);
     const dueleeShield = this.shieldIconPath(gameState.dueleeState.shield);
 
-    const duelerSprite = createSpriteAtPosition(duelerShield, 300, 50);
-    const dueleeSprite = createSpriteAtPosition(dueleeShield, 840, 50);
+    const playerShieldSprite = createSpriteAtPosition(
+      this.isPlayerDueler ? duelerShield : dueleeShield,
+      300,
+      50
+    );
 
-    this.container.addChild(duelerSprite);
-    this.container.addChild(dueleeSprite);
+    const opponentShieldSprite = createSpriteAtPosition(
+      this.isPlayerDueler ? dueleeShield : duelerShield,
+      840,
+      50
+    );
+
+    this.container.addChild(playerShieldSprite);
+    this.container.addChild(opponentShieldSprite);
   }
 
   initPlayersAmmo(gameState) {
-    const duelerAmmoPositions = [
+    const playerAmmoPositions = [
       { x: 190, y: 100 },
       { x: 240, y: 100 },
       { x: 300, y: 100 },
     ];
 
-    const dueleeAmmoPositions = [
+    const opponentAmmoPositions = [
       { x: 960, y: 100 },
       { x: 900, y: 100 },
       { x: 840, y: 100 },
@@ -138,20 +152,20 @@ class PlayerStates {
           ? "buttons/attackIcon"
           : "buttons/attackIconEmpty";
 
-      const duelerAmmo = createSpriteAtPosition(
-        duelerSpritePath,
-        duelerAmmoPositions[i].x,
-        duelerAmmoPositions[i].y
+      const playerAmmo = createSpriteAtPosition(
+        this.isPlayerDueler ? duelerSpritePath : dueleeSpritePath,
+        playerAmmoPositions[i].x,
+        playerAmmoPositions[i].y
       );
 
-      const dueleeAmmo = createSpriteAtPosition(
-        dueleeSpritePath,
-        dueleeAmmoPositions[i].x,
-        dueleeAmmoPositions[i].y
+      const opponentAmmo = createSpriteAtPosition(
+        this.isPlayerDueler ? dueleeSpritePath : duelerSpritePath,
+        opponentAmmoPositions[i].x,
+        opponentAmmoPositions[i].y
       );
 
-      this.container.addChild(duelerAmmo);
-      this.container.addChild(dueleeAmmo);
+      this.container.addChild(playerAmmo);
+      this.container.addChild(opponentAmmo);
     }
   }
 

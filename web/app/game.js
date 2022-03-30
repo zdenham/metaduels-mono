@@ -24,6 +24,7 @@ class Game {
 
     // Containers - null until a game is created or joined
     this.playerStates = null;
+    this.playerAddress = null;
     this.playerControls = null;
     this.characterInteractions = null;
 
@@ -69,6 +70,7 @@ class Game {
   // create a game on the blockchain!
   async startGame(signer, dueleeAddress) {
     this.contractClient = new GameContractClient(signer);
+    this.playerAddress = await this.contractClient.signerAddress();
     const gameId = await this.contractClient.newGame(dueleeAddress);
 
     await this.initGameScene();
@@ -79,6 +81,7 @@ class Game {
   // resume an existing game on the blockchain
   async joinGame(signer, gameId) {
     this.contractClient = new GameContractClient(signer);
+    this.playerAddress = await this.contractClient.signerAddress();
     this.contractClient.connectToGame(gameId);
 
     await this.initGameScene();
@@ -105,22 +108,28 @@ class Game {
     );
 
     // initialize player states
-    this.playerStates = new PlayerStates(initialGameState, this.textObj);
+    this.playerStates = new PlayerStates(
+      initialGameState,
+      this.playerAddress,
+      this.textObj
+    );
 
     // initialize player controls
     // TODO - player controls can be passed the contract client rather than cbs
     const onMoveConfirm = (move) => this.contractClient.signAndSendMove(move);
     const onMoveReveal = (move) => this.contractClient.revealMove(move);
-    const userAddress = await this.contractClient.signerAddress();
     this.playerControls = new PlayerControls(
       initialGameState,
-      userAddress,
+      this.playerAddress,
       onMoveConfirm,
       onMoveReveal
     );
 
     // initialize character interactions
-    this.characterInteractions = new CharacterInteractions();
+    this.characterInteractions = new CharacterInteractions(
+      initialGameState,
+      this.playerAddress
+    );
 
     // add views to the scene
     this.scene.addChild(this.playerStates.container);

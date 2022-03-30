@@ -11,7 +11,7 @@ export const M = {
   R: 3,
 };
 
-const duelerButtonPositions = {
+const playerButtonPositions = {
   attack: { x: 100, y: 340 },
   block: { x: 160, y: 340 },
   reload: { x: 220, y: 340 },
@@ -19,35 +19,10 @@ const duelerButtonPositions = {
   reveal: { x: 400, y: 340 },
 };
 
-const dueleeButtonPositions = {
-  attack: { x: 1100, y: 340 },
-  block: { x: 1040, y: 340 },
-  reload: { x: 980, y: 340 },
-  confirm: { x: 800, y: 340 },
-  reveal: { x: 800, y: 340 },
-};
-
-const playerTypes = {
-  neither: "neither",
-  dueler: "dueler",
-  duelee: "duelee",
-};
-
 const moveStates = {
   none: "none",
   submitted: "submitted",
   revealed: "revealed",
-};
-
-const buttonPosFromPlayerType = (playerType) => {
-  switch (playerType) {
-    case playerTypes.dueler:
-      return duelerButtonPositions;
-    case playerTypes.duelee:
-      return dueleeButtonPositions;
-    default:
-      return {};
-  }
 };
 
 function moveState(move) {
@@ -60,7 +35,7 @@ function moveState(move) {
   return moveStates.revealed;
 }
 
-function _getButtonsToShow(playerMoveState, opponentMoveState) {
+function getButtonsToShow(playerMoveState, opponentMoveState) {
   switch (playerMoveState) {
     case moveStates.none:
       return ["attack", "block", "reload"];
@@ -71,26 +46,14 @@ function _getButtonsToShow(playerMoveState, opponentMoveState) {
   }
 }
 
-function getButtonsToShow(duelerMoveState, dueleeMoveState, playerType) {
-  switch (playerType) {
-    case playerTypes.dueler:
-      return _getButtonsToShow(duelerMoveState, dueleeMoveState);
-    case playerTypes.duelee:
-      // pass duelee first!
-      return _getButtonsToShow(dueleeMoveState, duelerMoveState);
-    default:
-      return [];
-  }
-}
-
 class PlayerControls {
   constructor(
     initialGameState,
-    userAddress,
+    playerAddress,
     onConfirmCallback,
     onRevealCallback
   ) {
-    this.userAddress = userAddress;
+    this.isPlayerDueler = playerAddress === initialGameState.duelerAddress;
     this.selectedMove = M.N;
 
     this.onConfirmCallback = onConfirmCallback;
@@ -122,29 +85,19 @@ class PlayerControls {
       },
     };
 
-    this.playerType =
-      userAddress === initialGameState.duelerAddress
-        ? playerTypes.dueler
-        : userAddress === initialGameState.dueleeAddress
-        ? playerTypes.duelee
-        : playerTypes.neither;
-
-    this.buttonPositions = buttonPosFromPlayerType(this.playerType);
-
     this.container = new PIXI.Container();
     this.container.position.x = 0;
     this.container.position.y = 0;
     this.container.width = 1200;
     this.container.height = 400;
 
-    console.log("INITIAL GAME STATE!", initialGameState);
     this.initButtons(initialGameState);
   }
 
   initButtons(gameState) {
-    for (let key of Object.keys(this.buttonPositions)) {
+    for (let key of Object.keys(playerButtonPositions)) {
       const button = this.buttons[key];
-      const position = this.buttonPositions[key];
+      const position = playerButtonPositions[key];
 
       const buttonSprite = createSpriteAtPosition(
         button.assetPath,
@@ -187,9 +140,8 @@ class PlayerControls {
     const dueleeMoveState = moveState(gameState.currDueleeMove);
 
     const buttonsToShow = getButtonsToShow(
-      duelerMoveState,
-      dueleeMoveState,
-      this.playerType
+      this.isPlayerDueler ? duelerMoveState : dueleeMoveState,
+      this.isPlayerDueler ? dueleeMoveState : duelerMoveState
     );
 
     this.showButtons(...buttonsToShow);
