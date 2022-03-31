@@ -156,64 +156,6 @@ const gameContract = {
           name: "gameId",
           type: "uint256",
         },
-        {
-          internalType: "uint8",
-          name: "moveType",
-          type: "uint8",
-        },
-        {
-          internalType: "string",
-          name: "nonce",
-          type: "string",
-        },
-      ],
-      name: "_createSignatureInputHash",
-      outputs: [
-        {
-          internalType: "bytes32",
-          name: "",
-          type: "bytes32",
-        },
-      ],
-      stateMutability: "pure",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "bytes32",
-          name: "data",
-          type: "bytes32",
-        },
-        {
-          internalType: "bytes",
-          name: "signature",
-          type: "bytes",
-        },
-        {
-          internalType: "address",
-          name: "maybeSigner",
-          type: "address",
-        },
-      ],
-      name: "_validateSignature",
-      outputs: [
-        {
-          internalType: "bool",
-          name: "",
-          type: "bool",
-        },
-      ],
-      stateMutability: "pure",
-      type: "function",
-    },
-    {
-      inputs: [
-        {
-          internalType: "uint256",
-          name: "gameId",
-          type: "uint256",
-        },
       ],
       name: "gameStateForId",
       outputs: [
@@ -286,9 +228,9 @@ const gameContract = {
                   type: "uint8",
                 },
                 {
-                  internalType: "bytes",
-                  name: "signature",
-                  type: "bytes",
+                  internalType: "bytes32",
+                  name: "moveHash",
+                  type: "bytes32",
                 },
                 {
                   internalType: "string",
@@ -308,9 +250,9 @@ const gameContract = {
                   type: "uint8",
                 },
                 {
-                  internalType: "bytes",
-                  name: "signature",
-                  type: "bytes",
+                  internalType: "bytes32",
+                  name: "moveHash",
+                  type: "bytes32",
                 },
                 {
                   internalType: "string",
@@ -369,9 +311,9 @@ const gameContract = {
               type: "uint8",
             },
             {
-              internalType: "bytes",
-              name: "signature",
-              type: "bytes",
+              internalType: "bytes32",
+              name: "moveHash",
+              type: "bytes32",
             },
             {
               internalType: "string",
@@ -397,12 +339,12 @@ const gameContract = {
           type: "uint256",
         },
         {
-          internalType: "bytes",
-          name: "signature",
-          type: "bytes",
+          internalType: "bytes32",
+          name: "moveHash",
+          type: "bytes32",
         },
       ],
-      name: "submitMoveSignature",
+      name: "submitMoveHash",
       outputs: [],
       stateMutability: "nonpayable",
       type: "function",

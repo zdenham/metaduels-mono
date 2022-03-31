@@ -60,6 +60,7 @@ class GameContractClient {
   async connectToGame(gameId) {
     this.gameId = gameId;
     const state = await this.getGameState();
+    console.log("THE GAME STATE!!!", state);
     this.duelerAddress = state.duelerAddress;
     this.dueleeAddress = state.dueleeAddress;
 
@@ -85,10 +86,10 @@ class GameContractClient {
   async signAndSendMove(moveType) {
     const nonce = v4();
 
-    const signature = await this._getMoveSignature(moveType, nonce);
+    const moveHash = await this._getMoveHash(moveType, nonce);
 
-    await this.game.submitMoveSignature(this.gameId, signature);
-    this._saveCurrentMoveToLocalStorage(nonce, moveType, signature);
+    await this.game.submitMoveHash(this.gameId, moveHash);
+    this._saveCurrentMoveToLocalStorage(nonce, moveType, moveHash);
   }
 
   async revealMove() {
@@ -138,7 +139,7 @@ class GameContractClient {
     return decodedEvents;
   }
 
-  async _getMoveSignature(moveType, nonce) {
+  async _getMoveHash(moveType, nonce) {
     const encoder = new ethers.utils.AbiCoder();
 
     const bytes = encoder.encode(
@@ -148,14 +149,12 @@ class GameContractClient {
 
     const hash = ethers.utils.solidityKeccak256(["bytes"], [bytes]);
 
-    const binaryHash = ethers.utils.arrayify(hash);
+    const moveHash = ethers.utils.arrayify(hash);
 
-    const signature = await this.signer.signMessage(binaryHash);
-
-    return signature;
+    return moveHash;
   }
 
-  _saveCurrentMoveToLocalStorage(nonce, moveType, signature) {
+  _saveCurrentMoveToLocalStorage(nonce, moveType, moveHash) {
     const moves =
       JSON.parse(window.localStorage.getItem("metaDuelsCurrentMoves")) || {};
 
@@ -163,7 +162,7 @@ class GameContractClient {
       "metaDuelsCurrentMoves",
       JSON.stringify({
         ...moves,
-        [this.gameId]: { nonce, moveType, signature },
+        [this.gameId]: { nonce, moveType, moveHash },
       })
     );
   }

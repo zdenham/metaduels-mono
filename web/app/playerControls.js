@@ -1,5 +1,6 @@
 import * as PIXI from "pixi.js";
 import { createSpriteAtPosition, texture } from "../lib/pixiUtils";
+import zeroHash from "../lib/zeroHash";
 
 /**
  * THE MOVES N = NONE, A = ATTACK, B = BLOCK, R = RELOAD
@@ -26,7 +27,7 @@ const moveStates = {
 };
 
 function moveState(move) {
-  if (move.signature === "0x") {
+  if (move.moveHash === zeroHash) {
     return moveStates.none;
   } else if (move.moveType === M.N) {
     return moveStates.submitted;

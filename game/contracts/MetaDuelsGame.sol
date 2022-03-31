@@ -39,15 +39,15 @@ contract MetaDuelsGame {
     );
 
     // move types
-    uint8 None = 0;
-    uint8 Attack = 1;
-    uint8 Block = 2;
-    uint8 Reload = 3;
-    bytes32 blankSig = keccak256(bytes(""));
+    uint8 constant None = 0;
+    uint8 constant Attack = 1;
+    uint8 constant Block = 2;
+    uint8 constant Reload = 3;
+    bytes32 constant zeroHash = 0x0;
 
     struct Move {
         uint8 moveType;
-        bytes signature;
+        bytes32 moveHash;
         string nonce;
     }
 
@@ -86,12 +86,12 @@ contract MetaDuelsGame {
             currDuelerMove: Move({
                 moveType: None,
                 nonce: "",
-                signature: bytes("")
+                moveHash: zeroHash
             }),
             currDueleeMove: Move({
                 moveType: None,
                 nonce: "",
-                signature: bytes("")
+                moveHash: zeroHash
             }),
             stateVersion: 1
         });
@@ -99,14 +99,12 @@ contract MetaDuelsGame {
         emit GameStarted(dueler, duelee, newGameId);
     }
 
-    function submitMoveSignature(uint256 gameId, bytes memory signature)
-        public
-    {
+    function submitMoveHash(uint256 gameId, bytes32 moveHash) public {
         Game storage game = _gameStates[gameId];
         address sender = msg.sender;
         require(
             sender == game.duelerAddress || sender == game.dueleeAddress,
-            "MetaDuels: attempting to submit a move signature from an invalid address"
+            "MetaDuels: attempting to submit a move hash from an invalid address"
         );
 
         Move storage moveToUpdate = sender == game.duelerAddress
@@ -114,11 +112,11 @@ contract MetaDuelsGame {
             : game.currDueleeMove;
 
         require(
-            keccak256(moveToUpdate.signature) == blankSig,
-            "Metaduels: player move signature has already been submitted for this round"
+            moveToUpdate.moveHash == zeroHash,
+            "Metaduels: player move hash has already been submitted for this round"
         );
 
-        moveToUpdate.signature = signature;
+        moveToUpdate.moveHash = moveHash;
         game.stateVersion = game.stateVersion + 1;
 
         emit MoveSubmitted(gameId, game.stateVersion, sender);
@@ -129,7 +127,7 @@ contract MetaDuelsGame {
         address sender = msg.sender;
         require(
             sender == game.duelerAddress || sender == game.dueleeAddress,
-            "MetaDuels: attempting to submit a move signature from an invalid address"
+            "MetaDuels: attempting to submit a move hash from an invalid address"
         );
 
         Move storage moveToUpdate = sender == game.duelerAddress
@@ -137,19 +135,19 @@ contract MetaDuelsGame {
             : game.currDueleeMove;
 
         require(
-            keccak256(moveToUpdate.signature) != blankSig,
-            "MetaDuels: a signature must be provided before revealing a move"
+            moveToUpdate.moveHash != zeroHash,
+            "MetaDuels: a hash must be provided before revealing a move"
         );
 
-        bytes32 inputHash = _createSignatureInputHash(
+        bytes32 calculatedHash = _createMoveHash(
             gameId,
             revealedMove.moveType,
             revealedMove.nonce
         );
 
         require(
-            _validateSignature(inputHash, moveToUpdate.signature, sender),
-            "MetaDuels: signature is invalid to reveal move"
+            calculatedHash == moveToUpdate.moveHash,
+            "MetaDuels: hash is invalid to reveal move"
         );
 
         moveToUpdate.nonce = revealedMove.nonce;
@@ -194,13 +192,13 @@ contract MetaDuelsGame {
             game.currDuelerMove = Move({
                 moveType: None,
                 nonce: "",
-                signature: bytes("")
+                moveHash: zeroHash
             });
 
             game.currDueleeMove = Move({
                 moveType: None,
                 nonce: "",
-                signature: bytes("")
+                moveHash: zeroHash
             });
         }
 
@@ -240,23 +238,12 @@ contract MetaDuelsGame {
         return a < b ? a : b;
     }
 
-    function _validateSignature(
-        bytes32 data,
-        bytes memory signature,
-        address maybeSigner
-    ) public pure returns (bool) {
-        bytes32 messageHash = ECDSA.toEthSignedMessageHash(data);
-        address signer = ECDSA.recover(messageHash, signature);
-
-        return maybeSigner == signer;
-    }
-
     function _validateMoves(
         uint8 duelerMoveType,
         uint8 dueleeMoveType,
         PlayerState memory duelerState,
         PlayerState memory dueleeState
-    ) private view {
+    ) private pure {
         require(
             duelerMoveType != Attack || duelerState.ammo > 0,
             "MetaDuelsGame: dueler cannot attack without ammo"
@@ -286,7 +273,7 @@ contract MetaDuelsGame {
     function _calculateAmmoChange(
         Move memory duelerMove,
         Move memory dueleeMove
-    ) private view returns (int8, int8) {
+    ) private pure returns (int8, int8) {
         int8 duelerReload = (duelerMove.moveType == Reload)
             ? _criticalHitCount(duelerMove.nonce, dueleeMove.nonce)
             : int8(0);
@@ -307,7 +294,7 @@ contract MetaDuelsGame {
 
     function _calculateShieldChange(uint8 duelerMoveType, uint8 dueleeMoveType)
         private
-        view
+        pure
         returns (int8, int8)
     {
         int8 duelerShieldUse = duelerMoveType == Block ? -2 : int8(1);
@@ -319,7 +306,7 @@ contract MetaDuelsGame {
     function _calculateHealthChange(
         Move memory duelerMove,
         Move memory dueleeMove
-    ) private view returns (int8, int8) {
+    ) private pure returns (int8, int8) {
         if (duelerMove.moveType == Attack && dueleeMove.moveType == Reload) {
             return (
                 int8(0),
@@ -384,11 +371,11 @@ contract MetaDuelsGame {
         );
     }
 
-    function _createSignatureInputHash(
+    function _createMoveHash(
         uint256 gameId,
         uint8 moveType,
         string memory nonce
-    ) public pure returns (bytes32) {
+    ) internal pure returns (bytes32) {
         return keccak256(abi.encode(gameId, moveType, nonce));
     }
 
@@ -418,7 +405,7 @@ contract MetaDuelsGame {
 
     function _moveAsString(uint8 moveType)
         private
-        view
+        pure
         returns (string memory)
     {
         return moveType == Block ? "B" : moveType == Attack ? "A" : "R";

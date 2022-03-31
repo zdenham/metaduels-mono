@@ -40,7 +40,7 @@ const criticalHit = (nonce1, nonce2) => {
   return isCritical;
 };
 
-const getSignedMove = async (move, signer) => {
+const getHashedMove = async (move) => {
   const gameId = 1;
 
   const moveType = typeof move === 'object' ? move.moveType : move;
@@ -53,16 +53,12 @@ const getSignedMove = async (move, signer) => {
     [gameId, moveType, nonce]
   );
 
-  const hash = ethers.utils.solidityKeccak256(['bytes'], [bytes]);
-
-  const binaryHash = ethers.utils.arrayify(hash);
-
-  const signature = await signer.signMessage(binaryHash);
+  const moveHash = ethers.utils.solidityKeccak256(['bytes'], [bytes]);
 
   return {
     moveType,
     nonce,
-    signature,
+    moveHash,
   };
 };
 
@@ -77,11 +73,11 @@ const runMoves = async (moves, dueler, duelee, game, shouldInit = true) => {
   const dueleeGame = await game.connect(duelee);
 
   for (let i = 0; i < numRounds; i++) {
-    const duelerMove = await getSignedMove(moves[i * 2], dueler);
-    const dueleeMove = await getSignedMove(moves[i * 2 + 1], duelee);
+    const duelerMove = await getHashedMove(moves[i * 2], dueler);
+    const dueleeMove = await getHashedMove(moves[i * 2 + 1], duelee);
 
-    await duelerGame.submitMoveSignature(1, duelerMove.signature);
-    await dueleeGame.submitMoveSignature(1, dueleeMove.signature);
+    await duelerGame.submitMoveHash(1, duelerMove.moveHash);
+    await dueleeGame.submitMoveHash(1, dueleeMove.moveHash);
 
     await duelerGame.revealMove(1, duelerMove);
     await dueleeGame.revealMove(1, dueleeMove);
@@ -115,9 +111,9 @@ describe('TestMetaDuelGame', function () {
   });
 
   it('should emit an event when a move is submitted', async function () {
-    const duelerMove = await getSignedMove(M.A, dueler);
+    const duelerMove = await getHashedMove(M.A, dueler);
 
-    await expect(game.submitMoveSignature(1, duelerMove.signature))
+    await expect(game.submitMoveHash(1, duelerMove.moveHash))
       .to.emit(game, 'MoveSubmitted')
       .withArgs(1, 2, dueler.address);
   });
@@ -128,28 +124,28 @@ describe('TestMetaDuelGame', function () {
 
     const lastMoves = [M.A, M.R];
 
-    const duelerMove = await getSignedMove(lastMoves[0], dueler);
-    const dueleeMove = await getSignedMove(lastMoves[1], duelee);
+    const duelerMove = await getHashedMove(lastMoves[0], dueler);
+    const dueleeMove = await getHashedMove(lastMoves[1], duelee);
 
     const duelerGame = await game.connect(dueler);
     const dueleeGame = await game.connect(duelee);
 
-    await duelerGame.submitMoveSignature(1, duelerMove.signature);
-    await dueleeGame.submitMoveSignature(1, dueleeMove.signature);
+    await duelerGame.submitMoveHash(1, duelerMove.moveHash);
+    await dueleeGame.submitMoveHash(1, dueleeMove.moveHash);
 
     await duelerGame.revealMove(1, duelerMove);
 
     await expect(dueleeGame.revealMove(1, dueleeMove))
       .to.emit(dueleeGame, 'WinnerDeclared')
-      .withArgs(1, dueler.address);
+      .withArgs(1, 17, dueler.address);
   });
 
   it('should emit an event with appropriate critical hits on round end', async function () {
-    const duelerMove = await getSignedMove(
+    const duelerMove = await getHashedMove(
       { moveType: M.A, nonce: giveCriticalHitNonce },
       dueler
     );
-    const dueleeMove = await getSignedMove(
+    const dueleeMove = await getHashedMove(
       { moveType: M.R, nonce: getCriticalHitNonce },
       duelee
     );
@@ -157,14 +153,14 @@ describe('TestMetaDuelGame', function () {
     const duelerGame = await game.connect(dueler);
     const dueleeGame = await game.connect(duelee);
 
-    await duelerGame.submitMoveSignature(1, duelerMove.signature);
-    await dueleeGame.submitMoveSignature(1, dueleeMove.signature);
+    await duelerGame.submitMoveHash(1, duelerMove.moveHash);
+    await dueleeGame.submitMoveHash(1, dueleeMove.moveHash);
 
     await duelerGame.revealMove(1, duelerMove);
 
     await expect(dueleeGame.revealMove(1, dueleeMove))
       .to.emit(dueleeGame, 'RoundCompleted')
-      .withArgs(1, 5, M.A, M.R, true, false);
+      .withArgs(1, 6, M.A, M.R, true, false);
   });
 
   it('should replenish a shield after two rounds', async function () {

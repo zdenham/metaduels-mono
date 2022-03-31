@@ -1,18 +1,20 @@
+import zeroHash from "./zeroHash";
+
 /**
  * THE MOVES N = NONE, A = ATTACK, B = BLOCK, R = RELOAD
  */
 
 function calculateEventFromStateTransition(oldState, newState) {
   if (
-    oldState.currDuelerMove.signature === "0x" &&
-    newState.currDuelerMove.signature !== "0x"
+    oldState.currDuelerMove.moveHash === zeroHash &&
+    newState.currDuelerMove.moveHash !== zeroHash
   ) {
     return gameEventTypes.duelerMoveSubmitted;
   }
 
   if (
-    oldState.currDueleeMove.signature === "0x" &&
-    newState.currDueleeMove.signature !== "0x"
+    oldState.currDueleeMove.moveHash === zeroHash &&
+    newState.currDueleeMove.moveHash !== zeroHash
   ) {
     return gameEventTypes.dueleeMoveSubmitted;
   }
@@ -32,13 +34,13 @@ function calculateEventFromStateTransition(oldState, newState) {
   }
 
   if (
-    (oldState.currDueleeMove.signature !== "0x" &&
-      newState.currDuelerMove.signature) === "0x"
+    (oldState.currDueleeMove.moveHash !== zeroHash &&
+      newState.currDuelerMove.moveHash) === zeroHash
   ) {
     return gameEventTypes.roundCompleted;
   }
 
-  if (oldState.winner === "0x" && newState.winner !== "0x") {
+  if (oldState.winner === zeroHash && newState.winner !== zeroHash) {
     return gameEventTypes.winnerDeclared;
   }
 

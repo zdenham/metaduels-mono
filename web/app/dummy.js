@@ -98,7 +98,7 @@ function removeAllChildNodes(parent) {
 }
 
 function getMoveStateText(move) {
-  if (move.signature === "0x") {
+  if (move.moveHash === "0x") {
     return `SUBMITTED MOVE: ❌ , REVEALED MOVE: ❌`;
   } else if (move.moveType === MOVES.None) {
     return `SUBMITTED MOVE: ✅ , REVEALED MOVE: ❌`;
