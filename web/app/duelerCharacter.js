@@ -228,6 +228,22 @@ class DuelerCharacter {
 
   async win() {
     // TODO
+    const scaleFactor = this.isPlayer ? 1.5 : 2.5;
+
+    const animationChain = [
+      {
+        params: {
+          scaleX: scaleFactor * this.container.scale.x,
+          scaleY: scaleFactor * this.container.scale.y,
+        },
+        animation: {
+          duration: 700,
+          ease: "easeOutQuart",
+        },
+      },
+    ];
+
+    await chainAnimations(this.container, animationChain);
   }
 }
 

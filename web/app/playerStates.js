@@ -409,6 +409,10 @@ class PlayerStates {
       );
     }
   }
+
+  hide() {
+    this.container.alpha = 0;
+  }
 }
 
 export default PlayerStates;

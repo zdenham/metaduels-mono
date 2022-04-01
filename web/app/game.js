@@ -29,6 +29,9 @@ class Game {
     this.playerControls = null;
     this.characterInteractions = null;
 
+    this.playerCharacterName = null;
+    this.opponentCharacterName = null;
+
     this.eventEmmitter = null;
 
     this.zIndexManager = new ZIndexManager(this.app, this.scene);
@@ -103,7 +106,10 @@ class Game {
   }
 
   // resume an existing game on the blockchain
-  async joinGame(signer, gameId) {
+  async joinGame(signer, gameId, playerCharacterName, opponentCharacterName) {
+    this.plaerCharacterName = playerCharacterName;
+    this.opponentCharacterName = opponentCharacterName;
+
     this.contractClient = new GameContractClient(signer);
     this.playerAddress = await this.contractClient.signerAddress();
     this.contractClient.connectToGame(gameId);
@@ -167,16 +173,19 @@ class Game {
     this.characterInteractions = new CharacterInteractions(
       initialGameState,
       this.playerAddress,
-      this.vfx
+      this.vfx,
+      this.plaerCharacterName,
+      this.opponentCharacterName,
+      this.playerControls,
+      this.playerStates
     );
 
     // add views to the scene
     this.scene.addChild(this.characterInteractions.container);
-    this.scene.addChild(this.playerStates.container);
-    this.scene.addChild(this.playerControls.container);
     this.scene.addChild(this.vfx.container);
 
-    this.vfx.bulgeBackground();
+    this.scene.addChild(this.playerStates.container);
+    this.scene.addChild(this.playerControls.container);
   }
 
   initBackground() {

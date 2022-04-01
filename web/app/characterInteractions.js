@@ -17,17 +17,28 @@ const C = {
 };
 
 class CharacterInteractions {
-  constructor(initialGameState, playerAddress, vfx) {
+  constructor(
+    initialGameState,
+    playerAddress,
+    vfx,
+    playerCharacterName,
+    opponentCharacterName,
+    playerControls,
+    playerStates
+  ) {
     this.isPlayerDueler = initialGameState.duelerAddress === playerAddress;
     this.vfx = vfx;
 
-    this.playerCharacter = new DuelerCharacter("razor", true);
-    this.opponentCharacter = new DuelerCharacter("right_click", false);
+    this.playerCharacter = new DuelerCharacter(playerCharacterName, true);
+    this.opponentCharacter = new DuelerCharacter(opponentCharacterName, false);
 
     this.container = new PIXI.Container();
 
     this.container.addChild(this.playerCharacter.container);
     this.container.addChild(this.opponentCharacter.container);
+
+    this.playerControls = playerControls;
+    this.playerStates = playerStates;
 
     const ci = this;
 
@@ -53,16 +64,11 @@ class CharacterInteractions {
       [17, M.R, M.R, C.C, C.C, ci.doubleCriticalReload, false],
     ];
 
-    // this.playerCharacter.die();
-    // this.opponentCharacter.die();
+    this.win(this.opponentCharacter, this.playerCharacter);
 
-    // this.attackReload(this.playerCharacter, this.opponentCharacter);
-
-    // setInterval(() => {
-    //   // this.playerCharacter.die();
-    //   // this.opponentCharacter.die();
-    //   this.attackReload(this.playerCharacter, this.opponentCharacter);
-    // }, 6000);
+    setInterval(() => {
+      this.win(this.opponentCharacter, this.playerCharacter);
+    }, 6000);
   }
 
   isCritMatch(boolIsCrit, interactionCritType) {
@@ -180,6 +186,14 @@ class CharacterInteractions {
   doubleCriticalReload(c1, c2) {
     c1.criticalReload();
     c2.criticalReload();
+  }
+
+  async win(c1, c2) {
+    await c2.die();
+    this.playerStates.hide();
+    this.playerControls.hide();
+    this.vfx.zoomBackgroundWin(true);
+    c1.win();
   }
 }
 

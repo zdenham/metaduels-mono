@@ -45,27 +45,42 @@ class VFX {
       // move up and scale to 1.1
       {
         params: {
-          scale: {
-            x: ogScaleX * 1.1,
-            y: ogScaleY * 1.1,
-          },
+          scaleX: ogScaleX * 1.1,
+          scaleY: ogScaleY * 1.1,
         },
         animation: {
-          duration: 200,
-          ease: "linear",
+          duration: 100,
+          ease: "easeOutExpo",
         },
       },
       // return back and scale to 1
       {
         params: {
-          scale: {
-            x: ogScaleX,
-            y: ogScaleY,
-          },
+          scaleX: ogScaleX,
+          scaleY: ogScaleY,
         },
         animation: {
           duration: 300,
           ease: "linear",
+        },
+      },
+    ];
+
+    await chainAnimations(this.background, animationChain);
+  }
+
+  async zoomBackgroundWin(playerWon) {
+    const scaleFactor = 1.5;
+
+    const animationChain = [
+      {
+        params: {
+          scaleX: scaleFactor * this.background.scale.x,
+          scaleY: scaleFactor * this.background.scale.y,
+        },
+        animation: {
+          duration: 700,
+          ease: "easeOutQuart",
         },
       },
     ];

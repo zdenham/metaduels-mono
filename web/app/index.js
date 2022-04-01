@@ -29,15 +29,24 @@ document.getElementById("joinGame").addEventListener("click", async () => {
   window.game.joinGame(window.signer, gameId);
 });
 
-// FOR DEBUGGING!
+// FOR DEBUGGING ONLY!!!!
 const setUp = async () => {
+  const razorWallets = ["0x5e7610698ba465973C11A607eAf43b7f1733D947"];
+
   window.signer = await connectWallet();
 
   const address = await window.signer.getAddress();
 
   document.getElementById("connectedWallet").innerText = address;
 
-  window.game.joinGame(window.signer, 1);
+  const selectedCharacter = razorWallets.includes(address)
+    ? "razor"
+    : "right_click";
+
+  const opponentCharacter =
+    selectedCharacter === "razor" ? "right_click" : "razor";
+
+  window.game.joinGame(window.signer, 1, selectedCharacter, opponentCharacter);
 };
 
 setUp();

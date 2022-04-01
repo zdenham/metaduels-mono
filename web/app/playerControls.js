@@ -236,6 +236,10 @@ class PlayerControls {
         this.onClickMove(buttonKey);
     }
   }
+
+  hide() {
+    this.container.alpha = 0;
+  }
 }
 
 export default PlayerControls;
