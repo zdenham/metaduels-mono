@@ -60,7 +60,6 @@ class GameContractClient {
   async connectToGame(gameId) {
     this.gameId = gameId;
     const state = await this.getGameState();
-    console.log("THE GAME STATE!!!", state);
     this.duelerAddress = state.duelerAddress;
     this.dueleeAddress = state.dueleeAddress;
 
@@ -94,6 +93,7 @@ class GameContractClient {
 
   async revealMove() {
     const move = this._loadLatestMoveFromLocalStorage();
+
     const res = await this.game.revealMove(this.gameId, move, {
       gasLimit: 2000000,
     });
@@ -260,7 +260,12 @@ class GameContractClient {
     const moves =
       JSON.parse(window.localStorage.getItem("metaDuelsCurrentMoves")) || {};
 
-    return moves[this.gameId];
+    const currMove = moves[this.gameId];
+
+    return {
+      ...currMove,
+      moveHash: currMove.moveHash && Object.values(currMove.moveHash),
+    };
   }
 }
 

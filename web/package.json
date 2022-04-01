@@ -29,14 +29,16 @@
   },
   "homepage": "https://github.com/gara501/pixi-game#readme",
   "devDependencies": {
-    "howler": "^2.0.15",
-    "pixi.js": "^4.8.2",
     "webpack-cli": "^3.1.2"
   },
   "dependencies": {
     "dotenv": "^16.0.0",
     "ethers": "^5.5.4",
+    "howler": "^2.0.15",
     "object-hash": "^3.0.0",
+    "pixi-ease": "^3.0.7",
+    "pixi-filters": "^4.1.6",
+    "pixi.js": "^6.3.0",
     "uuid": "^8.3.2",
     "webpack": "^4.20.2",
     "webpack-dev-server": "^3.1.9"

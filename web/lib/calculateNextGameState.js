@@ -1,3 +1,5 @@
+import zeroHash from "./zeroHash";
+
 const M = {
   N: 0,
   A: 1,
@@ -82,11 +84,11 @@ function calculateNextGameState(currGameState, contractEventType, eventData) {
         nextGameState: {
           ...currGameState,
           currDuelerMove: isDuelerSender
-            ? { ...currGameState.currDuelerMove, signature: "0xFF" }
+            ? { ...currGameState.currDuelerMove, moveHash: "0xFF" }
             : currGameState.currDuelerMove,
           currDueleeMove: isDuelerSender
             ? currGameState.currDueleeMove
-            : { ...currGameState.currDueleeMove, signature: "0xFF" },
+            : { ...currGameState.currDueleeMove, moveHash: "0xFF" },
           stateVersion: nextStateVersion,
         },
         eventType: isDuelerSender
@@ -138,48 +140,60 @@ function calculateNextGameState(currGameState, contractEventType, eventData) {
         dueleeMove
       );
 
-      return {
-        nextGameState: {
-          ...currGameState,
-          currDuelerMove: {
-            signature: "0x",
-            moveType: M.N,
-          },
-          currDueleeMove: {
-            signature: "0x",
-            moveType: M.N,
-          },
-          duelerState: {
-            ammo: Math.min(
-              currGameState.duelerState.ammo + duelerAmmoChange,
-              3
-            ),
-            health: Math.max(
-              currGameState.duelerState.health + duelerHealthChange,
-              0
-            ),
-            shield: Math.min(
-              currGameState.duelerState.shield + duelerShieldChange,
-              2
-            ),
-          },
-          dueleeState: {
-            ammo: Math.min(
-              currGameState.dueleeState.ammo + dueleeAmmoChange,
-              3
-            ),
-            health: Math.max(
-              0,
-              currGameState.dueleeState.health + dueleeHealthChange
-            ),
-            shield: Math.min(
-              currGameState.dueleeState.shield + dueleeShieldChange,
-              2
-            ),
-          },
-          stateVersion: nextStateVersion,
+      const nextGameState = {
+        ...currGameState,
+        currDuelerMove: {
+          moveHash: zeroHash,
+          moveType: M.N,
         },
+        currDueleeMove: {
+          moveHash: zeroHash,
+          moveType: M.N,
+        },
+        duelerState: {
+          ammo: Math.min(currGameState.duelerState.ammo + duelerAmmoChange, 3),
+          health: Math.max(
+            currGameState.duelerState.health + duelerHealthChange,
+            0
+          ),
+          shield: Math.min(
+            currGameState.duelerState.shield + duelerShieldChange,
+            2
+          ),
+        },
+        dueleeState: {
+          ammo: Math.min(currGameState.dueleeState.ammo + dueleeAmmoChange, 3),
+          health: Math.max(
+            0,
+            currGameState.dueleeState.health + dueleeHealthChange
+          ),
+          shield: Math.min(
+            currGameState.dueleeState.shield + dueleeShieldChange,
+            2
+          ),
+        },
+        stateVersion: nextStateVersion,
+      };
+
+      const playerStateUpdates = {
+        duelerAmmoChange:
+          currGameState.duelerState.ammo - nextGameState.duelerState.ammo,
+        dueleeAmmoChange:
+          currGameState.dueleeState.ammo - nextGameState.dueleeState.ammo,
+        duelerShieldChange:
+          currGameState.duelerState.shield - nextGameState.duelerState.shield,
+        dueleeShieldChange:
+          currGameState.dueleeState.shield - nextGameState.dueleeState.shield,
+        duelerHealthChange:
+          currGameState.duelerState.health - nextGameState.duelerState.health,
+        dueleeHealthChange:
+          currGameState.dueleeState.health - nextGameState.dueleeState.health,
+      };
+
+      return {
+        nextGameState,
         eventType: gameEventTypes.roundCompleted,
+        playerStateUpdates,
       };
     case "WinnerDeclared":
       const { winner } = eventData;

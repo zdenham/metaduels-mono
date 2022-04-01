@@ -1,0 +1,319 @@
+{"frames": {
+
+"Carson Attack Successful PNG0.png":
+{
+	"frame": {"x":0,"y":0,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG1.png":
+{
+	"frame": {"x":200,"y":0,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG2.png":
+{
+	"frame": {"x":400,"y":0,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG3.png":
+{
+	"frame": {"x":600,"y":0,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG4.png":
+{
+	"frame": {"x":800,"y":0,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG5.png":
+{
+	"frame": {"x":1000,"y":0,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG6.png":
+{
+	"frame": {"x":1200,"y":0,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG7.png":
+{
+	"frame": {"x":1400,"y":0,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG8.png":
+{
+	"frame": {"x":1600,"y":0,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG9.png":
+{
+	"frame": {"x":1800,"y":0,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG10.png":
+{
+	"frame": {"x":0,"y":200,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG11.png":
+{
+	"frame": {"x":200,"y":200,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG12.png":
+{
+	"frame": {"x":400,"y":200,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG13.png":
+{
+	"frame": {"x":600,"y":200,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG14.png":
+{
+	"frame": {"x":800,"y":200,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG15.png":
+{
+	"frame": {"x":1000,"y":200,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG16.png":
+{
+	"frame": {"x":1200,"y":200,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG17.png":
+{
+	"frame": {"x":1400,"y":200,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG18.png":
+{
+	"frame": {"x":1600,"y":200,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG19.png":
+{
+	"frame": {"x":1800,"y":200,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG20.png":
+{
+	"frame": {"x":0,"y":400,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG21.png":
+{
+	"frame": {"x":200,"y":400,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG22.png":
+{
+	"frame": {"x":400,"y":400,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG23.png":
+{
+	"frame": {"x":600,"y":400,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG24.png":
+{
+	"frame": {"x":800,"y":400,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG25.png":
+{
+	"frame": {"x":1000,"y":400,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG26.png":
+{
+	"frame": {"x":1200,"y":400,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG27.png":
+{
+	"frame": {"x":1400,"y":400,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG28.png":
+{
+	"frame": {"x":1600,"y":400,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG29.png":
+{
+	"frame": {"x":1800,"y":400,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG30.png":
+{
+	"frame": {"x":0,"y":600,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG31.png":
+{
+	"frame": {"x":200,"y":600,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG32.png":
+{
+	"frame": {"x":400,"y":600,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG33.png":
+{
+	"frame": {"x":600,"y":600,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG34.png":
+{
+	"frame": {"x":800,"y":600,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG35.png":
+{
+	"frame": {"x":1000,"y":600,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG36.png":
+{
+	"frame": {"x":1200,"y":600,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+},
+"Carson Attack Successful PNG37.png":
+{
+	"frame": {"x":1400,"y":600,"w":200,"h":200},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+	"sourceSize": {"w":200,"h":200}
+}},
+"animations": {
+	"Carson Attack Successful PNG": ["Carson Attack Successful PNG0.png","Carson Attack Successful PNG1.png","Carson Attack Successful PNG2.png","Carson Attack Successful PNG3.png","Carson Attack Successful PNG4.png","Carson Attack Successful PNG5.png","Carson Attack Successful PNG6.png","Carson Attack Successful PNG7.png","Carson Attack Successful PNG8.png","Carson Attack Successful PNG9.png","Carson Attack Successful PNG10.png","Carson Attack Successful PNG11.png","Carson Attack Successful PNG12.png","Carson Attack Successful PNG13.png","Carson Attack Successful PNG14.png","Carson Attack Successful PNG15.png","Carson Attack Successful PNG16.png","Carson Attack Successful PNG17.png","Carson Attack Successful PNG18.png","Carson Attack Successful PNG19.png","Carson Attack Successful PNG20.png","Carson Attack Successful PNG21.png","Carson Attack Successful PNG22.png","Carson Attack Successful PNG23.png","Carson Attack Successful PNG24.png","Carson Attack Successful PNG25.png","Carson Attack Successful PNG26.png","Carson Attack Successful PNG27.png","Carson Attack Successful PNG28.png","Carson Attack Successful PNG29.png","Carson Attack Successful PNG30.png","Carson Attack Successful PNG31.png","Carson Attack Successful PNG32.png","Carson Attack Successful PNG33.png","Carson Attack Successful PNG34.png","Carson Attack Successful PNG35.png","Carson Attack Successful PNG36.png","Carson Attack Successful PNG37.png"]
+},
+"meta": {
+	"app": "https://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "carsonattacksuccess.png",
+	"format": "RGBA8888",
+	"size": {"w":2000,"h":800},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:821dc8d5c853fadd5d610430f33d1ca1:32fb08bbd53c61e3cb18c0c120f90f91:266315387bfe0f1ccbbc8b1705c5bb97$"
+}
+}

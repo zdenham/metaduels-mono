@@ -1,6 +1,5 @@
 import * as PIXI from "pixi.js";
 import "howler";
-import SpriteUtilities from "./spriteUtilities.js";
 import TextStyles from "./textStyles.js";
 import Keyboard from "./keyboard.js";
 import characterData from "./characters.json";
@@ -11,7 +10,7 @@ class Game {
     this.contractClient = null;
     this.app = new PIXI.Application(1200, 400);
     this.textObj = new TextStyles(this.app.renderer);
-    this.utils = new SpriteUtilities(PIXI);
+
     this.scenes = {
       intro: {},
       select: {},

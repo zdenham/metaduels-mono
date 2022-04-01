@@ -1,5 +1,5 @@
 import * as PIXI from "pixi.js";
-import characterData from "./characters.json";
+import DuelerCharacter from "./duelerCharacter";
 
 // Move Type
 const M = {
@@ -17,15 +17,17 @@ const C = {
 };
 
 class CharacterInteractions {
-  constructor(initialGameState, playerAddress) {
+  constructor(initialGameState, playerAddress, vfx) {
     this.isPlayerDueler = initialGameState.duelerAddress === playerAddress;
-    this.playerCharacter = this.initCharacter(true);
-    this.opponentCharacter = this.initCharacter(false);
+    this.vfx = vfx;
+
+    this.playerCharacter = new DuelerCharacter("razor", true);
+    this.opponentCharacter = new DuelerCharacter("right_click", false);
 
     this.container = new PIXI.Container();
 
-    this.container.addChild(this.playerCharacter);
-    this.container.addChild(this.opponentCharacter);
+    this.container.addChild(this.playerCharacter.container);
+    this.container.addChild(this.opponentCharacter.container);
 
     const ci = this;
 
@@ -50,6 +52,17 @@ class CharacterInteractions {
       [16, M.R, M.R, C.C, C.N, ci.reloadCriticalReload, true],
       [17, M.R, M.R, C.C, C.C, ci.doubleCriticalReload, false],
     ];
+
+    // this.playerCharacter.die();
+    // this.opponentCharacter.die();
+
+    // this.attackReload(this.playerCharacter, this.opponentCharacter);
+
+    // setInterval(() => {
+    //   // this.playerCharacter.die();
+    //   // this.opponentCharacter.die();
+    //   this.attackReload(this.playerCharacter, this.opponentCharacter);
+    // }, 6000);
   }
 
   isCritMatch(boolIsCrit, interactionCritType) {
@@ -109,162 +122,65 @@ class CharacterInteractions {
     }
   }
 
-  createAnimation(id, numberFrames, reverse = false) {
-    let frames = [];
-
-    if (!reverse) {
-      for (let i = 1; i <= numberFrames; i++) {
-        frames.push(PIXI.Texture.fromFrame(`${id}${i}.png`));
-      }
-    } else {
-      for (let i = numberFrames; i > 0; i--) {
-        frames.push(PIXI.Texture.fromFrame(`${id}${i}.png`));
-      }
-    }
-
-    const anim = new PIXI.extras.AnimatedSprite(frames);
-
-    return anim;
-  }
-
-  initCharacter(isPlayer) {
-    // TODO - add our own characters
-    // for now just use scorpion data
-    const data = characterData.characters[0];
-
-    const character = new PIXI.Container();
-    const actions = {};
-
-    character.x = isPlayer ? 400 : 800;
-    character.y = 155;
-    character.scale.x = isPlayer ? 2 * data.scale : -data.scale * 0.75;
-    character.scale.y = isPlayer ? 2 * data.scale : data.scale * 0.75;
-
-    data.animations.forEach((animation) => {
-      const sprite = this.createAnimation(
-        `${data.name}-${animation.name}`,
-        animation.frames
-      );
-      sprite.name = animation.name;
-      sprite.animationSpeed = animation.animationSpeed;
-      sprite.anchor.set(0.5, 0);
-
-      if (animation.loop === true) {
-        sprite.play();
-      } else {
-        sprite.loop = false;
-        sprite.onComplete = () => {
-          sprite.visible = false;
-          actions["stance"].visible = true;
-        };
-      }
-
-      if (!animation.visible) {
-        sprite.visible = false;
-      }
-
-      actions[animation.name] = sprite;
-
-      character.addChild(sprite);
-    });
-
-    character.actions = actions;
-    character.active = data.active;
-    character.isPlayer = isPlayer;
-
-    return character;
-  }
-
   // interactions (12 different scenarios at round end)
   doubleAttack(c1, c2) {
-    this.attack(c1);
-    this.attack(c2);
+    c1.attack();
+    c2.attack();
   }
 
-  attackReload(c1, c2) {
-    this.attack(c1);
-    this.reload(c2);
+  async attackReload(c1, c2) {
+    this.vfx.showActionLines();
+
+    await Promise.all([c1.attack(), c2.reload()]);
+    await c2.receiveHit();
+
+    this.vfx.hideActionLines();
   }
 
   doubleBlock(c1, c2) {
-    this.block(c1);
-    this.block(c2);
+    c1.block();
+    c2.block();
   }
 
   attackBlock(c1, c2) {
-    this.attack(c1);
-    this.block(c2);
+    c1.attack();
+    c2.block();
   }
 
   blockReload(c1, c2) {
-    this.block(c1);
-    this.reload(c2);
+    c1.block();
+    c2.reload();
   }
 
   doubleReload(c1, c2) {
-    this.reload(c1);
-    this.reload(c2);
+    c1.reload();
+    c2.reload();
   }
 
   criticalAttackReload(c1, c2) {
-    this.criticalAttack(c1);
-    this.reload(c2);
+    c1.criticalAttack();
+    c2.reload();
   }
 
   attackCriticalReload(c1, c2) {
-    this.attack(c1);
-    this.criticalReload(c2);
+    c1.attack();
+    c2.criticalReload();
   }
 
   blockCriticalReload(c1, c2) {
-    this.block(c1);
-    this.criticalReload(c2);
+    c1.block();
+    c2.criticalReload();
   }
 
   reloadCriticalReload(c1, c2) {
-    this.reload(c1);
-    this.criticalReload(c2);
+    c1.reload();
+    c2.criticalReload();
   }
 
   doubleCriticalReload(c1, c2) {
-    this.criticalReload(c1);
-    this.criticalReload(c2);
+    c1.criticalReload();
+    c2.criticalReload();
   }
-
-  // Base Moves
-  attack(character) {
-    character.actions["stance"].visible = false;
-    character.actions["punch"].visible = true;
-    character.actions["punch"].gotoAndPlay(0);
-  }
-
-  block(character) {
-    character.actions["punch"].gotoAndPlay(0);
-  }
-
-  reload(character) {
-    character.actions["stance"].visible = false;
-    character.actions["punch"].visible = true;
-    character.actions["punch"].gotoAndPlay(0);
-  }
-
-  criticalReload(character) {
-    character.actions["punch"].gotoAndPlay(0);
-  }
-
-  criticalAttack(character) {
-    character.actions["punch"].gotoAndPlay(0);
-  }
-
-  die(character) {
-    character.actions["punch"].gotoAndPlay(0);
-  }
-
-  win(character) {
-    character.actions["punch"].gotoAndPlay(0);
-  }
-
-  // Side Effects - TODO
 }
 
 export default CharacterInteractions;

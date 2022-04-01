@@ -36,18 +36,20 @@ class EventEmitter {
   }
 
   onContractEvent(contractEventType, eventData) {
-    const { nextGameState, eventType } = calculateNextGameState(
-      this.gameState,
-      contractEventType,
-      eventData
-    );
+    const { nextGameState, eventType, playerStateUpdates } =
+      calculateNextGameState(this.gameState, contractEventType, eventData);
 
     if (eventType === eventType.none) {
       return;
     }
 
     this.gameState = { ...nextGameState };
-    this.onEventCallback(eventType, eventData, nextGameState);
+    this.onEventCallback(
+      eventType,
+      eventData,
+      nextGameState,
+      playerStateUpdates
+    );
   }
 
   async queryAllEvents() {
