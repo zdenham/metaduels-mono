@@ -1,16 +1,22 @@
 import chainAnimations from "../lib/chainAnimations";
 import createAnimation from "../lib/createAnimation";
+import * as PIXI from "pixi.js";
+import animateRectangle from "../lib/animateRectangle";
 
 class VFX {
   constructor(parent, background) {
-    this.parentContainer = parent;
+    this.parentScene = parent;
     this.background = background;
 
     this.container = new PIXI.Container();
     this.container.width = 1200;
     this.container.height = 400;
 
+    this.mask = null;
+
     this.actionLines = null;
+
+    this.blueLaserBackground = null;
 
     this.init();
   }
@@ -25,6 +31,52 @@ class VFX {
     this.actionLines.alpha = 0;
 
     this.container.addChild(this.actionLines);
+
+    this.initOpenSwipeMask();
+  }
+
+  async initOpenSwipeMask() {
+    this.mask = new PIXI.Graphics();
+    this.mask.drawRect(0, 200, 1200, 0);
+    this.parentScene.mask = this.mask;
+
+    const texture = PIXI.Texture.from("assets/vfx/laserBackground.mp4");
+
+    texture.baseTexture.resource.source.muted = true;
+
+    console.log("TEXTURE: ", texture);
+
+    this.blueLaserBackground = new PIXI.Sprite(texture);
+
+    this.parentScene.addChild(this.blueLaserBackground);
+    this.parentScene.zIndex = 0;
+
+    const animationChain = [
+      {
+        params: {
+          alpha: 0,
+        },
+        animation: {
+          duration: 2000,
+        },
+      },
+    ];
+
+    const one = chainAnimations(this.blueLaserBackground, animationChain);
+    const two = animateRectangle(
+      this.mask,
+      0,
+      200,
+      1200,
+      0,
+      0,
+      0,
+      1200,
+      400,
+      40,
+      10
+    );
+    await Promise.all([one, two]);
   }
 
   showActionLines() {

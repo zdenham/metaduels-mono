@@ -93,6 +93,11 @@ class PlayerControls {
     this.container.height = 400;
 
     this.initButtons(initialGameState);
+    this.hide();
+
+    setTimeout(() => {
+      this.show();
+    }, 2000);
   }
 
   initButtons(gameState) {
@@ -239,6 +244,10 @@ class PlayerControls {
 
   hide() {
     this.container.alpha = 0;
+  }
+
+  show() {
+    this.container.alpha = 1;
   }
 }
 

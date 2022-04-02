@@ -87,6 +87,7 @@ class Game {
 
           // VFX
           "assets/vfx/actionlines.json",
+          "assets/vfx/laserBackground.mp4",
         ])
         .load(() => {
           resolve();
@@ -167,7 +168,7 @@ class Game {
       onMoveReveal
     );
 
-    this.vfx = new VFX(this.container, this.background);
+    this.vfx = new VFX(this.scene, this.background);
 
     // initialize character interactions
     this.characterInteractions = new CharacterInteractions(

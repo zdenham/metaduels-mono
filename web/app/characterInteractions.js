@@ -34,8 +34,8 @@ class CharacterInteractions {
 
     this.container = new PIXI.Container();
 
-    this.container.addChild(this.playerCharacter.container);
     this.container.addChild(this.opponentCharacter.container);
+    this.container.addChild(this.playerCharacter.container);
 
     this.playerControls = playerControls;
     this.playerStates = playerStates;
@@ -64,10 +64,12 @@ class CharacterInteractions {
       [17, M.R, M.R, C.C, C.C, ci.doubleCriticalReload, false],
     ];
 
-    this.win(this.opponentCharacter, this.playerCharacter);
+    // this.win(this.opponentCharacter, this.playerCharacter);
+    // this.doubleBlock(this.playerCharacter, this.opponentCharacter);
 
     setInterval(() => {
-      this.win(this.opponentCharacter, this.playerCharacter);
+      // this.doubleBlock(this.playerCharacter, this.opponentCharacter);
+      // this.win(this.opponentCharacter, this.playerCharacter);
     }, 6000);
   }
 

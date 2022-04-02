@@ -16,6 +16,11 @@ class PlayerStates {
     this.initPlayersHealth(gameState);
     this.initPlayersShield(gameState);
     this.initPlayersAmmo(gameState);
+    this.hide();
+
+    setTimeout(() => {
+      this.show();
+    }, 2000);
   }
 
   initPlayerNFTs(gameState) {
@@ -412,6 +417,10 @@ class PlayerStates {
 
   hide() {
     this.container.alpha = 0;
+  }
+
+  show() {
+    this.container.alpha = 1;
   }
 }
 

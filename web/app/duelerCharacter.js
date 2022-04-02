@@ -26,7 +26,7 @@ class DuelerCharacter {
     this.container = new PIXI.Container();
     this.container.filters = [new filters.AdjustmentFilter()];
 
-    this.container.x = isPlayer ? 400 : 800;
+    this.container.x = isPlayer ? 1500 : -300;
     this.container.y = isPlayer ? 350 : 200;
     this.container.scale.x = isPlayer ? 0.6 : -0.3;
     this.container.scale.y = isPlayer ? 0.6 : 0.3;
@@ -62,6 +62,24 @@ class DuelerCharacter {
 
     this.container.isPlayer = isPlayer;
     this.container.idle = idle;
+
+    this.introAnimation(isPlayer);
+  }
+
+  async introAnimation(isPlayer) {
+    const animationChain = [
+      {
+        params: {
+          x: isPlayer ? 400 : 800,
+        },
+        animation: {
+          duration: 1800,
+          ease: "easeOutQuart",
+        },
+      },
+    ];
+
+    await chainAnimations(this.container, animationChain);
   }
 
   // Base Moves
