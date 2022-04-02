@@ -1,8 +1,10 @@
 import * as PIXI from "pixi.js";
+import animateRectangle from "../lib/animateRectangle";
+import delay from "../lib/delay";
 
 class RoundEndTextManager {
-  constructor(isPlayerDueler) {
-    this.isPlayerDueler = isPlayerDueler;
+  constructor(gameState, playerAddress) {
+    this.isPlayerDueler = gameState.duelerAddress === playerAddress;
     this.container = new PIXI.Container();
 
     this.container.width = 1200;
@@ -17,11 +19,29 @@ class RoundEndTextManager {
 
     this.container[name] = sprite;
 
-    sprite.x = isPlayer ? 50 : 1150;
+    sprite.x = isPlayer ? -65 : 1265;
     sprite.anchor.set(isPlayer ? 0 : 1, 0.5);
     sprite.y = 200;
 
+    sprite.scale.x = 0.25;
+    sprite.scale.y = 0.25;
+
     this.container.addChild(sprite);
+
+    const spriteMask = new PIXI.Graphics();
+
+    const dims = {
+      x: isPlayer ? sprite.x - sprite.width : sprite.x,
+      y: sprite.y - sprite.height / 2,
+      width: sprite.width,
+      height: sprite.height,
+    };
+
+    spriteMask.drawRect(dims.x, dims.y, dims.width, dims.height);
+
+    this.container.addChild(spriteMask);
+    sprite.mask = spriteMask;
+    sprite.dims = dims;
   }
 
   init() {
@@ -91,6 +111,76 @@ class RoundEndTextManager {
       opponentMove,
       isOpponentMoveCritical
     );
+
+    const playerIn = animateRectangle(
+      playerSprite.mask,
+      // from
+      playerSprite.dims.x,
+      playerSprite.dims.y,
+      playerSprite.dims.width,
+      playerSprite.dims.height,
+      // to
+      playerSprite.dims.x + playerSprite.width,
+      playerSprite.dims.y,
+      playerSprite.dims.width,
+      playerSprite.dims.height,
+      20,
+      0
+    );
+
+    const opponentIn = animateRectangle(
+      opponentSprite.mask,
+      // from
+      opponentSprite.dims.x,
+      opponentSprite.dims.y,
+      opponentSprite.dims.width,
+      opponentSprite.dims.height,
+      // to
+      opponentSprite.dims.x - opponentSprite.width,
+      opponentSprite.dims.y,
+      opponentSprite.dims.width,
+      opponentSprite.dims.height,
+      20,
+      0
+    );
+
+    await Promise.all([playerIn, opponentIn]);
+
+    await delay(2500);
+
+    const playerOut = animateRectangle(
+      playerSprite.mask,
+      // from
+      playerSprite.dims.x + playerSprite.width,
+      playerSprite.dims.y,
+      playerSprite.dims.width,
+      playerSprite.dims.height,
+      // to
+      playerSprite.dims.x,
+      playerSprite.dims.y,
+      playerSprite.dims.width,
+      playerSprite.dims.height,
+      20,
+      0
+    );
+
+    const opponentOut = animateRectangle(
+      opponentSprite.mask,
+      // from
+      opponentSprite.dims.x - opponentSprite.width,
+      opponentSprite.dims.y,
+      opponentSprite.dims.width,
+      opponentSprite.dims.height,
+      // to
+      opponentSprite.dims.x,
+      opponentSprite.dims.y,
+      opponentSprite.dims.width,
+      opponentSprite.dims.height,
+      20,
+      0
+    );
+
+    await Promise.all([playerOut, opponentOut]);
   }
 }
 

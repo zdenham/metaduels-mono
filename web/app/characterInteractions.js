@@ -1,4 +1,5 @@
 import * as PIXI from "pixi.js";
+import delay from "../lib/delay";
 import DuelerCharacter from "./duelerCharacter";
 
 // Move Type
@@ -29,13 +30,13 @@ class CharacterInteractions {
     this.isPlayerDueler = initialGameState.duelerAddress === playerAddress;
     this.vfx = vfx;
 
-    this.playerCharacter = new DuelerCharacter(playerCharacterName, true);
-    this.opponentCharacter = new DuelerCharacter(opponentCharacterName, false);
+    this.player = new DuelerCharacter(playerCharacterName, true);
+    this.opponent = new DuelerCharacter(opponentCharacterName, false);
 
     this.container = new PIXI.Container();
 
-    this.container.addChild(this.opponentCharacter.container);
-    this.container.addChild(this.playerCharacter.container);
+    this.container.addChild(this.opponent.container);
+    this.container.addChild(this.player.container);
 
     this.playerControls = playerControls;
     this.playerStates = playerStates;
@@ -43,33 +44,36 @@ class CharacterInteractions {
     const ci = this;
 
     this.interactions = [
-      // id, playerMoveType, opponentMoveType, playerCritical, opponentCritical, handler
-      [0, M.A, M.A, C.A, C.A, ci.doubleAttack, false],
-      [1, M.A, M.R, C.N, C.N, ci.attackReload, false],
-      [2, M.R, M.A, C.N, C.N, ci.attackReload, true],
-      [3, M.B, M.B, C.A, C.A, ci.doubleBlock, false],
-      [4, M.A, M.B, C.A, C.A, ci.attackBlock, false],
-      [5, M.B, M.A, C.A, C.A, ci.attackBlock, true],
-      [6, M.R, M.B, C.N, C.N, ci.blockReload, false],
-      [7, M.B, M.R, C.N, C.N, ci.blockReload, true],
-      [8, M.R, M.R, C.N, C.N, ci.doubleReload, false],
-      [9, M.A, M.R, C.C, C.A, ci.criticalAttackReload, false],
-      [10, M.R, M.A, C.A, C.C, ci.criticalAttackReload, true],
-      [11, M.A, M.R, C.N, C.C, ci.attackCriticalReload, false],
-      [12, M.R, M.A, C.C, C.N, ci.attackCriticalReload, true],
-      [13, M.B, M.R, C.N, C.C, ci.blockCriticalReload, false],
-      [14, M.R, M.B, C.C, C.N, ci.blockCriticalReload, true],
-      [15, M.R, M.R, C.N, C.C, ci.reloadCriticalReload, false],
-      [16, M.R, M.R, C.C, C.N, ci.reloadCriticalReload, true],
-      [17, M.R, M.R, C.C, C.C, ci.doubleCriticalReload, false],
+      // id, playerMoveType, opponentMoveType, playerCritical, opponentCritical, handler, debug hot key!
+      [0, M.A, M.A, C.A, C.A, ci.doubleAttack], // a
+      [1, M.A, M.R, C.N, C.N, ci.attackReload], // b
+      [2, M.R, M.A, C.N, C.N, ci.reloadAttack], // c
+      [3, M.B, M.B, C.A, C.A, ci.doubleBlock], // d
+      [4, M.A, M.B, C.A, C.A, ci.attackBlock], // e
+      [5, M.B, M.A, C.A, C.A, ci.blockAttack], // f
+      [6, M.R, M.B, C.N, C.N, ci.blockReload], // g
+      [7, M.B, M.R, C.N, C.N, ci.reloadBlock], // h
+      [8, M.R, M.R, C.N, C.N, ci.doubleReload], // i
+      [9, M.A, M.R, C.C, C.A, ci.criticalAttackReload], // j
+      [10, M.R, M.A, C.A, C.C, ci.reloadCriticalAttack], // k
+      [11, M.A, M.R, C.N, C.C, ci.attackCriticalReload], // l
+      [12, M.R, M.A, C.C, C.N, ci.criticalReloadAttack], // m
+      [13, M.B, M.R, C.N, C.C, ci.blockCriticalReload], // n
+      [14, M.R, M.B, C.C, C.N, ci.criticalReloadBlock], // o
+      [15, M.R, M.R, C.N, C.C, ci.reloadCriticalReload], // p
+      [16, M.R, M.R, C.C, C.N, ci.criticalReloadReload], // q
+      [17, M.R, M.R, C.C, C.C, ci.doubleCriticalReload], // r
     ];
 
-    // this.win(this.opponentCharacter, this.playerCharacter);
-    // this.doubleBlock(this.playerCharacter, this.opponentCharacter);
+    // win - s
+    // lose - t
+
+    // this.win(this.opponent, this.player);
+    // this.doubleBlock(this.player, this.opponent);
 
     setInterval(() => {
-      // this.doubleBlock(this.playerCharacter, this.opponentCharacter);
-      // this.win(this.opponentCharacter, this.playerCharacter);
+      // this.doubleBlock(this.player, this.opponent);
+      // this.win(this.opponent, this.player);
     }, 6000);
   }
 
@@ -81,7 +85,7 @@ class CharacterInteractions {
     );
   }
 
-  onRoundCompleted(duelerMove, dueleeMove, isDuelerCrit, isDueleeCrit) {
+  async onRoundCompleted(duelerMove, dueleeMove, isDuelerCrit, isDueleeCrit) {
     console.log(
       "ROUND COMPLETED PLAYER INTERACTIONS INBOUND!!!!",
       duelerMove,
@@ -89,6 +93,8 @@ class CharacterInteractions {
       isDuelerCrit,
       isDueleeCrit
     );
+
+    await delay(250);
 
     const playerMove = this.isPlayerDueler ? duelerMove : dueleeMove;
     const opponentMove = this.isPlayerDueler ? dueleeMove : duelerMove;
@@ -122,81 +128,97 @@ class CharacterInteractions {
 
       if (moveMatch && playerCritMatch && opponentCritMatch) {
         console.log("FOUND OUR INTERACTION MATCH: ", interactionId);
-        const c1 = flipped ? this.opponentCharacter : this.playerCharacter;
-        const c2 = flipped ? this.playerCharacter : this.opponentCharacter;
+        const c1 = flipped ? this.opponent : this.player;
+        const c2 = flipped ? this.player : this.opponent;
 
         interactionHandler.call(this, c1, c2);
       }
     }
   }
 
-  // interactions (12 different scenarios at round end)
-  doubleAttack(c1, c2) {
-    c1.attack();
-    c2.attack();
+  // interactions (different scenarios at round end)
+  async doubleAttack() {
+    this.player.attack();
+    this.opponent.attack();
   }
 
-  async attackReload(c1, c2) {
+  async attackReload() {
     this.vfx.showActionLines();
 
-    await Promise.all([c1.attack(), c2.reload()]);
-    await c2.receiveHit();
+    await Promise.all([this.player.attack(), this.opponent.reload()]);
+    await this.opponent.receiveHit();
 
     this.vfx.hideActionLines();
   }
 
-  doubleBlock(c1, c2) {
-    c1.block();
-    c2.block();
+  async reloadAttack() {}
+
+  async doubleBlock() {
+    this.player.block();
+    this.opponent.block();
   }
 
-  attackBlock(c1, c2) {
-    c1.attack();
-    c2.block();
+  async attackBlock() {
+    this.player.attack();
+    this.opponent.block();
   }
 
-  blockReload(c1, c2) {
-    c1.block();
-    c2.reload();
+  async blockAttack() {}
+
+  async blockReload() {
+    this.player.block();
+    this.opponent.reload();
   }
 
-  doubleReload(c1, c2) {
-    c1.reload();
-    c2.reload();
+  async reloadBlock() {}
+
+  async doubleReload() {
+    this.player.reload();
+    this.opponent.reload();
   }
 
-  criticalAttackReload(c1, c2) {
-    c1.criticalAttack();
-    c2.reload();
+  async criticalAttackReload() {
+    this.player.criticalAttack();
+    this.opponent.reload();
   }
 
-  attackCriticalReload(c1, c2) {
-    c1.attack();
-    c2.criticalReload();
+  async reloadCriticalAttack() {}
+
+  async attackCriticalReload() {
+    this.player.attack();
+    this.opponent.criticalReload();
   }
 
-  blockCriticalReload(c1, c2) {
-    c1.block();
-    c2.criticalReload();
+  async criticalReloadAttack() {}
+
+  async blockCriticalReload() {
+    this.player.block();
+    this.opponent.criticalReload();
   }
 
-  reloadCriticalReload(c1, c2) {
-    c1.reload();
-    c2.criticalReload();
+  async criticalReloadBlock() {}
+
+  async reloadCriticalReload() {
+    this.player.reload();
+    this.opponent.criticalReload();
   }
 
-  doubleCriticalReload(c1, c2) {
-    c1.criticalReload();
-    c2.criticalReload();
+  async criticalReloadReload() {}
+
+  async doubleCriticalReload() {
+    this.player.criticalReload();
+    this.opponent.criticalReload();
   }
 
-  async win(c1, c2) {
-    await c2.die();
+  async win() {
+    await this.opponent.die();
     this.playerStates.hide();
     this.playerControls.hide();
     this.vfx.zoomBackgroundWin(true);
-    c1.win();
+    this.player.win();
   }
+
+  async lose() {}
 }
 
 export default CharacterInteractions;
