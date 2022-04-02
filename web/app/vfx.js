@@ -23,13 +23,11 @@ class VFX {
 
   init() {
     this.actionLines = createAnimation("Action Lines 10", 11);
-
     this.actionLines.width = 1200;
     this.actionLines.height = 400;
     this.actionLines.scale.x = 1.05;
     this.actionLines.x = -20;
     this.actionLines.alpha = 0;
-
     this.container.addChild(this.actionLines);
 
     this.initOpenSwipeMask();
@@ -49,7 +47,7 @@ class VFX {
     this.blueLaserBackground = new PIXI.Sprite(texture);
 
     this.parentScene.addChild(this.blueLaserBackground);
-    this.parentScene.zIndex = 0;
+    this.blueLaserBackground.zIndex = 0;
 
     const animationChain = [
       {
@@ -77,6 +75,9 @@ class VFX {
       10
     );
     await Promise.all([one, two]);
+
+    this.blueLaserBackground.zIndex = -1;
+    this.parentScene.mask = null;
   }
 
   showActionLines() {

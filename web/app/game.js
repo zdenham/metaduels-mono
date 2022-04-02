@@ -88,6 +88,13 @@ class Game {
           // VFX
           "assets/vfx/actionlines.json",
           "assets/vfx/laserBackground.mp4",
+
+          // Round End Text
+          "assets/images/text/attackText.png",
+          "assets/images/text/blockText.png",
+          "assets/images/text/criticalHitText.png",
+          "assets/images/text/criticalReloadText.png",
+          "assets/images/text/reloadText.png",
         ])
         .load(() => {
           resolve();
