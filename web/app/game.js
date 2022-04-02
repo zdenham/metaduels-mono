@@ -10,7 +10,6 @@ import EventEmitter, { gameEventTypes } from "./eventEmitter.js";
 import CharacterInteractions from "./characterInteractions.js";
 import VFX from "./vfx.js";
 import ZIndexManager from "./zIndexManager.js";
-import RoundEndTextManager from "./roundEndTextManager.js";
 
 class Game {
   constructor() {
@@ -164,11 +163,6 @@ class Game {
       this.textObj
     );
 
-    this.roundEndTextManager = new RoundEndTextManager(
-      initialGameState,
-      this.playerAddress
-    );
-
     // initialize player controls
     // TODO - player controls can be passed the contract client rather than cbs
     const onMoveConfirm = (move) => this.contractClient.signAndSendMove(move);
@@ -199,47 +193,6 @@ class Game {
 
     this.scene.addChild(this.playerStates.container);
     this.scene.addChild(this.playerControls.container);
-    this.scene.addChild(this.roundEndTextManager.container);
-
-    setTimeout(() => {
-      this.handleGameEvent(
-        "roundCompleted",
-        {
-          duelerMove: 1,
-          dueleeMove: 3,
-          isDueleeMoveCritical: false,
-          isDuelerMoveCritical: false,
-        },
-        {
-          currDueleeMove: {
-            moveType: 0,
-            moveHash:
-              "0x0000000000000000000000000000000000000000000000000000000000000000",
-            nonce: "",
-          },
-          currDuelerMove: {
-            moveType: 0,
-            moveHash:
-              "0x0000000000000000000000000000000000000000000000000000000000000000",
-            nonce: "",
-          },
-          dueleeAddress: "0xb374D0d55a3e432aeF1745bD207C5Ef58C8c7FE8",
-          dueleeState: { ammo: 3, health: 0, shield: 2 },
-          duelerAddress: "0x5e7610698ba465973C11A607eAf43b7f1733D947",
-          duelerState: { ammo: 0, health: 1, shield: 0 },
-          stateVersion: 1,
-          winner: "0x0000000000000000000000000000000000000000",
-        },
-        {
-          duelerAmmoChange: -1,
-          dueleeAmmoChange: 2,
-          duelerShieldChange: -2,
-          dueleeShieldChange: 0,
-          duelerHealthChange: -1,
-          dueleeHealthChange: -2,
-        }
-      );
-    }, 2000);
   }
 
   initBackground() {
@@ -287,13 +240,6 @@ class Game {
           duelerMove,
           dueleeMove,
           isDuelerMoveCritical,
-          isDueleeMoveCritical
-        );
-
-        this.roundEndTextManager.showTexts(
-          duelerMove,
-          dueleeMove,
-          isDueleeMoveCritical,
           isDueleeMoveCritical
         );
         break;

@@ -98,7 +98,7 @@ class RoundEndTextManager {
       : isDueleeMoveCritical;
     const isOpponentMoveCritical = this.isPlayerDueler
       ? isDueleeMoveCritical
-      : isDudlerMoveCritical;
+      : isDuelerMoveCritical;
 
     const playerSprite = this.getSpriteToShow(
       true,

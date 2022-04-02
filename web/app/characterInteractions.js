@@ -1,6 +1,8 @@
 import * as PIXI from "pixi.js";
 import delay from "../lib/delay";
 import DuelerCharacter from "./duelerCharacter";
+import DevKeyBindings from "./devKeyBindings";
+import RoundEndTextManager from "./roundEndTextManager.js";
 
 // Move Type
 const M = {
@@ -65,6 +67,16 @@ class CharacterInteractions {
       [17, M.R, M.R, C.C, C.C, ci.doubleCriticalReload], // r
     ];
 
+    this.roundEndTextManager = new RoundEndTextManager(
+      initialGameState,
+      this.playerAddress
+    );
+
+    this.container.addChild(this.roundEndTextManager.container);
+
+    // FOR DEBUGGING ONLY
+    new DevKeyBindings(this);
+
     // win - s
     // lose - t
 
@@ -88,6 +100,13 @@ class CharacterInteractions {
   async onRoundCompleted(duelerMove, dueleeMove, isDuelerCrit, isDueleeCrit) {
     console.log(
       "ROUND COMPLETED PLAYER INTERACTIONS INBOUND!!!!",
+      duelerMove,
+      dueleeMove,
+      isDuelerCrit,
+      isDueleeCrit
+    );
+
+    this.roundEndTextManager.showTexts(
       duelerMove,
       dueleeMove,
       isDuelerCrit,
