@@ -155,12 +155,18 @@ class CharacterInteractions {
     }
   }
 
-  // interactions (different scenarios at round end)
+  // a
   async doubleAttack() {
-    this.player.attack();
-    this.opponent.attack();
+    this.vfx.showActionLines();
+
+    const a = this.player.attack();
+    const b = this.opponent.attack();
+    await Promise.all([a, b]);
+
+    this.vfx.hideActionLines();
   }
 
+  // b
   async attackReload() {
     this.vfx.showActionLines();
 
@@ -170,60 +176,83 @@ class CharacterInteractions {
     this.vfx.hideActionLines();
   }
 
-  async reloadAttack() {}
+  // c
+  async reloadAttack() {
+    this.vfx.showActionLines();
 
+    this.player.reload();
+    this.opponent.attack();
+
+    this.vfx.hideActionLines();
+  }
+
+  // d
   async doubleBlock() {
     this.player.block();
     this.opponent.block();
   }
 
+  // e
   async attackBlock() {
     this.player.attack();
     this.opponent.block();
   }
 
+  // f
   async blockAttack() {}
 
+  // g
   async blockReload() {
     this.player.block();
     this.opponent.reload();
   }
 
+  // h
   async reloadBlock() {}
 
+  // i
   async doubleReload() {
     this.player.reload();
     this.opponent.reload();
   }
 
+  // j
   async criticalAttackReload() {
     this.player.criticalAttack();
     this.opponent.reload();
   }
 
+  // k
   async reloadCriticalAttack() {}
 
+  // l
   async attackCriticalReload() {
     this.player.attack();
     this.opponent.criticalReload();
   }
 
+  // m
   async criticalReloadAttack() {}
 
+  // n
   async blockCriticalReload() {
     this.player.block();
     this.opponent.criticalReload();
   }
 
+  // o
   async criticalReloadBlock() {}
 
+  // p
   async reloadCriticalReload() {
     this.player.reload();
     this.opponent.criticalReload();
   }
 
+  // q
   async criticalReloadReload() {}
 
+  // r
   async doubleCriticalReload() {
     this.player.criticalReload();
     this.opponent.criticalReload();

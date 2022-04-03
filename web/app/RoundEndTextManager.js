@@ -146,7 +146,7 @@ class RoundEndTextManager {
 
     await Promise.all([playerIn, opponentIn]);
 
-    await delay(2500);
+    await delay(1800);
 
     const playerOut = animateRectangle(
       playerSprite.mask,
