@@ -36,6 +36,7 @@ class CharacterInteractions {
     this.opponent = new DuelerCharacter(opponentCharacterName, false);
 
     this.container = new PIXI.Container();
+    this.container.zIndex = 8;
 
     this.container.addChild(this.opponent.container);
     this.container.addChild(this.player.container);
@@ -53,8 +54,8 @@ class CharacterInteractions {
       [3, M.B, M.B, C.A, C.A, ci.doubleBlock], // d
       [4, M.A, M.B, C.A, C.A, ci.attackBlock], // e
       [5, M.B, M.A, C.A, C.A, ci.blockAttack], // f
-      [6, M.R, M.B, C.N, C.N, ci.blockReload], // g
-      [7, M.B, M.R, C.N, C.N, ci.reloadBlock], // h
+      [6, M.B, M.R, C.N, C.N, ci.blockReload], // g
+      [7, M.R, M.B, C.N, C.N, ci.reloadBlock], // h
       [8, M.R, M.R, C.N, C.N, ci.doubleReload], // i
       [9, M.A, M.R, C.C, C.A, ci.criticalAttackReload], // j
       [10, M.R, M.A, C.A, C.C, ci.reloadCriticalAttack], // k
@@ -69,7 +70,7 @@ class CharacterInteractions {
 
     this.roundEndTextManager = new RoundEndTextManager(
       initialGameState,
-      this.playerAddress
+      playerAddress
     );
 
     this.container.addChild(this.roundEndTextManager.container);
@@ -146,7 +147,6 @@ class CharacterInteractions {
       );
 
       if (moveMatch && playerCritMatch && opponentCritMatch) {
-        console.log("FOUND OUR INTERACTION MATCH: ", interactionId);
         const c1 = flipped ? this.opponent : this.player;
         const c2 = flipped ? this.player : this.opponent;
 
@@ -161,6 +161,11 @@ class CharacterInteractions {
 
     const a = this.player.attack();
     const b = this.opponent.attack();
+
+    setTimeout(() => {
+      this.vfx.showFusion();
+    }, 150);
+
     await Promise.all([a, b]);
 
     this.vfx.hideActionLines();
@@ -180,46 +185,73 @@ class CharacterInteractions {
   async reloadAttack() {
     this.vfx.showActionLines();
 
-    this.player.reload();
-    this.opponent.attack();
+    await Promise.all([this.opponent.attack(), this.player.reload()]);
+    await this.player.receiveHit();
 
     this.vfx.hideActionLines();
   }
 
   // d
   async doubleBlock() {
-    this.player.block();
-    this.opponent.block();
+    this.vfx.showActionLines();
+    await Promise.all([this.player.block(), this.opponent.block()]);
+    this.vfx.hideActionLines();
   }
 
   // e
   async attackBlock() {
-    this.player.attack();
-    this.opponent.block();
+    this.vfx.showActionLines();
+    await Promise.all([this.player.attack(), this.opponent.block()]);
+    this.vfx.hideActionLines();
   }
 
   // f
-  async blockAttack() {}
+  async blockAttack() {
+    this.vfx.showActionLines();
+    await Promise.all([this.player.block(), this.opponent.attack()]);
+    this.vfx.hideActionLines();
+  }
 
   // g
   async blockReload() {
-    this.player.block();
-    this.opponent.reload();
+    this.vfx.showActionLines();
+    await Promise.all([this.player.block(), this.opponent.reload()]);
+    this.vfx.hideActionLines();
   }
 
   // h
-  async reloadBlock() {}
+  async reloadBlock() {
+    this.vfx.showActionLines();
+    await Promise.all([this.player.reload(), this.opponent.block()]);
+    this.vfx.hideActionLines();
+  }
 
   // i
   async doubleReload() {
-    this.player.reload();
-    this.opponent.reload();
+    this.vfx.showActionLines();
+    await Promise.all([this.player.reload(), this.opponent.reload()]);
+    this.vfx.hideActionLines();
   }
 
   // j
   async criticalAttackReload() {
-    this.player.criticalAttack();
-    this.opponent.reload();
+    this.vfx.showActionLines();
+    await this.opponent.reload();
+    this.playerControls.container.alpha = 0;
+    this.playerStates.container.alpha = 0;
+
+    this.container.zIndex = 11;
+    this.vfx.showCritBackground();
+
+    await this.player.criticalAttackPrep();
+    await delay(150);
+
+    await Promise.all([
+      this.player.attack(),
+      this.opponent.receiveCriticalHit(),
+    ]);
+
+    this.vfx.hideActionLines();
   }
 
   // k

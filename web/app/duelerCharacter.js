@@ -3,11 +3,13 @@ import shakeSprite from "../lib/shakeSprite";
 import animateFilterProperty from "../lib/animateFilterProperty";
 import * as filters from "pixi-filters";
 import * as PIXI from "pixi.js";
+import createAnimation from "../lib/createAnimation";
 
 class DuelerCharacter {
   constructor(characterName, isPlayer) {
     this.characterName = characterName;
     this.container = null;
+    this.reloadCircle = null;
     this.initCharacter(isPlayer);
     this.isPlayer = isPlayer;
   }
@@ -62,6 +64,21 @@ class DuelerCharacter {
 
     this.container.isPlayer = isPlayer;
     this.container.idle = idle;
+
+    this.reloadCircle = createAnimation("Reload circle ", 22);
+    this.reloadCircle.anchor.set(0.5, 0.5);
+
+    // this.reloadCircle.y = this.container.height / 2;
+
+    this.reloadCircle.width = isPlayer ? 1600 : 1300;
+    this.reloadCircle.height = isPlayer ? 1600 : 1300;
+    this.reloadCircle.animationSpeed = 0.6;
+
+    this.reloadCircle.y = isPlayer ? -200 : -100;
+    this.reloadCircle.loop = false;
+    this.reloadCircle.alpha = 0;
+
+    this.container.addChild(this.reloadCircle);
 
     this.introAnimation(isPlayer);
   }
@@ -188,16 +205,92 @@ class DuelerCharacter {
     this.container.idle.play();
   }
 
+  async receiveCriticalHit() {
+    this.container.idle.stop();
+
+    const startX = this.container.idle.x;
+    const startY = this.container.idle.y;
+
+    const endX = this.isPlayer ? startX - 600 : startX - 400;
+    const endY = this.isPlayer ? startY + 300 : startY - 200;
+
+    const animationChain = [
+      {
+        params: {
+          x: endX,
+          y: endY,
+          rotation: -1,
+        },
+        animation: {
+          wait: 300,
+          reverse: true,
+          duration: 150,
+          ease: "easeInOutQuad",
+        },
+      },
+    ];
+
+    await chainAnimations(this.container.idle, animationChain);
+
+    this.container.idle.play();
+  }
+
+  _waitForReload() {
+    return new Promise((resolve) => {
+      this.reloadCircle.onComplete = () => {
+        this.reloadCircle.alpha = 0;
+        resolve();
+      };
+    });
+  }
+
   async reload() {
-    // TODO
+    this.reloadCircle.alpha = 1;
+    this.reloadCircle.gotoAndPlay(0);
+    await this._waitForReload();
   }
 
   async criticalReload() {
     // TODO
   }
 
-  async criticalAttack() {
+  async criticalAttackPrep() {
+    const startX = this.container.x;
+    const offScreenX = this.isPlayer ? startX - 500 : startX + 500;
+    const startScale = this.container.scale.x;
+
     // TODO
+    const animationChain = [
+      {
+        params: {
+          x: offScreenX,
+        },
+        animation: {
+          duration: 300,
+          ease: "easeInOutBack",
+        },
+      },
+      {
+        params: {
+          scaleX: startScale * 1.3,
+          scaleY: startScale * 1.3,
+        },
+        animation: {
+          duration: 10,
+        },
+      },
+      {
+        params: {
+          x: startX,
+        },
+        animation: {
+          duration: 250,
+          ease: "easeOutExpo",
+        },
+      },
+    ];
+
+    await chainAnimations(this.container, animationChain);
   }
 
   async die() {

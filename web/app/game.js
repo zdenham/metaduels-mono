@@ -88,6 +88,8 @@ class Game {
           // VFX
           "assets/vfx/actionlines.json",
           "assets/vfx/laserBackground.mp4",
+          "assets/vfx/recharge.json",
+          "assets/vfx/fusion.json",
 
           // Round End Text
           "assets/images/text/attackText.png",
@@ -208,6 +210,7 @@ class Game {
     this.background.x = 600;
     this.background.y = 200;
     this.background.anchor.set(0.5, 0.5);
+    this.background.zIndex = 0;
 
     this.background.animationSpeed = 0.1;
     this.background.play();

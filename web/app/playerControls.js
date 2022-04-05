@@ -91,6 +91,7 @@ class PlayerControls {
     this.container.position.y = 0;
     this.container.width = 1200;
     this.container.height = 400;
+    this.container.zIndex = 16;
 
     this.initButtons(initialGameState);
     this.hide();

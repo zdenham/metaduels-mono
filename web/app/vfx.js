@@ -11,6 +11,7 @@ class VFX {
     this.container = new PIXI.Container();
     this.container.width = 1200;
     this.container.height = 400;
+    this.container.zIndex = 64;
 
     this.mask = null;
 
@@ -30,6 +31,18 @@ class VFX {
     this.actionLines.alpha = 0;
     this.container.addChild(this.actionLines);
 
+    this.fusion = createAnimation("Attack fusion 2 ", 21);
+    this.fusion.animationSpeed = 0.3;
+    this.fusion.anchor.set(0.5, 0.5);
+    this.fusion.x = 600;
+    this.fusion.y = 200;
+    this.fusion.width = 1200;
+    this.fusion.height = 1200;
+    this.fusion.alpha = 0;
+    this.fusion.loop = false;
+
+    this.container.addChild(this.fusion);
+
     this.initOpenSwipeMask();
   }
 
@@ -41,8 +54,6 @@ class VFX {
     const texture = PIXI.Texture.from("assets/vfx/laserBackground.mp4");
 
     texture.baseTexture.resource.source.muted = true;
-
-    console.log("TEXTURE: ", texture);
 
     this.blueLaserBackground = new PIXI.Sprite(texture);
 
@@ -78,6 +89,25 @@ class VFX {
 
     this.blueLaserBackground.zIndex = -1;
     this.parentScene.mask = null;
+  }
+
+  async showCritBackground() {
+    this.blueLaserBackground.zIndex = 10;
+    this.blueLaserBackground.texture.baseTexture.resource.source.currentTime = 0;
+    this.blueLaserBackground.texture.baseTexture.resource.source.play();
+
+    const animationChain = [
+      {
+        params: {
+          alpha: 1,
+        },
+        animation: {
+          duration: 500,
+        },
+      },
+    ];
+
+    await chainAnimations(this.blueLaserBackground, animationChain);
   }
 
   showActionLines() {
@@ -139,6 +169,21 @@ class VFX {
     ];
 
     await chainAnimations(this.background, animationChain);
+  }
+
+  _waitForFusion() {
+    return new Promise((resolve) => {
+      this.fusion.onComplete = () => {
+        this.fusion.alpha = 0;
+        resolve();
+      };
+    });
+  }
+  async showFusion() {
+    this.fusion.alpha = 1;
+    this.fusion.gotoAndPlay(0);
+
+    await this._waitForFusion();
   }
 }
 
