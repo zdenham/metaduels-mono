@@ -32,6 +32,7 @@
     "webpack-cli": "^3.1.2"
   },
   "dependencies": {
+    "@pixi/sound": "^4.2.0",
     "dotenv": "^16.0.0",
     "ethers": "^5.5.4",
     "howler": "^2.0.15",

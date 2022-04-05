@@ -4,6 +4,7 @@ import DuelerCharacter from "./duelerCharacter";
 import DevKeyBindings from "./devKeyBindings";
 import RoundEndTextManager from "./roundEndTextManager.js";
 import zeroHash from "../lib/zeroHash";
+import playSound from "../lib/playSound";
 
 // Move Type
 const M = {
@@ -164,7 +165,7 @@ class CharacterInteractions {
       }
     }
 
-    if (nextGameState.winner !== zeroHash) {
+    if (nextGameState.winner && nextGameState.winner !== zeroHash) {
       if (this.playerAddress === winner) {
         await this.win();
       } else {
@@ -187,12 +188,14 @@ class CharacterInteractions {
 
   // b
   async attackReload() {
+    playSound("punch", 200);
     await Promise.all([this.player.attack(), this.opponent.reload()]);
     await this.opponent.receiveHit();
   }
 
   // c
   async reloadAttack() {
+    playSound("punch", 200);
     await Promise.all([this.opponent.attack(), this.player.reload()]);
     await this.player.receiveHit();
   }

@@ -41,7 +41,8 @@ class DevKeyBindings {
             interaction[0],
             interaction[1],
             interaction[2],
-            interaction[3]
+            interaction[3],
+            {}
           );
         }
       }
