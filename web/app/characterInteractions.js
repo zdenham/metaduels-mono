@@ -3,6 +3,7 @@ import delay from "../lib/delay";
 import DuelerCharacter from "./duelerCharacter";
 import DevKeyBindings from "./devKeyBindings";
 import RoundEndTextManager from "./roundEndTextManager.js";
+import zeroHash from "../lib/zeroHash";
 
 // Move Type
 const M = {
@@ -31,6 +32,7 @@ class CharacterInteractions {
   ) {
     this.isPlayerDueler = initialGameState.duelerAddress === playerAddress;
     this.vfx = vfx;
+    this.playerAddress = playerAddress;
 
     this.player = new DuelerCharacter(playerCharacterName, true);
     this.opponent = new DuelerCharacter(opponentCharacterName, false);
@@ -98,7 +100,13 @@ class CharacterInteractions {
     );
   }
 
-  async onRoundCompleted(duelerMove, dueleeMove, isDuelerCrit, isDueleeCrit) {
+  async onRoundCompleted(
+    duelerMove,
+    dueleeMove,
+    isDuelerCrit,
+    isDueleeCrit,
+    nextGameState
+  ) {
     console.log(
       "ROUND COMPLETED PLAYER INTERACTIONS INBOUND!!!!",
       duelerMove,
@@ -150,15 +158,23 @@ class CharacterInteractions {
         const c1 = flipped ? this.opponent : this.player;
         const c2 = flipped ? this.player : this.opponent;
 
-        interactionHandler.call(this, c1, c2);
+        this.vfx.showActionLines();
+        await interactionHandler.call(this, c1, c2);
+        this.vfx.hideActionLines();
+      }
+    }
+
+    if (nextGameState.winner !== zeroHash) {
+      if (this.playerAddress === winner) {
+        await this.win();
+      } else {
+        await this.lose();
       }
     }
   }
 
   // a
   async doubleAttack() {
-    this.vfx.showActionLines();
-
     const a = this.player.attack();
     const b = this.opponent.attack();
 
@@ -167,75 +183,52 @@ class CharacterInteractions {
     }, 150);
 
     await Promise.all([a, b]);
-
-    this.vfx.hideActionLines();
   }
 
   // b
   async attackReload() {
-    this.vfx.showActionLines();
-
     await Promise.all([this.player.attack(), this.opponent.reload()]);
     await this.opponent.receiveHit();
-
-    this.vfx.hideActionLines();
   }
 
   // c
   async reloadAttack() {
-    this.vfx.showActionLines();
-
     await Promise.all([this.opponent.attack(), this.player.reload()]);
     await this.player.receiveHit();
-
-    this.vfx.hideActionLines();
   }
 
   // d
   async doubleBlock() {
-    this.vfx.showActionLines();
     await Promise.all([this.player.block(), this.opponent.block()]);
-    this.vfx.hideActionLines();
   }
 
   // e
   async attackBlock() {
-    this.vfx.showActionLines();
     await Promise.all([this.player.attack(), this.opponent.block()]);
-    this.vfx.hideActionLines();
   }
 
   // f
   async blockAttack() {
-    this.vfx.showActionLines();
     await Promise.all([this.player.block(), this.opponent.attack()]);
-    this.vfx.hideActionLines();
   }
 
   // g
   async blockReload() {
-    this.vfx.showActionLines();
     await Promise.all([this.player.block(), this.opponent.reload()]);
-    this.vfx.hideActionLines();
   }
 
   // h
   async reloadBlock() {
-    this.vfx.showActionLines();
     await Promise.all([this.player.reload(), this.opponent.block()]);
-    this.vfx.hideActionLines();
   }
 
   // i
   async doubleReload() {
-    this.vfx.showActionLines();
     await Promise.all([this.player.reload(), this.opponent.reload()]);
-    this.vfx.hideActionLines();
   }
 
   // j
   async criticalAttackReload() {
-    this.vfx.showActionLines();
     await this.opponent.reload();
     this.playerControls.container.alpha = 0;
     this.playerStates.container.alpha = 0;
@@ -250,13 +243,10 @@ class CharacterInteractions {
       this.player.attack(),
       this.opponent.receiveCriticalHit(),
     ]);
-
-    this.vfx.hideActionLines();
   }
 
   // k
   async reloadCriticalAttack() {
-    this.vfx.showActionLines();
     await this.player.reload();
     this.playerControls.container.alpha = 0;
     this.playerStates.container.alpha = 0;
@@ -271,41 +261,50 @@ class CharacterInteractions {
       this.opponent.attack(),
       this.player.receiveCriticalHit(),
     ]);
-
-    this.vfx.hideActionLines();
   }
 
   // l
   async attackCriticalReload() {
-    this.player.attack();
-    this.opponent.criticalReload();
+    await Promise.all([this.player.attack(), this.opponent.reload()]);
+    await this.opponent.receiveHit();
+    await this.opponent.reload();
   }
 
   // m
-  async criticalReloadAttack() {}
+  async criticalReloadAttack() {
+    await Promise.all([this.opponent.attack(), this.player.reload()]);
+    await this.player.receiveHit();
+    await this.player.reload();
+  }
 
   // n
   async blockCriticalReload() {
-    this.player.block();
-    this.opponent.criticalReload();
+    await Promise.all([this.player.block(), this.opponent.reload()]);
+    await this.opponent.reload();
   }
 
   // o
-  async criticalReloadBlock() {}
+  async criticalReloadBlock() {
+    await Promise.all([this.player.reload(), this.opponent.block()]);
+    await this.player.reload();
+  }
 
   // p
   async reloadCriticalReload() {
-    this.player.reload();
-    this.opponent.criticalReload();
+    await Promise.all([this.player.reload(), this.opponent.reload()]);
+    await this.opponent.reload();
   }
 
   // q
-  async criticalReloadReload() {}
+  async criticalReloadReload() {
+    await Promise.all([this.player.reload(), this.opponent.reload()]);
+    await this.player.reload();
+  }
 
   // r
   async doubleCriticalReload() {
-    this.player.criticalReload();
-    this.opponent.criticalReload();
+    await Promise.all([this.player.reload(), this.opponent.reload()]);
+    await Promise.all([this.player.reload(), this.opponent.reload()]);
   }
 
   async win() {
@@ -316,7 +315,13 @@ class CharacterInteractions {
     this.player.win();
   }
 
-  async lose() {}
+  async lose() {
+    await this.player.die();
+    this.playerStates.hide();
+    this.playerControls.hide();
+    this.vfx.zoomBackgroundWin(false);
+    this.opponent.win();
+  }
 }
 
 export default CharacterInteractions;

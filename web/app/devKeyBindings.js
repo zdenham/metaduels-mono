@@ -45,6 +45,15 @@ class DevKeyBindings {
           );
         }
       }
+
+      // special cases for win / lose
+      if (e.key === "s") {
+        this.characterInteractions.win();
+      }
+
+      if (e.key === "t") {
+        this.characterInteractions.lose();
+      }
     });
   }
 }

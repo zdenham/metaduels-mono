@@ -243,7 +243,8 @@ class Game {
           duelerMove,
           dueleeMove,
           isDuelerMoveCritical,
-          isDueleeMoveCritical
+          isDueleeMoveCritical,
+          nextGameState
         );
         break;
       default:
