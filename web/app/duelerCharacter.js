@@ -211,15 +211,15 @@ class DuelerCharacter {
     const startX = this.container.idle.x;
     const startY = this.container.idle.y;
 
-    const endX = this.isPlayer ? startX - 600 : startX - 400;
-    const endY = this.isPlayer ? startY + 300 : startY - 200;
+    const endX = startX - 400;
+    const endY = this.isPlayer ? startY + 200 : startY - 200;
 
     const animationChain = [
       {
         params: {
           x: endX,
           y: endY,
-          rotation: -1,
+          rotation: this.player ? -0.5 : -1,
         },
         animation: {
           wait: 300,
@@ -257,7 +257,10 @@ class DuelerCharacter {
   async criticalAttackPrep() {
     const startX = this.container.x;
     const offScreenX = this.isPlayer ? startX - 500 : startX + 500;
-    const startScale = this.container.scale.x;
+    const startScaleX = this.container.scale.x;
+    const startScaleY = this.container.scale.y;
+
+    const scaleFactor = this.isPlayer ? 1.3 : 1.5;
 
     // TODO
     const animationChain = [
@@ -272,8 +275,8 @@ class DuelerCharacter {
       },
       {
         params: {
-          scaleX: startScale * 1.3,
-          scaleY: startScale * 1.3,
+          scaleX: startScaleX * scaleFactor,
+          scaleY: startScaleY * scaleFactor,
         },
         animation: {
           duration: 10,

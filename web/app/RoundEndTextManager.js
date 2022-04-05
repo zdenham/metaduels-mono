@@ -66,7 +66,7 @@ class RoundEndTextManager {
     this.setUpText(true, "playerReload", reloadTexture);
     this.setUpText(false, "opponentReload", reloadTexture);
     this.setUpText(true, "playerCriticalAttack", criticalHitTexture);
-    this.setUpText(false, "opponentCritical", criticalHitTexture);
+    this.setUpText(false, "opponentCriticalAttack", criticalHitTexture);
     this.setUpText(true, "playerCriticalReload", criticalReloadTexture);
     this.setUpText(false, "opponentCriticalReload", criticalReloadTexture);
   }

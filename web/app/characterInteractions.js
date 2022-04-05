@@ -255,7 +255,25 @@ class CharacterInteractions {
   }
 
   // k
-  async reloadCriticalAttack() {}
+  async reloadCriticalAttack() {
+    this.vfx.showActionLines();
+    await this.player.reload();
+    this.playerControls.container.alpha = 0;
+    this.playerStates.container.alpha = 0;
+
+    this.container.zIndex = 11;
+    this.vfx.showCritBackground();
+
+    await this.opponent.criticalAttackPrep();
+    await delay(150);
+
+    await Promise.all([
+      this.opponent.attack(),
+      this.player.receiveCriticalHit(),
+    ]);
+
+    this.vfx.hideActionLines();
+  }
 
   // l
   async attackCriticalReload() {
