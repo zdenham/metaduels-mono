@@ -105,7 +105,14 @@ class Game {
   }
 
   // create a game on the blockchain!
-  async startGame(signer, dueleeAddress) {
+  async startGame(
+    signer,
+    dueleeAddress,
+    playerCharacterName,
+    opponentCharacterName
+  ) {
+    this.playerCharacterName = playerCharacterName;
+    this.opponentCharacterName = opponentCharacterName;
     this.contractClient = new GameContractClient(signer);
     this.playerAddress = await this.contractClient.signerAddress();
     const gameId = await this.contractClient.newGame(dueleeAddress);
@@ -117,7 +124,7 @@ class Game {
 
   // resume an existing game on the blockchain
   async joinGame(signer, gameId, playerCharacterName, opponentCharacterName) {
-    this.plaerCharacterName = playerCharacterName;
+    this.playerCharacterName = playerCharacterName;
     this.opponentCharacterName = opponentCharacterName;
 
     this.contractClient = new GameContractClient(signer);
@@ -183,7 +190,7 @@ class Game {
       initialGameState,
       this.playerAddress,
       this.vfx,
-      this.plaerCharacterName,
+      this.playerCharacterName,
       this.opponentCharacterName,
       this.playerControls,
       this.playerStates

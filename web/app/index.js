@@ -4,6 +4,8 @@ import connectWallet from "../lib/connectWallet";
 window.signer = null;
 window.game = new PixiGame();
 
+const character = Math.random() < 0.5 ? "razor" : "right_click";
+
 // CONNECT WALLET
 document.getElementById("connectWallet").addEventListener("click", async () => {
   window.signer = await connectWallet();
@@ -16,7 +18,12 @@ document.getElementById("connectWallet").addEventListener("click", async () => {
 document.getElementById("startGame").addEventListener("click", async () => {
   const dueleeAddress = document.getElementById("opponentAddress").value;
   document.getElementById("gameIdDisplay").innerText = `Creating Game...`;
-  const gameId = await window.game.startGame(window.signer, dueleeAddress);
+  const gameId = await window.game.startGame(
+    window.signer,
+    dueleeAddress,
+    "razor",
+    "right_click"
+  );
 
   document.getElementById(
     "gameIdDisplay"
@@ -26,27 +33,28 @@ document.getElementById("startGame").addEventListener("click", async () => {
 // JOIN GAME
 document.getElementById("joinGame").addEventListener("click", async () => {
   const gameId = parseInt(document.getElementById("gameId").value);
-  window.game.joinGame(window.signer, gameId);
+  window.game.joinGame(window.signer, gameId, "razor", "right_click");
 });
 
-// FOR DEBUGGING ONLY!!!!
-const setUp = async () => {
-  const razorWallets = ["0x5e7610698ba465973C11A607eAf43b7f1733D947"];
+// // FOR DEBUGGING ONLY!!!!
 
-  window.signer = await connectWallet();
+// const setUp = async () => {
+//   const razorWallets = ["0x5e7610698ba465973C11A607eAf43b7f1733D947"];
 
-  const address = await window.signer.getAddress();
+//   window.signer = await connectWallet();
 
-  document.getElementById("connectedWallet").innerText = address;
+//   const address = await window.signer.getAddress();
 
-  const selectedCharacter = razorWallets.includes(address)
-    ? "razor"
-    : "right_click";
+//   document.getElementById("connectedWallet").innerText = address;
 
-  const opponentCharacter =
-    selectedCharacter === "razor" ? "right_click" : "razor";
+//   const selectedCharacter = razorWallets.includes(address)
+//     ? "razor"
+//     : "right_click";
 
-  window.game.joinGame(window.signer, 1, selectedCharacter, opponentCharacter);
-};
+//   const opponentCharacter =
+//     selectedCharacter === "razor" ? "right_click" : "razor";
 
-setUp();
+//   window.game.joinGame(window.signer, 1, selectedCharacter, opponentCharacter);
+// };
+
+// setUp();
