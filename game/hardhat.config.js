@@ -11,7 +11,9 @@ const {
   TEST_OWNER_PRIVATE_KEY,
   GOERLI_API,
   MUMBAI_API,
+  POLYGON_API,
   LOCAL_OWNER_PRIVATE_KEY,
+  PROD_OWNER_PRIVATE_KEY,
 } = process.env;
 module.exports = {
   solidity: '0.8.0',
@@ -31,6 +33,10 @@ module.exports = {
     mumbai: {
       url: MUMBAI_API,
       accounts: [TEST_OWNER_PRIVATE_KEY],
+    },
+    polygon: {
+      url: POLYGON_API,
+      accounts: [PROD_OWNER_PRIVATE_KEY],
     },
   },
 };

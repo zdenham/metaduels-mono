@@ -17,6 +17,9 @@ const contractArgs = {
   local: {
     MetaDuelsGame: [],
   },
+  polygon: {
+    MetaDuelsGame: [],
+  },
 };
 
 function confirmDeploy(contractName, network, args) {
@@ -86,7 +89,8 @@ async function main() {
 
   console.log('Attempting to deploy contract');
 
-  const instance = await Contract.deploy(...args);
+  const instance = await Contract.deploy(...[...args, { gasLimit: 20000000 }]);
+  console.log('THE DEPLOYMENT HASH: ', instance.deployTransaction.hash);
   await instance.deployed();
 
   console.log(`Contract ${contract} deployed to address ${instance.address}`);
