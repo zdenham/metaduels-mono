@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import delay from "../lib/delay";
 import DuelerCharacter from "./duelerCharacter";
 import DevKeyBindings from "./devKeyBindings";
-import RoundEndTextManager from "./roundEndTextManager";
+// import RoundEndTextManager from "./roundEndTextManager";
 import zeroHash from "../lib/zeroHash";
 import playSound from "../lib/playSound";
 
@@ -71,12 +71,12 @@ class CharacterInteractions {
       [17, M.R, M.R, C.C, C.C, ci.doubleCriticalReload], // r
     ];
 
-    this.roundEndTextManager = new RoundEndTextManager(
-      initialGameState,
-      playerAddress
-    );
+    // this.roundEndTextManager = new RoundEndTextManager(
+    //   initialGameState,
+    //   playerAddress
+    // );
 
-    this.container.addChild(this.roundEndTextManager.container);
+    // this.container.addChild(this.roundEndTextManager.container);
 
     // FOR DEBUGGING ONLY
     new DevKeyBindings(this);
@@ -116,12 +116,12 @@ class CharacterInteractions {
       isDueleeCrit
     );
 
-    this.roundEndTextManager.showTexts(
-      duelerMove,
-      dueleeMove,
-      isDuelerCrit,
-      isDueleeCrit
-    );
+    // this.roundEndTextManager.showTexts(
+    //   duelerMove,
+    //   dueleeMove,
+    //   isDuelerCrit,
+    //   isDueleeCrit
+    // );
 
     await delay(250);
 
