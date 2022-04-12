@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import delay from "../lib/delay";
 import DuelerCharacter from "./duelerCharacter";
 import DevKeyBindings from "./devKeyBindings";
-import RoundEndTextManager from "./roundEndTextManager.js";
+import RoundEndTextManager from "./roundEndTextManager";
 import zeroHash from "../lib/zeroHash";
 import playSound from "../lib/playSound";
 
